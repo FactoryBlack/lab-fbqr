@@ -11,7 +11,7 @@ interface VerticalDividerProps {
 
 export function VerticalDivider({ children, className }: VerticalDividerProps) {
   return (
-    <div className={cn("h-full flex flex-col items-center justify-center relative", className)}>
+    <div className={cn("h-full flex flex-col items-center justify-center relative hidden md:flex", className)}>
       <div className="absolute h-full w-px bg-black/10" />
       <div
         className="text-sm font-bold uppercase text-center font-mono"

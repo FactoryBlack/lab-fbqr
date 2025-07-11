@@ -39,28 +39,40 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   }
 
   const handleDownloadPng = async () => {
-    const svgUrl = getApiUrl(qrConfig)
-    const image = new Image()
-    image.crossOrigin = "anonymous"
-    image.src = svgUrl
+    try {
+      const response = await fetch(getApiUrl(qrConfig))
+      const svgText = await response.text()
+      const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" })
+      const url = URL.createObjectURL(svgBlob)
 
-    image.onload = () => {
-      const canvas = document.createElement("canvas")
-      const scale = 4
-      canvas.width = image.width * scale
-      canvas.height = image.height * scale
-      const ctx = canvas.getContext("2d")
-      if (ctx) {
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
-        canvas.toBlob((blob) => {
-          if (blob) {
-            downloadFile(blob, `qr-code-${Date.now()}.png`)
-          }
-        }, "image/png")
+      const image = new Image()
+      image.crossOrigin = "anonymous"
+
+      image.onload = () => {
+        const canvas = document.createElement("canvas")
+        const scale = 4
+        canvas.width = qrConfig.width * scale
+        canvas.height = qrConfig.width * scale
+        const ctx = canvas.getContext("2d")
+        if (ctx) {
+          ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+          canvas.toBlob((blob) => {
+            if (blob) {
+              downloadFile(blob, `qr-code-${Date.now()}.png`)
+            }
+          }, "image/png")
+        }
+        URL.revokeObjectURL(url)
       }
-    }
-    image.onerror = () => {
-      toast.error("PNG Download Failed", { description: "Could not load QR code image." })
+
+      image.onerror = () => {
+        URL.revokeObjectURL(url)
+        toast.error("PNG Download Failed", { description: "Could not load QR code image." })
+      }
+
+      image.src = url
+    } catch (error) {
+      toast.error("PNG Download Failed", { description: "An error occurred while preparing the download." })
     }
   }
 

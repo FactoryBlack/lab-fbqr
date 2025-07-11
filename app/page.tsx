@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState, useCallback, useEffect } from "react"
 import { toast } from "sonner"
+import { useDebouncedCallback } from "use-debounce"
 import { ConfigPanel, type QRStyleOptions } from "@/components/config-panel"
 import { PreviewPanel } from "@/components/preview-panel"
 import { CollectionPanel } from "@/components/collection-panel"
@@ -11,6 +12,7 @@ import type { User } from "@supabase/supabase-js"
 import { AuthModal } from "@/components/auth-modal"
 import AuthButton from "@/components/auth-button"
 import { VerticalDivider } from "@/components/vertical-divider"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export interface QRCodeResult {
   id: string
@@ -30,26 +32,56 @@ export default function QRGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isShortening, setIsShortening] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isCollectionLoaded, setIsCollectionLoaded] = useState(false)
   const supabase = createClient()
+
+  const saveCollectionDebounced = useDebouncedCallback(async (codesToSave: QRCodeResult[]) => {
+    if (!user) return
+
+    try {
+      const response = await fetch("/api/save-collection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ qrCodes: codesToSave }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save")
+      }
+      toast.success("Collection auto-saved!")
+    } catch (error: any) {
+      toast.error("Cloud Save Failed", { description: error.message })
+    }
+  }, 2000)
 
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
+      if (!currentUser) {
+        // User logged out, clear collection and reset flags
+        setQrCodes([])
+        setIsCollectionLoaded(false)
+        setIsLoading(false)
+      }
     })
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
+      if (!user) {
+        setIsLoading(false)
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [supabase.auth])
 
   useEffect(() => {
-    const loadCollections = async () => {
-      if (user) {
+    const loadCollection = async () => {
+      if (user && !isCollectionLoaded) {
         setIsLoading(true)
         try {
           const response = await fetch("/api/get-collections")
@@ -58,19 +90,18 @@ export default function QRGeneratorPage() {
             const allQrCodes = data.collections.flatMap((c: any) => c.qr_codes)
             setQrCodes(allQrCodes)
           } else {
-            toast.error("Failed to load your collections.")
+            toast.error("Failed to load your collection.")
           }
         } catch (error) {
-          toast.error("An error occurred while loading collections.")
+          toast.error("An error occurred while loading collection.")
         } finally {
           setIsLoading(false)
+          setIsCollectionLoaded(true)
         }
-      } else {
-        setQrCodes([])
       }
     }
-    loadCollections()
-  }, [user])
+    loadCollection()
+  }, [user, isCollectionLoaded])
 
   const [style, setStyle] = useState<QRStyleOptions>({
     width: 300,
@@ -150,15 +181,13 @@ export default function QRGeneratorPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...style,
-          width: 64, // for thumbnail
+          width: 64,
           data: text,
           image: logoPreview,
         }),
       })
 
-      if (!response.ok) {
-        throw new Error("Failed to generate QR code thumbnail")
-      }
+      if (!response.ok) throw new Error("Failed to generate QR code thumbnail")
 
       const svgString = await response.text()
       const thumbnailDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`
@@ -171,7 +200,13 @@ export default function QRGeneratorPage() {
         thumbnail: thumbnailDataUrl,
         createdAt: new Date().toISOString(),
       }
-      setQrCodes((prev) => [newQrCode, ...prev])
+
+      const newQrCodes = [newQrCode, ...qrCodes]
+      setQrCodes(newQrCodes)
+      if (user) {
+        saveCollectionDebounced(newQrCodes)
+      }
+
       setOriginalUrl(undefined)
       toast("QR Code Added", { description: "Added to your local collection." })
     } catch (error: any) {
@@ -182,38 +217,12 @@ export default function QRGeneratorPage() {
   }
 
   const handleRemoveQrCode = (id: string) => {
-    setQrCodes((prev) => prev.filter((qr) => qr.id !== id))
-    toast("Removed from local collection")
-  }
-
-  const handleSaveCollection = async () => {
-    if (!user) {
-      toast.error("Please log in to save your collection.")
-      return
+    const newQrCodes = qrCodes.filter((qr) => qr.id !== id)
+    setQrCodes(newQrCodes)
+    if (user) {
+      saveCollectionDebounced(newQrCodes)
     }
-    if (qrCodes.length === 0) {
-      toast.error("Your collection is empty.")
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const response = await fetch("/api/save-collection", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ qrCodes }),
-      })
-      const data = await response.json()
-      if (response.ok) {
-        toast.success("Collection saved successfully!")
-      } else {
-        throw new Error(data.error || "Failed to save")
-      }
-    } catch (error: any) {
-      toast.error("Save Failed", { description: error.message })
-    } finally {
-      setIsLoading(false)
-    }
+    toast("Removed from collection")
   }
 
   return (
@@ -221,54 +230,71 @@ export default function QRGeneratorPage() {
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <div className="fixed inset-0 dot-grid-bg -z-10" />
       <main className="h-screen max-h-screen overflow-hidden p-4 sm:p-6 md:p-8 flex flex-col">
-        <header className="flex items-start justify-between w-full">
+        <header className="flex items-start justify-between w-full flex-shrink-0">
           <h1 className="font-heading text-5xl md:text-6xl tracking-widest">LAB:01 - FBQR</h1>
           <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
         </header>
 
-        <div className="flex-1 grid grid-cols-[1fr_auto_2fr_auto_1fr] gap-6 min-h-0 py-6">
-          {/* Column 1: Config */}
-          <div className="flex flex-col min-h-0">
-            <ConfigPanel
-              text={text}
-              onTextChange={(newText) => {
-                setText(newText)
-                setOriginalUrl(undefined)
-              }}
-              styleOptions={style}
-              onStyleChange={handleStyleChange}
-              onGenerateClick={handleGenerateClick}
-              isGenerating={isGenerating || isShortening}
-              onLogoUpload={handleLogoUpload}
-              logoPreview={logoPreview}
-              onShortenUrl={handleShortenUrl}
-              isShortening={isShortening}
-            />
-          </div>
-
-          {/* Column 2: Divider */}
+        {/* Desktop Layout */}
+        <div className="hidden md:grid flex-1 md:grid-cols-[1fr_auto_2fr_auto_1fr] gap-6 min-h-0 py-6">
+          <ConfigPanel
+            text={text}
+            onTextChange={(newText) => {
+              setText(newText)
+              setOriginalUrl(undefined)
+            }}
+            styleOptions={style}
+            onStyleChange={handleStyleChange}
+            onGenerateClick={handleGenerateClick}
+            isGenerating={isGenerating || isShortening}
+            onLogoUpload={handleLogoUpload}
+            logoPreview={logoPreview}
+            onShortenUrl={handleShortenUrl}
+            isShortening={isShortening}
+          />
           <VerticalDivider>QR-BRUTAL V.01</VerticalDivider>
-
-          {/* Column 3: Preview */}
-          <div className="flex flex-col min-h-0">
-            <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
-          </div>
-
-          {/* Column 4: Divider */}
+          <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
           <VerticalDivider>COLLECTION</VerticalDivider>
+          <CollectionPanel
+            qrCodes={qrCodes}
+            copiedId={copiedId}
+            setCopiedId={setCopiedId}
+            onRemove={handleRemoveQrCode}
+            isLoading={isLoading}
+            user={user}
+          />
+        </div>
 
-          {/* Column 5: Collection */}
-          <div className="flex flex-col min-h-0">
-            <CollectionPanel
-              qrCodes={qrCodes}
-              copiedId={copiedId}
-              setCopiedId={setCopiedId}
-              onRemove={handleRemoveQrCode}
-              onSave={handleSaveCollection}
-              isLoading={isLoading}
-              user={user}
-            />
-          </div>
+        {/* Mobile Layout */}
+        <div className="md:hidden flex-1 min-h-0 py-6">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col gap-8">
+              <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
+              <ConfigPanel
+                text={text}
+                onTextChange={(newText) => {
+                  setText(newText)
+                  setOriginalUrl(undefined)
+                }}
+                styleOptions={style}
+                onStyleChange={handleStyleChange}
+                onGenerateClick={handleGenerateClick}
+                isGenerating={isGenerating || isShortening}
+                onLogoUpload={handleLogoUpload}
+                logoPreview={logoPreview}
+                onShortenUrl={handleShortenUrl}
+                isShortening={isShortening}
+              />
+              <CollectionPanel
+                qrCodes={qrCodes}
+                copiedId={copiedId}
+                setCopiedId={setCopiedId}
+                onRemove={handleRemoveQrCode}
+                isLoading={isLoading}
+                user={user}
+              />
+            </div>
+          </ScrollArea>
         </div>
       </main>
     </>
