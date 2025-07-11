@@ -229,14 +229,14 @@ export default function QRGeneratorPage() {
     <>
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <div className="fixed inset-0 dot-grid-bg -z-10" />
-      <main className="h-screen max-h-screen overflow-hidden p-4 sm:p-6 md:p-8 flex flex-col">
+      <main className="min-h-screen p-4 sm:p-6 md:p-8 flex flex-col">
         <header className="flex items-start justify-between w-full flex-shrink-0">
           <h1 className="font-heading text-5xl md:text-6xl tracking-widest">LAB:01 - FBQR</h1>
           <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
         </header>
 
         {/* Desktop Layout */}
-        <div className="hidden md:grid flex-1 md:grid-cols-[1fr_auto_2fr_auto_1fr] gap-6 min-h-0 py-6">
+        <div className="hidden md:grid flex-1 md:grid-cols-[400px_auto_1fr_auto_400px] gap-6 min-h-0 py-6 w-full max-w-screen-2xl mx-auto">
           <ConfigPanel
             text={text}
             onTextChange={(newText) => {

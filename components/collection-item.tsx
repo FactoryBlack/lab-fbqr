@@ -16,9 +16,16 @@ interface CollectionItemProps {
 export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }: CollectionItemProps) {
   const { qrConfig, thumbnail, text } = qrCodeResult
 
-  const getApiUrl = (config: any) => {
-    const params = new URLSearchParams({ config: JSON.stringify(config) })
-    return `/api/generate-qr-svg?${params.toString()}`
+  const fetchQrSvgBlob = async () => {
+    const response = await fetch("/api/generate-qr-svg", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(qrConfig),
+    })
+    if (!response.ok) {
+      throw new Error("Failed to fetch QR code SVG.")
+    }
+    return response.blob()
   }
 
   const downloadFile = (blob: Blob, filename: string) => {
@@ -33,17 +40,17 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   }
 
   const handleDownloadSvg = async () => {
-    const response = await fetch(getApiUrl(qrConfig))
-    const blob = await response.blob()
-    downloadFile(blob, `qr-code-${Date.now()}.svg`)
+    try {
+      const blob = await fetchQrSvgBlob()
+      downloadFile(blob, `qr-code-${Date.now()}.svg`)
+    } catch (error: any) {
+      toast.error("SVG Download Failed", { description: error.message })
+    }
   }
 
   const handleDownloadPng = async () => {
     try {
-      const response = await fetch(getApiUrl(qrConfig))
-      if (!response.ok) throw new Error("Failed to fetch SVG for PNG conversion.")
-      const svgText = await response.text()
-      const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" })
+      const svgBlob = await fetchQrSvgBlob()
       const url = URL.createObjectURL(svgBlob)
 
       const image = new Image()
@@ -79,14 +86,19 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
 
   const handleCopy = async () => {
     try {
-      const response = await fetch(getApiUrl(qrConfig))
+      const response = await fetch("/api/generate-qr-svg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(qrConfig),
+      })
+      if (!response.ok) throw new Error("Failed to fetch SVG for copying.")
       const svgText = await response.text()
       await navigator.clipboard.writeText(svgText)
       toast("Copied!", { description: "SVG code copied to clipboard." })
       setCopiedId(qrCodeResult.id)
       setTimeout(() => setCopiedId(null), 2000)
-    } catch (error) {
-      toast.error("Copy Failed", { description: "Could not copy SVG code." })
+    } catch (error: any) {
+      toast.error("Copy Failed", { description: error.message || "Could not copy SVG code." })
     }
   }
 
@@ -94,7 +106,7 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
     <div className="bg-transparent dashed-border-b last:border-b-0 pb-2 space-y-2">
       <div className="flex items-center gap-3">
         <img
-          src={thumbnail || getApiUrl({ ...qrConfig, width: 64 })}
+          src={thumbnail || "/placeholder.svg"}
           alt={`QR for ${text}`}
           className="w-12 h-12 flex-shrink-0 bg-white p-1 border-[var(--neo-border-width)] border-[var(--neo-text)]"
         />
