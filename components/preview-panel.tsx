@@ -6,7 +6,6 @@ import jsQR from "jsqr"
 import { ValidationStatus, type Status as ValidationState } from "./validation-status"
 import useResizeObserver from "use-resize-observer"
 import type { QRStyleOptions } from "./config-panel"
-import { Loader2 } from "lucide-react"
 
 interface PreviewPanelProps {
   text: string
@@ -98,14 +97,15 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
   }, [debouncedText, debouncedStyle, debouncedLogo, validateQRCode])
 
   return (
-    <div className="flex flex-col h-full items-center justify-center">
+    <div className="flex flex-col h-full items-center justify-center p-6">
       <div
         ref={containerRef}
-        className="w-full max-w-[calc(100vh-200px)] aspect-square bg-[var(--neo-off-white)] flex items-center justify-center p-4 md:p-8 relative"
+        className="w-full max-h-[70vh] aspect-square bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
+        style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
       >
         {isLoading && !svgContent && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/50">
-            <Loader2 className="animate-spin h-8 w-8 text-black" />
+            <p>Loading...</p>
           </div>
         )}
         {svgContent && (
@@ -116,7 +116,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
           />
         )}
       </div>
-      <div className="pt-4">
+      <div className="pt-6">
         <ValidationStatus status={validationStatus} />
       </div>
     </div>

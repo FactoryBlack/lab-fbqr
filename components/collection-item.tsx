@@ -1,8 +1,6 @@
 "use client"
 
-import { Download, Copy, Check, Trash2 } from "lucide-react"
 import { NeoButton } from "@/components/ui/neo-button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import type { QRCodeResult } from "@/app/page"
 
@@ -58,7 +56,7 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
 
       image.onload = () => {
         const canvas = document.createElement("canvas")
-        const scale = 4 // For higher resolution
+        const scale = 4
         canvas.width = qrConfig.width * scale
         canvas.height = qrConfig.width * scale
         const ctx = canvas.getContext("2d")
@@ -103,38 +101,33 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   }
 
   return (
-    <div className="bg-transparent border-b border-b-neo-text last:border-b-0 pb-2 space-y-2">
-      <div className="flex items-center gap-3">
+    <div className="bg-transparent border-b border-b-neo-text/20 last:border-b-0 pb-3 space-y-3">
+      <div className="flex items-center gap-4">
         <img
           src={thumbnail || "/placeholder.svg"}
           alt={`QR for ${text}`}
-          className="w-12 h-12 flex-shrink-0 bg-white p-1 border-[var(--neo-border-width)] border-[var(--neo-text)]"
+          className="w-16 h-16 flex-shrink-0 bg-white p-1 border-[var(--neo-border-width)] border-[var(--neo-text)]"
         />
         <div className="flex-1 min-w-0">
-          <p className="font-mono text-sm truncate" title={text}>
+          <p className="font-sans text-base font-bold truncate" title={text}>
             {text}
           </p>
-          <p className="text-xs text-gray-500 font-mono">{new Date(qrCodeResult.createdAt).toLocaleDateString()}</p>
+          <p className="text-sm text-gray-600 font-sans">{new Date(qrCodeResult.createdAt).toLocaleDateString()}</p>
         </div>
-        <div className="flex gap-1">
-          <NeoButton variant="outline" size="icon" className="w-8 h-8" onClick={handleCopy}>
-            {isCopied ? <Check size={14} /> : <Copy size={14} />}
-          </NeoButton>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <NeoButton variant="outline" size="icon" className="w-8 h-8">
-                <Download size={14} />
-              </NeoButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={handleDownloadSvg}>SVG</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDownloadPng}>PNG</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <NeoButton variant="destructive" size="icon" className="w-8 h-8" onClick={() => onRemove(qrCodeResult.id)}>
-            <Trash2 size={14} />
-          </NeoButton>
-        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        <NeoButton variant="outline" size="sm" onClick={handleCopy}>
+          {isCopied ? "COPIED" : "COPY"}
+        </NeoButton>
+        <NeoButton variant="outline" size="sm" onClick={handleDownloadSvg}>
+          SVG
+        </NeoButton>
+        <NeoButton variant="outline" size="sm" onClick={handleDownloadPng}>
+          PNG
+        </NeoButton>
+        <NeoButton variant="destructive" size="sm" onClick={() => onRemove(qrCodeResult.id)}>
+          DEL
+        </NeoButton>
       </div>
     </div>
   )

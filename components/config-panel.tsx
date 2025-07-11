@@ -2,7 +2,6 @@
 
 import React from "react"
 import type { ReactElement } from "react"
-import { ImageIcon, Settings, Droplets, Eye, Palette, Link, Loader2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { NeoButton } from "@/components/ui/neo-button"
@@ -120,9 +119,9 @@ export function ConfigPanel({
 
   return (
     <div className="h-full flex flex-col bg-transparent p-6">
-      <div className="flex flex-col h-full space-y-4">
+      <div className="flex flex-col h-full space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="text" className="font-heading text-xl">
+          <Label htmlFor="text" className="font-heading text-2xl">
             Content
           </Label>
           <div>
@@ -132,18 +131,17 @@ export function ConfigPanel({
               value={text}
               onChange={(e) => onTextChange(e.target.value)}
               rows={3}
-              className="text-base rounded-b-none"
+              className="rounded-b-none"
             />
             {isUrl(text) && (
               <NeoButton
                 size="sm"
-                variant="secondary"
+                variant="default"
                 onClick={onShortenUrl}
                 disabled={isShortening}
                 className="uppercase rounded-t-none -mt-px"
               >
-                {isShortening ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Link size={14} className="mr-2" />}
-                Shorten URL
+                {isShortening ? "Shortening..." : "Shorten URL"}
               </NeoButton>
             )}
           </div>
@@ -151,19 +149,14 @@ export function ConfigPanel({
 
         <ScrollArea className="flex-1 pr-4 -mr-4">
           <div className="space-y-4">
-            {/* Style Section */}
-            <div className="space-y-3 border-t-[var(--neo-border-width)] border-t-black/10 pt-4">
-              <h3 className="font-heading text-xl flex items-center gap-2">
-                <Settings size={20} /> Style
-              </h3>
+            <div className="space-y-3 border-t-[var(--neo-border-width)] border-t-black/20 pt-4">
+              <h3 className="font-heading text-2xl">Style</h3>
               <Accordion type="multiple" className="w-full" defaultValue={["dots"]}>
                 <AccordionItem value="dots">
-                  <AccordionTrigger>
-                    <Droplets className="mr-2" /> Dots
-                  </AccordionTrigger>
+                  <AccordionTrigger>Dots</AccordionTrigger>
                   <AccordionContent className="space-y-4 pt-4">
                     <div className="space-y-2">
-                      <Label className="font-sans font-bold text-xs uppercase">Style</Label>
+                      <Label className="font-sans font-bold text-sm uppercase">Style</Label>
                       <Select
                         value={styleOptions.dotsOptions.type}
                         onValueChange={(v) => handleStyleValueChange("dotsOptions.type", v)}
@@ -186,19 +179,17 @@ export function ConfigPanel({
                     <GradientPicker
                       gradient={styleOptions.dotsOptions.gradient}
                       onGradientChange={(g) => handleStyleValueChange("dotsOptions.gradient", g)}
-                      fallbackColor={styleOptions.dotsOptions.color || "#292732"}
+                      fallbackColor={styleOptions.dotsOptions.color || "#1c1c1c"}
                       onFallbackColorChange={(c) => handleStyleValueChange("dotsOptions.color", c)}
                     />
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="corners">
-                  <AccordionTrigger>
-                    <Eye className="mr-2" /> Corners
-                  </AccordionTrigger>
+                  <AccordionTrigger>Corners</AccordionTrigger>
                   <AccordionContent className="space-y-6 pt-4">
                     <div className="space-y-4">
-                      <Label className="font-sans font-bold text-sm uppercase mb-2 block">Corner Squares</Label>
+                      <Label className="font-sans font-bold text-base uppercase mb-2 block">Corner Squares</Label>
                       <Select
                         value={styleOptions.cornersSquareOptions.type || "square"}
                         onValueChange={(v) => handleStyleValueChange("cornersSquareOptions.type", v)}
@@ -218,12 +209,12 @@ export function ConfigPanel({
                       <GradientPicker
                         gradient={styleOptions.cornersSquareOptions.gradient}
                         onGradientChange={(g) => handleStyleValueChange("cornersSquareOptions.gradient", g)}
-                        fallbackColor={styleOptions.cornersSquareOptions.color || "#292732"}
+                        fallbackColor={styleOptions.cornersSquareOptions.color || "#1c1c1c"}
                         onFallbackColorChange={(c) => handleStyleValueChange("cornersSquareOptions.color", c)}
                       />
                     </div>
                     <div className="space-y-4">
-                      <Label className="font-sans font-bold text-sm uppercase mb-2 block">Corner Dots</Label>
+                      <Label className="font-sans font-bold text-base uppercase mb-2 block">Corner Dots</Label>
                       <Select
                         value={styleOptions.cornersDotOptions?.type ?? "inherit"}
                         onValueChange={(v) => handleStyleValueChange("cornersDotOptions.type", v)}
@@ -244,26 +235,24 @@ export function ConfigPanel({
                       <GradientPicker
                         gradient={styleOptions.cornersDotOptions?.gradient}
                         onGradientChange={(g) => handleStyleValueChange("cornersDotOptions.gradient", g)}
-                        fallbackColor={styleOptions.cornersDotOptions?.color || "#292732"}
+                        fallbackColor={styleOptions.cornersDotOptions?.color || "#1c1c1c"}
                         onFallbackColorChange={(c) => handleStyleValueChange("cornersDotOptions.color", c)}
                       />
                     </div>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="background">
-                  <AccordionTrigger>
-                    <Palette className="mr-2" /> Background
-                  </AccordionTrigger>
+                  <AccordionTrigger>Background</AccordionTrigger>
                   <AccordionContent className="space-y-4 pt-4">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="transparent-bg"
                         checked={styleOptions.backgroundOptions.color === "transparent"}
                         onCheckedChange={(c) =>
-                          handleStyleValueChange("backgroundOptions.color", c ? "transparent" : "#F5F3ED")
+                          handleStyleValueChange("backgroundOptions.color", c ? "transparent" : "#e0e0e0")
                         }
                       />
-                      <label htmlFor="transparent-bg" className="text-sm font-bold font-sans uppercase">
+                      <label htmlFor="transparent-bg" className="text-base font-bold font-sans uppercase">
                         Transparent
                       </label>
                     </div>
@@ -271,16 +260,14 @@ export function ConfigPanel({
                       <GradientPicker
                         gradient={styleOptions.backgroundOptions.gradient}
                         onGradientChange={(g) => handleStyleValueChange("backgroundOptions.gradient", g)}
-                        fallbackColor={styleOptions.backgroundOptions.color || "#F5F3ED"}
+                        fallbackColor={styleOptions.backgroundOptions.color || "#e0e0e0"}
                         onFallbackColorChange={(c) => handleStyleValueChange("backgroundOptions.color", c)}
                       />
                     )}
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="logo">
-                  <AccordionTrigger>
-                    <ImageIcon className="mr-2" /> Logo
-                  </AccordionTrigger>
+                  <AccordionTrigger>Logo</AccordionTrigger>
                   <AccordionContent className="space-y-4 pt-4">
                     <NeoButton variant="outline" onClick={() => fileInputRef.current?.click()}>
                       {logoPreview ? "Change Logo" : "Upload Logo"}
@@ -290,7 +277,7 @@ export function ConfigPanel({
                     {logoPreview && (
                       <div className="space-y-4 pt-2">
                         <div className="space-y-2">
-                          <Label className="font-sans font-bold uppercase text-xs">Logo Size</Label>
+                          <Label className="font-sans font-bold uppercase text-sm">Logo Size</Label>
                           <BrutalistSlider
                             value={[styleOptions.imageOptions.imageSize]}
                             max={0.4}
@@ -299,7 +286,7 @@ export function ConfigPanel({
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="font-sans font-bold uppercase text-xs">Logo Margin</Label>
+                          <Label className="font-sans font-bold uppercase text-sm">Logo Margin</Label>
                           <BrutalistSlider
                             value={[styleOptions.imageOptions.margin]}
                             max={40}
@@ -313,7 +300,7 @@ export function ConfigPanel({
                             checked={styleOptions.imageOptions.hideBackgroundDots}
                             onCheckedChange={(c) => handleStyleValueChange("imageOptions.hideBackgroundDots", c)}
                           />
-                          <label htmlFor="hide-dots" className="text-sm font-bold font-sans uppercase">
+                          <label htmlFor="hide-dots" className="text-base font-bold font-sans uppercase">
                             Hide dots behind logo
                           </label>
                         </div>
@@ -326,12 +313,12 @@ export function ConfigPanel({
           </div>
         </ScrollArea>
 
-        <div className="mt-auto pt-4 border-t-[var(--neo-border-width)] border-t-black/10">
+        <div className="mt-auto pt-6 border-t-[var(--neo-border-width)] border-t-black/20">
           <NeoButton
             onClick={onGenerateClick}
             disabled={isGenerating || !text.trim() || isLoading}
             size="lg"
-            className="uppercase w-full text-lg"
+            className="uppercase w-full"
           >
             {isLoading ? "Loading..." : isGenerating ? "Generating..." : "Add to Collection"}
           </NeoButton>

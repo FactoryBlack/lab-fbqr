@@ -4,49 +4,48 @@
 
 @layer base {
   :root {
-    /* Swiss-Tech Brutalist Palette */
-    --page-bg: #e5e5e5;
-    --neo-bg: #f1e9d2; /* Card background */
-    --neo-text: #292732;
-    --neo-accent: #ff007a;
-    --neo-white: #ffffff;
-    --neo-off-white: #f5f3ed; /* Input background */
-    --neo-border-color: #292732;
+    /* Purely Neutral Brutalist Palette */
+    --page-bg: #cccccc; /* Light grey page background */
+    --neo-bg: #e0e0e0; /* Main element background */
+    --neo-text: #1c1c1c; /* Dark charcoal for text and borders */
+    --neo-white: #e0e0e0; /* Used for hover states, same as bg */
+    --neo-off-white: #e0e0e0; /* Input background, same as bg */
+    --neo-border-color: #1c1c1c;
 
     /* Mapped to existing theme for component compatibility */
-    --background: var(--page-bg); /* Page background */
+    --background: var(--page-bg);
     --foreground: var(--neo-text);
-    --card: var(--neo-bg); /* Card background */
+    --card: var(--neo-bg);
     --card-foreground: var(--neo-text);
     --popover: var(--neo-bg);
     --popover-foreground: var(--neo-text);
     --primary: var(--neo-text);
     --primary-foreground: var(--neo-bg);
     --secondary: var(--neo-text);
-    --secondary-foreground: var(--neo-white);
+    --secondary-foreground: var(--neo-bg);
     --muted: var(--neo-bg);
     --muted-foreground: var(--neo-text);
-    --accent: var(--neo-accent);
-    --accent-foreground: var(--neo-white);
-    --destructive: #eb1950;
-    --destructive-foreground: var(--neo-white);
+    --accent: var(--neo-text); /* Mapped to dark color */
+    --accent-foreground: var(--neo-bg); /* Mapped to light color */
+    --destructive: var(--neo-text);
+    --destructive-foreground: var(--neo-bg);
     --border: var(--neo-border-color);
     --input: var(--neo-off-white);
-    --ring: var(--neo-accent);
+    --ring: var(--neo-text);
     --radius: 0rem;
 
     /* Style Properties */
     --neo-border-width: 2px;
     --font-sans: "Montserrat", sans-serif;
-    --font-mono: "IBM Plex Mono", monospace;
+    --font-mono: "Montserrat", monospace; /* Fallback to sans */
   }
 
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    background-color: var(--page-bg);
+    @apply bg-background text-foreground font-sans;
+    font-weight: 500;
   }
 
   .font-heading {
@@ -54,15 +53,6 @@
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: -0.02em;
-  }
-
-  /* Style for dropdown content */
-  .select-content {
-    @apply bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] font-sans;
-  }
-
-  .select-item {
-    @apply font-sans focus:bg-black/10 focus:text-[var(--neo-text)];
   }
 }
 
