@@ -35,8 +35,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         email,
         password,
         options: {
-          // This line is critical. It tells Supabase where to send the user back.
-          emailRedirectTo: `${location.origin}/auth/callback`,
+          emailRedirectTo: "https://lab.factory.black/auth/callback",
         },
       })
       if (error) {
@@ -59,8 +58,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        // This is also critical for OAuth providers.
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: "https://lab.factory.black/auth/callback",
       },
     })
   }
