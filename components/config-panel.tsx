@@ -63,6 +63,7 @@ interface ConfigPanelProps {
   onStyleChange: (newOptions: Partial<QRStyleOptions>) => void
   onGenerateClick: () => void
   isGenerating: boolean
+  isLoading: boolean
   onLogoUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
   logoPreview: string | null
   onShortenUrl: () => Promise<void>
@@ -76,6 +77,7 @@ export function ConfigPanel({
   onStyleChange,
   onGenerateClick,
   isGenerating,
+  isLoading,
   onLogoUpload,
   logoPreview,
   onShortenUrl,
@@ -324,11 +326,11 @@ export function ConfigPanel({
 
       <NeoButton
         onClick={onGenerateClick}
-        disabled={isGenerating || !text.trim()}
+        disabled={isGenerating || !text.trim() || isLoading}
         size="lg"
         className="uppercase w-full text-lg"
       >
-        {isGenerating ? "Generating..." : "Add to Collection"}
+        {isLoading ? "Loading Collection..." : isGenerating ? "Generating..." : "Add to Collection"}
       </NeoButton>
     </div>
   )

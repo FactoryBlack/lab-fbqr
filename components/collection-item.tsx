@@ -41,6 +41,7 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   const handleDownloadPng = async () => {
     try {
       const response = await fetch(getApiUrl(qrConfig))
+      if (!response.ok) throw new Error("Failed to fetch SVG for PNG conversion.")
       const svgText = await response.text()
       const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" })
       const url = URL.createObjectURL(svgBlob)
@@ -50,7 +51,7 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
 
       image.onload = () => {
         const canvas = document.createElement("canvas")
-        const scale = 4
+        const scale = 4 // For higher resolution
         canvas.width = qrConfig.width * scale
         canvas.height = qrConfig.width * scale
         const ctx = canvas.getContext("2d")
@@ -71,8 +72,8 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
       }
 
       image.src = url
-    } catch (error) {
-      toast.error("PNG Download Failed", { description: "An error occurred while preparing the download." })
+    } catch (error: any) {
+      toast.error("PNG Download Failed", { description: error.message || "An error occurred." })
     }
   }
 

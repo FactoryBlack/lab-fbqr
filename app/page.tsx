@@ -247,6 +247,7 @@ export default function QRGeneratorPage() {
             onStyleChange={handleStyleChange}
             onGenerateClick={handleGenerateClick}
             isGenerating={isGenerating || isShortening}
+            isLoading={isLoading}
             onLogoUpload={handleLogoUpload}
             logoPreview={logoPreview}
             onShortenUrl={handleShortenUrl}
@@ -280,6 +281,7 @@ export default function QRGeneratorPage() {
                 onStyleChange={handleStyleChange}
                 onGenerateClick={handleGenerateClick}
                 isGenerating={isGenerating || isShortening}
+                isLoading={isLoading}
                 onLogoUpload={handleLogoUpload}
                 logoPreview={logoPreview}
                 onShortenUrl={handleShortenUrl}
