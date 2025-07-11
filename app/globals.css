@@ -9,7 +9,7 @@
     --neo-text: #292732;
     --neo-accent: #eb1950;
     --neo-white: #ffffff;
-    --neo-off-white: #f5f3ed; /* New off-white color */
+    --neo-off-white: #f5f3ed;
     --neo-border-color: #292732;
 
     /* Mapped to existing theme for component compatibility */
@@ -30,14 +30,14 @@
     --destructive: #eb1950;
     --destructive-foreground: var(--neo-white);
     --border: var(--neo-border-color);
-    --input: var(--neo-off-white); /* Use new off-white for inputs */
+    --input: var(--neo-off-white);
     --ring: var(--neo-accent);
     --radius: 0.5rem;
 
     /* Style Properties */
     --neo-border-width: 2px;
     --font-sans: "Montserrat", sans-serif;
-    --font-mono: "IBM Plex Mono", monospace; /* New mono font variable */
+    --font-mono: "IBM Plex Mono", monospace;
   }
 
   * {
@@ -70,8 +70,7 @@
     text-wrap: balance;
   }
   .dot-grid-bg {
-    background-image: radial-gradient(var(--neo-text) 1px, transparent 0);
+    background-image: radial-gradient(hsla(0, 0%, 0%, 0.15) 1px, transparent 0);
     background-size: 20px 20px;
-    opacity: 0.1;
   }
 }

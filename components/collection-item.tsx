@@ -14,7 +14,7 @@ interface CollectionItemProps {
 }
 
 export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }: CollectionItemProps) {
-  const { qrConfig } = qrCodeResult
+  const { qrConfig, thumbnail, text } = qrCodeResult
 
   const getApiUrl = (config: any) => {
     const params = new URLSearchParams({ config: JSON.stringify(config) })
@@ -78,23 +78,27 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   }
 
   return (
-    <div className="flex items-center gap-4 bg-[var(--neo-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] p-2 rounded-md">
-      <img
-        src={getApiUrl({ ...qrConfig, width: 64 || "/placeholder.svg" })}
-        alt={`QR for ${qrCodeResult.text}`}
-        className="w-16 h-16 flex-shrink-0 bg-white p-1"
-      />
-      <p className="flex-1 font-mono text-sm truncate">{qrCodeResult.text}</p>
+    <div className="bg-[var(--neo-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] p-3 rounded-md space-y-3">
+      <div className="flex items-start gap-3">
+        <img
+          src={thumbnail || getApiUrl({ ...qrConfig, width: 64 })}
+          alt={`QR for ${text}`}
+          className="w-16 h-16 flex-shrink-0 bg-white p-1 border-[var(--neo-border-width)] border-[var(--neo-text)]"
+        />
+        <div className="flex-1 min-w-0">
+          <p className="font-mono text-sm truncate" title={text}>
+            {text}
+          </p>
+          <p className="text-xs text-gray-500 font-mono">{new Date(qrCodeResult.createdAt).toLocaleDateString()}</p>
+        </div>
+      </div>
       <div className="flex gap-2">
-        <NeoButton variant="outline" size="icon" onClick={() => onRemove(qrCodeResult.id)}>
-          <Trash2 size={16} />
-        </NeoButton>
-        <NeoButton variant="outline" size="icon" onClick={handleCopy}>
+        <NeoButton variant="outline" size="icon" className="flex-1" onClick={handleCopy}>
           {isCopied ? <Check size={16} /> : <Copy size={16} />}
         </NeoButton>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <NeoButton variant="outline" size="icon">
+            <NeoButton variant="outline" size="icon" className="flex-1">
               <Download size={16} />
             </NeoButton>
           </DropdownMenuTrigger>
@@ -103,6 +107,9 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
             <DropdownMenuItem onClick={handleDownloadPng}>PNG</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <NeoButton variant="destructive" size="icon" className="flex-1" onClick={() => onRemove(qrCodeResult.id)}>
+          <Trash2 size={16} />
+        </NeoButton>
       </div>
     </div>
   )

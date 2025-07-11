@@ -7,23 +7,24 @@ import { HeaderBar } from "@/components/header-bar"
 import { ConfigPanel, type QRStyleOptions } from "@/components/config-panel"
 import { PreviewPanel } from "@/components/preview-panel"
 import { CollectionPanel } from "@/components/collection-panel"
-import { NeoButton } from "@/components/ui/neo-button"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { AuthModal } from "@/components/auth-modal"
+import QRCodeStyling from "qr-code-styling"
 
 export interface QRCodeResult {
   id: string
   text: string
   originalUrl?: string
   qrConfig: QRStyleOptions & { data: string; image?: string | null }
+  thumbnail?: string
   createdAt: string
 }
 
 export default function QRGeneratorPage() {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const [text, setText] = useState("https://vercel.com")
+  const [text, setText] = useState("https://lab.factory.black")
   const [originalUrl, setOriginalUrl] = useState<string | undefined>(undefined)
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
@@ -142,11 +143,23 @@ export default function QRGeneratorPage() {
       return
     }
 
+    const qrCodeStyling = new QRCodeStyling({
+      width: 64,
+      height: 64,
+      ...style,
+      data: text,
+      image: logoPreview,
+    })
+
+    const svgString = await qrCodeStyling.getSvg()
+    const thumbnailDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`
+
     const newQrCode: QRCodeResult = {
       id: Date.now().toString(),
       text: text,
       originalUrl: originalUrl,
       qrConfig: { ...style, data: text, image: logoPreview },
+      thumbnail: thumbnailDataUrl,
       createdAt: new Date().toISOString(),
     }
     setQrCodes((prev) => [newQrCode, ...prev])
@@ -193,15 +206,15 @@ export default function QRGeneratorPage() {
     <>
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <div className="fixed inset-0 dot-grid-bg -z-10" />
-      <div className="min-h-screen p-6 md:p-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <div className="space-y-8">
-            <HeaderBar user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
+      <main className="min-h-screen p-4 sm:p-6 md:p-8">
+        <HeaderBar user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-screen-2xl mx-auto">
+          <div className="lg:col-span-1">
             <ConfigPanel
               text={text}
               onTextChange={(newText) => {
                 setText(newText)
-                setOriginalUrl(undefined) // Reset if user types a new URL
+                setOriginalUrl(undefined)
               }}
               styleOptions={style}
               onStyleChange={handleStyleChange}
@@ -213,34 +226,17 @@ export default function QRGeneratorPage() {
               isShortening={isShortening}
             />
           </div>
-          <div className="space-y-8">
+          <div className="lg:col-span-2 space-y-8">
             <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-3xl">Collection</h2>
-                {user && (
-                  <div className="w-auto">
-                    <NeoButton
-                      size="sm"
-                      onClick={handleSaveCollection}
-                      disabled={isLoading || qrCodes.length === 0}
-                      className="uppercase"
-                    >
-                      {isLoading ? "Saving..." : "Save Collection"}
-                    </NeoButton>
-                  </div>
-                )}
-              </div>
-              <CollectionPanel
-                qrCodes={qrCodes}
-                copiedId={copiedId}
-                setCopiedId={setCopiedId}
-                onRemove={handleRemoveQrCode}
-              />
-            </div>
+            <CollectionPanel
+              qrCodes={qrCodes}
+              copiedId={copiedId}
+              setCopiedId={setCopiedId}
+              onRemove={handleRemoveQrCode}
+            />
           </div>
         </div>
-      </div>
+      </main>
     </>
   )
 }

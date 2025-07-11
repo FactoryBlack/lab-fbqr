@@ -35,7 +35,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
     if (!svgData) return
     setValidationStatus("checking")
     const image = new Image()
-    image.crossOrigin = "anonymous" // Important for canvas security
+    image.crossOrigin = "anonymous"
     image.src = `data:image/svg+xml;base64,${btoa(svgData)}`
 
     image.onload = () => {
@@ -98,6 +98,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
 
   return (
     <div className="space-y-4">
+      <h2 className="font-heading text-3xl">Live Preview</h2>
       <div
         ref={containerRef}
         className="aspect-square bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 rounded-lg relative"

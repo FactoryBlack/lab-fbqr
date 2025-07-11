@@ -1,8 +1,8 @@
 "use client"
 
+import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
-import { NeoButton } from "./ui/neo-button"
+import { NeoButton } from "@/components/ui/neo-button"
 import type { User } from "@supabase/supabase-js"
 
 interface AuthButtonProps {
@@ -11,24 +11,27 @@ interface AuthButtonProps {
 }
 
 export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
-  const router = useRouter()
   const supabase = createClient()
 
-  const handleSignOut = async () => {
+  const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.refresh()
+    toast("Logged out.")
   }
 
-  return user ? (
-    <div className="flex items-center gap-4">
-      <span className="text-sm hidden sm:inline">Hey, {user.email}</span>
-      <NeoButton onClick={handleSignOut} variant="outline" size="sm">
-        Logout
-      </NeoButton>
-    </div>
-  ) : (
-    <NeoButton onClick={onLoginClick} variant="outline" size="sm">
-      Login
+  if (user) {
+    return (
+      <div className="flex items-center gap-4">
+        <span className="text-sm font-mono hidden sm:inline">{user.email}</span>
+        <NeoButton onClick={handleLogout} variant="outline" className="uppercase">
+          Logout
+        </NeoButton>
+      </div>
+    )
+  }
+
+  return (
+    <NeoButton onClick={onLoginClick} className="uppercase">
+      Login / Signup
     </NeoButton>
   )
 }

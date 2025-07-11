@@ -86,7 +86,6 @@ export function ConfigPanel({
   const fileInputRef = React.createRef<HTMLInputElement>()
 
   const isUrl = (str: string) => {
-    // Don't show for already shortened URLs or very short URLs
     if (str.startsWith("fblk.io") || str.length < 15) return false
     try {
       new URL(str)
@@ -98,20 +97,17 @@ export function ConfigPanel({
 
   const handleStyleValueChange = (path: string, value: any) => {
     const newStyle = JSON.parse(JSON.stringify(styleOptions))
-
     const keys = path.split(".")
     let current: any = newStyle
     for (let i = 0; i < keys.length - 1; i++) {
       current = current[keys[i]] = { ...current[keys[i]] }
     }
     current[keys[keys.length - 1]] = value
-
     const parentPath = keys.slice(0, -1).join(".")
     let parent = newStyle
     if (parentPath) {
       parent = parentPath.split(".").reduce((obj, key) => obj[key], newStyle)
     }
-
     if (path.endsWith(".gradient")) {
       if (value) delete parent.color
       else delete parent.gradient
@@ -119,19 +115,23 @@ export function ConfigPanel({
     if (path.endsWith(".color")) {
       if (value) delete parent.gradient
     }
-
     onStyleChange(newStyle)
   }
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
+    <div className="space-y-6">
+      <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <Label htmlFor="text" className="font-sans font-bold text-lg uppercase">
+          <Label htmlFor="text" className="font-heading text-2xl">
             Content
           </Label>
           {isUrl(text) && (
-            <NeoButton size="xs" variant="outline" onClick={onShortenUrl} disabled={isShortening} className="uppercase">
+            <NeoButton
+              size="xs"
+              onClick={onShortenUrl}
+              disabled={isShortening}
+              className="uppercase bg-[var(--neo-text)] text-[var(--neo-white)] hover:bg-[var(--neo-text)]/90"
+            >
               {isShortening ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Link size={14} className="mr-2" />}
               Shorten
             </NeoButton>
@@ -143,9 +143,10 @@ export function ConfigPanel({
           value={text}
           onChange={(e) => onTextChange(e.target.value)}
           rows={4}
+          className="text-base"
         />
         {isUrl(text) && text.length > 35 && (
-          <p className="text-xs text-gray-500 pt-2 font-sans">This URL is long. Shorten it for a cleaner QR code.</p>
+          <p className="text-xs text-gray-500 pt-1 font-sans">This URL is long. Shorten it for a cleaner QR code.</p>
         )}
       </div>
 
@@ -158,19 +159,19 @@ export function ConfigPanel({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 p-2 font-bold transition-colors text-center rounded-sm font-sans uppercase ${
+              className={`flex-1 flex items-center justify-center gap-2 p-3 font-bold transition-colors text-center rounded-sm font-sans uppercase text-lg ${
                 activeTab === tab.id
                   ? "bg-[var(--neo-text)] text-[var(--neo-white)]"
                   : "bg-transparent text-[var(--neo-text)] hover:bg-black/10"
               }`}
             >
-              {React.createElement(tab.icon, { size: 16 })}
+              {React.createElement(tab.icon, { size: 20 })}
               <span>{tab.label}</span>
             </button>
           ))}
         </div>
 
-        <div className="border-[var(--neo-border-width)] border-neo-text p-4 min-h-[250px] rounded-md">
+        <div className="border-[var(--neo-border-width)] border-neo-text p-4 md:p-6 min-h-[250px] rounded-md bg-[var(--neo-off-white)]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -180,12 +181,12 @@ export function ConfigPanel({
               transition={{ duration: 0.2 }}
             >
               {activeTab === "style" && (
-                <Accordion type="single" collapsible className="w-full" defaultValue="corners">
+                <Accordion type="multiple" className="w-full" defaultValue={["dots", "corners"]}>
                   <AccordionItem value="dots">
-                    <AccordionTrigger className="font-sans uppercase">
+                    <AccordionTrigger className="font-heading text-xl">
                       <Droplets className="mr-2" /> Dots
                     </AccordionTrigger>
-                    <AccordionContent className="space-y-4">
+                    <AccordionContent className="space-y-4 pt-4">
                       <div className="space-y-2">
                         <Label className="font-sans font-bold text-xs uppercase">Style</Label>
                         <Select
@@ -210,17 +211,17 @@ export function ConfigPanel({
                       <GradientPicker
                         gradient={styleOptions.dotsOptions.gradient}
                         onGradientChange={(g) => handleStyleValueChange("dotsOptions.gradient", g)}
-                        fallbackColor={styleOptions.dotsOptions.color || "#000000"}
+                        fallbackColor={styleOptions.dotsOptions.color || "#292732"}
                         onFallbackColorChange={(c) => handleStyleValueChange("dotsOptions.color", c)}
                       />
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="corners">
-                    <AccordionTrigger className="font-sans uppercase">
+                    <AccordionTrigger className="font-heading text-xl">
                       <Eye className="mr-2" /> Corners
                     </AccordionTrigger>
-                    <AccordionContent className="space-y-6">
+                    <AccordionContent className="space-y-6 pt-4">
                       <div className="space-y-4">
                         <Label className="font-sans font-bold text-sm uppercase mb-2 block">Corner Squares</Label>
                         <Select
@@ -242,7 +243,7 @@ export function ConfigPanel({
                         <GradientPicker
                           gradient={styleOptions.cornersSquareOptions.gradient}
                           onGradientChange={(g) => handleStyleValueChange("cornersSquareOptions.gradient", g)}
-                          fallbackColor={styleOptions.cornersSquareOptions.color || "#000000"}
+                          fallbackColor={styleOptions.cornersSquareOptions.color || "#292732"}
                           onFallbackColorChange={(c) => handleStyleValueChange("cornersSquareOptions.color", c)}
                         />
                       </div>
@@ -268,17 +269,17 @@ export function ConfigPanel({
                         <GradientPicker
                           gradient={styleOptions.cornersDotOptions?.gradient}
                           onGradientChange={(g) => handleStyleValueChange("cornersDotOptions.gradient", g)}
-                          fallbackColor={styleOptions.cornersDotOptions?.color || "#000000"}
+                          fallbackColor={styleOptions.cornersDotOptions?.color || "#292732"}
                           onFallbackColorChange={(c) => handleStyleValueChange("cornersDotOptions.color", c)}
                         />
                       </div>
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="background">
-                    <AccordionTrigger className="font-sans uppercase">
+                    <AccordionTrigger className="font-heading text-xl">
                       <Palette className="mr-2" /> Background
                     </AccordionTrigger>
-                    <AccordionContent className="space-y-4">
+                    <AccordionContent className="space-y-4 pt-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="transparent-bg"
@@ -363,7 +364,12 @@ export function ConfigPanel({
         </div>
       </div>
 
-      <NeoButton onClick={onGenerateClick} disabled={isGenerating || !text.trim()} size="lg" className="uppercase">
+      <NeoButton
+        onClick={onGenerateClick}
+        disabled={isGenerating || !text.trim()}
+        size="lg"
+        className="uppercase w-full text-xl py-8"
+      >
         {isGenerating ? "Generating..." : "Add to Collection"}
       </NeoButton>
     </div>
