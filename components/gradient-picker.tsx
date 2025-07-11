@@ -1,10 +1,10 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BrutalistSlider } from "@/components/ui/brutalist-slider"
+import { ColorInput } from "./ui/color-input"
 
 interface Gradient {
   type: "linear" | "radial"
@@ -71,11 +71,10 @@ export function GradientPicker({
             {gradient.colorStops.map((stop, index) => (
               <div key={index} className="flex items-center justify-between gap-4">
                 <Label className="text-xs font-bold whitespace-nowrap">Color {index + 1}</Label>
-                <Input
-                  type="color"
+                <ColorInput
                   value={stop.color}
                   onChange={(e) => updateColorStop(index, e.target.value)}
-                  className="h-10 w-full"
+                  className="w-full"
                 />
               </div>
             ))}
@@ -83,16 +82,12 @@ export function GradientPicker({
           <div className="space-y-2">
             <Label className="text-xs">Type</Label>
             <Select value={gradient.type} onValueChange={(v) => updateGradient("type", v)}>
-              <SelectTrigger className="neo-input">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="select-content">
-                <SelectItem className="select-item" value="linear">
-                  Linear
-                </SelectItem>
-                <SelectItem className="select-item" value="radial">
-                  Radial
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="linear">Linear</SelectItem>
+                <SelectItem value="radial">Radial</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -109,13 +104,12 @@ export function GradientPicker({
           )}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="flex items-center justify-between gap-4">
           <Label className="text-xs font-bold">Solid Color</Label>
-          <Input
-            type="color"
+          <ColorInput
             value={fallbackColor}
             onChange={(e) => onFallbackColorChange(e.target.value)}
-            className="h-10 neo-input"
+            className="w-full"
           />
         </div>
       )}
