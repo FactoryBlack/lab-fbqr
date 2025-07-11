@@ -89,29 +89,26 @@ function renderSvg(qr: QRCode, options: any): string {
   const moduleSize = width / totalSizeInModules
   const offset = quietZoneModules * moduleSize
 
-  let svg = `<svg width="${width}" height="${width}" viewBox="0 0 ${width} ${width}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">`
-
-  // Definitions for gradients
-  let defs = "<defs>"
+  let defsContent = ""
 
   const addGradient = (id: string, gradient: any) => {
     if (!gradient) return ""
     const gradientId = `grad-${id}`
     if (gradient.type === "linear") {
-      defs += `<linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(${
+      defsContent += `<linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(${
         (gradient.rotation * 180) / Math.PI
       })">`
       gradient.colorStops.forEach((stop: any) => {
-        defs += `<stop offset="${stop.offset * 100}%" stop-color="${stop.color}"/>`
+        defsContent += `<stop offset="${stop.offset * 100}%" stop-color="${stop.color}"/>`
       })
-      defs += `</linearGradient>`
+      defsContent += `</linearGradient>`
     } else {
       // Radial
-      defs += `<radialGradient id="${gradientId}">`
+      defsContent += `<radialGradient id="${gradientId}">`
       gradient.colorStops.forEach((stop: any) => {
-        defs += `<stop offset="${stop.offset * 100}%" stop-color="${stop.color}"/>`
+        defsContent += `<stop offset="${stop.offset * 100}%" stop-color="${stop.color}"/>`
       })
-      defs += `</radialGradient>`
+      defsContent += `</radialGradient>`
     }
     return `fill="url(#${gradientId})"`
   }
@@ -124,19 +121,16 @@ function renderSvg(qr: QRCode, options: any): string {
     ? addGradient("cd", cornersDotOptions.gradient)
     : `fill="${cornersDotOptions?.color || cornersSquareOptions?.color || dotsOptions.color}"`
 
-  defs += "</defs>"
-  svg += defs
+  let svgContent = ""
 
-  // Background - covers the entire SVG area, including the new quiet zone
+  // Background
   if (backgroundOptions.color !== "transparent") {
     const bgFill = backgroundOptions.gradient
       ? addGradient("bg", backgroundOptions.gradient)
       : `fill="${backgroundOptions.color}"`
-    svg += `<rect x="0" y="0" width="${width}" height="${width}" ${bgFill} />`
+    svgContent += `<rect x="0" y="0" width="${width}" height="${width}" ${bgFill} />`
   }
 
-  // Helper to generate a path for a rectangle with different radii for each corner
-  // Now applies the quiet zone offset automatically
   const drawRoundedRect = (
     x: number,
     y: number,
@@ -149,8 +143,6 @@ function renderSvg(qr: QRCode, options: any): string {
     return `M${newX + r.tl},${newY} H${newX + w - r.tr} A${r.tr},${r.tr} 0 0 1 ${newX + w},${newY + r.tr} V${newY + h - r.br} A${r.br},${r.br} 0 0 1 ${newX + w - r.br},${newY + h} H${newX + r.bl} A${r.bl},${r.bl} 0 0 1 ${newX},${newY + h - r.bl} V${newY + r.tl} A${r.tl},${r.tl} 0 0 1 ${newX + r.tl},${newY} Z`
   }
 
-  // Modules
-  let dataPath = ""
   const cornerPositions = [
     [0, 0],
     [size - 7, 0],
@@ -190,15 +182,11 @@ function renderSvg(qr: QRCode, options: any): string {
     const isTopRight = pr === 0 && pc === size - 7
     const isBottomLeft = pr === size - 7 && pc === 0
 
-    // Corner Square (Frame)
     const csRadii = { tl: 0, tr: 0, br: 0, bl: 0 }
-    if (csType === "dot") {
-      csRadii.tl = csRadii.tr = csRadii.br = csRadii.bl = 3.5 * moduleSize
-    } else if (csType === "rounded") {
-      csRadii.tl = csRadii.tr = csRadii.br = csRadii.bl = 2 * moduleSize
-    } else if (csType === "extra-rounded") {
-      csRadii.tl = csRadii.tr = csRadii.br = csRadii.bl = 3 * moduleSize
-    } else if (csType === "classy") {
+    if (csType === "dot") csRadii.tl = csRadii.tr = csRadii.br = csRadii.bl = 3.5 * moduleSize
+    else if (csType === "rounded") csRadii.tl = csRadii.tr = csRadii.br = csRadii.bl = 2 * moduleSize
+    else if (csType === "extra-rounded") csRadii.tl = csRadii.tr = csRadii.br = csRadii.bl = 3 * moduleSize
+    else if (csType === "classy") {
       if (isTopLeft) csRadii.tl = 2 * moduleSize
       if (isTopRight) csRadii.tr = 2 * moduleSize
       if (isBottomLeft) csRadii.bl = 2 * moduleSize
@@ -227,17 +215,13 @@ function renderSvg(qr: QRCode, options: any): string {
       br: Math.max(0, csRadii.br - moduleSize),
       bl: Math.max(0, csRadii.bl - moduleSize),
     })
-    svg += `<path d="${outerPath} ${innerPath}" ${cornersSquareFill} fill-rule="evenodd" />`
+    svgContent += `<path d="${outerPath} ${innerPath}" ${cornersSquareFill} fill-rule="evenodd" />`
 
-    // Corner Dot (Center)
     const cdRadii = { tl: 0, tr: 0, br: 0, bl: 0 }
-    if (cdType === "dot") {
-      cdRadii.tl = cdRadii.tr = cdRadii.br = cdRadii.bl = 1.5 * moduleSize
-    } else if (cdType === "rounded") {
-      cdRadii.tl = cdRadii.tr = cdRadii.br = cdRadii.bl = 0.75 * moduleSize
-    } else if (cdType === "extra-rounded") {
-      cdRadii.tl = cdRadii.tr = cdRadii.br = cdRadii.bl = 1.25 * moduleSize
-    } else if (cdType === "classy") {
+    if (cdType === "dot") cdRadii.tl = cdRadii.tr = cdRadii.br = cdRadii.bl = 1.5 * moduleSize
+    else if (cdType === "rounded") cdRadii.tl = cdRadii.tr = cdRadii.br = cdRadii.bl = 0.75 * moduleSize
+    else if (cdType === "extra-rounded") cdRadii.tl = cdRadii.tr = cdRadii.br = cdRadii.bl = 1.25 * moduleSize
+    else if (cdType === "classy") {
       if (isTopLeft) cdRadii.tl = 0.75 * moduleSize
       if (isTopRight) cdRadii.tr = 0.75 * moduleSize
       if (isBottomLeft) cdRadii.bl = 0.75 * moduleSize
@@ -258,70 +242,166 @@ function renderSvg(qr: QRCode, options: any): string {
         cdRadii.br = 0.75 * moduleSize
       }
     }
-    svg += `<path d="${drawRoundedRect((pc + 2) * moduleSize, (pr + 2) * moduleSize, 3 * moduleSize, 3 * moduleSize, cdRadii)}" ${cornersDotFill} />`
+    svgContent += `<path d="${drawRoundedRect((pc + 2) * moduleSize, (pr + 2) * moduleSize, 3 * moduleSize, 3 * moduleSize, cdRadii)}" ${cornersDotFill} />`
   })
 
   // Draw data modules
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (!qr.modules.get(r, c) || isCorner(r, c)) continue
+  const dotStyle = dotsOptions.type
+  if (dotStyle === "fluid" || dotStyle === "fluid-smooth") {
+    let fluidShapes = ""
+    const radius = moduleSize / 2
 
-      const moduleX = c * moduleSize
-      const moduleY = r * moduleSize
+    fluidShapes += `<g ${dotsFill}>`
 
-      if (image && imageOptions?.hideBackgroundDots) {
-        // Check against absolute logoBox coordinates
-        const absoluteModuleX = moduleX + offset
-        const absoluteModuleY = moduleY + offset
-        if (
-          absoluteModuleX + moduleSize > logoBox.x1 &&
-          absoluteModuleX < logoBox.x2 &&
-          absoluteModuleY + moduleSize > logoBox.y1 &&
-          absoluteModuleY < logoBox.y2
-        ) {
-          continue
+    // Draw base circles and connectors
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (!qr.modules.get(r, c) || isCorner(r, c)) continue
+
+        const moduleX = c * moduleSize + offset
+        const moduleY = r * moduleSize + offset
+
+        if (image && imageOptions?.hideBackgroundDots) {
+          if (
+            moduleX + moduleSize > logoBox.x1 &&
+            moduleX < logoBox.x2 &&
+            moduleY + moduleSize > logoBox.y1 &&
+            moduleY < logoBox.y2
+          )
+            continue
+        }
+
+        // Draw the circle for the module
+        fluidShapes += `<circle cx="${moduleX + radius}" cy="${moduleY + radius}" r="${radius}" />`
+
+        // Draw connector to the right
+        if (getNeighbor(r, c + 1) && !isCorner(r, c + 1)) {
+          fluidShapes += `<rect x="${moduleX + radius}" y="${moduleY}" width="${moduleSize}" height="${moduleSize}" />`
+        }
+        // Draw connector to the bottom
+        if (getNeighbor(r + 1, c) && !isCorner(r + 1, c)) {
+          fluidShapes += `<rect x="${moduleX}" y="${moduleY + radius}" width="${moduleSize}" height="${moduleSize}" />`
         }
       }
-
-      const shapeType = dotsOptions.type
-      const radii = { tl: 0, tr: 0, br: 0, bl: 0 }
-      const radius = moduleSize / 2
-
-      if (shapeType === "dots") {
-        radii.tl = radii.tr = radii.br = radii.bl = radius
-      } else if (shapeType === "rounded") {
-        radii.tl = radii.tr = radii.br = radii.bl = radius * 0.5
-      } else if (shapeType === "extra-rounded") {
-        radii.tl = radii.tr = radii.br = radii.bl = radius
-      } else if (shapeType === "classy" || shapeType === "classy-rounded") {
-        const top = getNeighbor(r - 1, c)
-        const bottom = getNeighbor(r + 1, c)
-        const left = getNeighbor(r, c - 1)
-        const right = getNeighbor(r, c + 1)
-
-        if (shapeType === "classy") {
-          if (top && left) radii.tl = radius
-          if (top && right) radii.tr = radius
-          if (bottom && right) radii.br = radius
-          if (bottom && left) radii.bl = radius
-        } else {
-          // classy-rounded
-          if (top || left) radii.tl = radius
-          if (top || right) radii.tr = radius
-          if (bottom || right) radii.br = radius
-          if (bottom || left) radii.bl = radius
-        }
-      }
-      dataPath += drawRoundedRect(moduleX, moduleY, moduleSize, moduleSize, radii)
     }
+
+    // Add concave corners for 'fluid-smooth'
+    if (dotStyle === "fluid-smooth") {
+      const cornerRadius = moduleSize / 2
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (qr.modules.get(r, c)) continue // We are looking for empty spaces
+
+          const moduleX = c * moduleSize + offset
+          const moduleY = r * moduleSize + offset
+
+          if (image && imageOptions?.hideBackgroundDots) {
+            if (
+              moduleX + moduleSize > logoBox.x1 &&
+              moduleX < logoBox.x2 &&
+              moduleY + moduleSize > logoBox.y1 &&
+              moduleY < logoBox.y2
+            )
+              continue
+          }
+
+          if (isCorner(r, c)) continue
+
+          // Stricter check for inner corners.
+          // An inner corner is an empty space surrounded by 3 filled neighbors in a 2x2 block.
+          const top = getNeighbor(r - 1, c)
+          const bottom = getNeighbor(r + 1, c)
+          const left = getNeighbor(r, c - 1)
+          const right = getNeighbor(r, c + 1)
+
+          // Bottom-right corner of the empty cell (top-left of the filled block)
+          if (top && left && getNeighbor(r - 1, c - 1)) {
+            const cx = moduleX
+            const cy = moduleY
+            fluidShapes += `<path d="M ${cx},${cy + cornerRadius} A ${cornerRadius},${cornerRadius} 0 0 1 ${cx + cornerRadius},${cy} L ${cx},${cy} Z" />`
+          }
+          // Bottom-left corner of the empty cell (top-right of the filled block)
+          if (top && right && getNeighbor(r - 1, c + 1)) {
+            const cx = moduleX + moduleSize
+            const cy = moduleY
+            fluidShapes += `<path d="M ${cx},${cy + cornerRadius} A ${cornerRadius},${cornerRadius} 0 0 0 ${cx - cornerRadius},${cy} L ${cx},${cy} Z" />`
+          }
+          // Top-right corner of the empty cell (bottom-left of the filled block)
+          if (bottom && left && getNeighbor(r + 1, c - 1)) {
+            const cx = moduleX
+            const cy = moduleY + moduleSize
+            fluidShapes += `<path d="M ${cx + cornerRadius},${cy} A ${cornerRadius},${cornerRadius} 0 0 1 ${cx},${cy - cornerRadius} L ${cx},${cy} Z" />`
+          }
+          // Top-left corner of the empty cell (bottom-right of the filled block)
+          if (bottom && right && getNeighbor(r + 1, c + 1)) {
+            const cx = moduleX + moduleSize
+            const cy = moduleY + moduleSize
+            fluidShapes += `<path d="M ${cx - cornerRadius},${cy} A ${cornerRadius},${cornerRadius} 0 0 0 ${cx},${cy - cornerRadius} L ${cx},${cy} Z" />`
+          }
+        }
+      }
+    }
+    fluidShapes += `</g>`
+    svgContent += fluidShapes
+  } else {
+    let dataPath = ""
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (!qr.modules.get(r, c) || isCorner(r, c)) continue
+
+        const moduleX = c * moduleSize
+        const moduleY = r * moduleSize
+
+        if (image && imageOptions?.hideBackgroundDots) {
+          const absoluteModuleX = moduleX + offset
+          const absoluteModuleY = moduleY + offset
+          if (
+            absoluteModuleX + moduleSize > logoBox.x1 &&
+            absoluteModuleX < logoBox.x2 &&
+            absoluteModuleY + moduleSize > logoBox.y1 &&
+            absoluteModuleY < logoBox.y2
+          )
+            continue
+        }
+
+        const shapeType = dotsOptions.type
+        const radii = { tl: 0, tr: 0, br: 0, bl: 0 }
+        const radius = moduleSize / 2
+
+        if (shapeType === "dots") radii.tl = radii.tr = radii.br = radii.bl = radius
+        else if (shapeType === "rounded") radii.tl = radii.tr = radii.br = radii.bl = radius * 0.5
+        else if (shapeType === "extra-rounded") radii.tl = radii.tr = radii.br = radii.bl = radius
+        else if (shapeType === "classy" || shapeType === "classy-rounded") {
+          const top = getNeighbor(r - 1, c)
+          const bottom = getNeighbor(r + 1, c)
+          const left = getNeighbor(r, c - 1)
+          const right = getNeighbor(r, c + 1)
+
+          if (shapeType === "classy") {
+            if (top && left) radii.tl = radius
+            if (top && right) radii.tr = radius
+            if (bottom && right) radii.br = radius
+            if (bottom && left) radii.bl = radius
+          } else {
+            if (top || left) radii.tl = radius
+            if (top || right) radii.tr = radius
+            if (bottom || right) radii.br = radius
+            if (bottom || left) radii.bl = radius
+          }
+        }
+        dataPath += drawRoundedRect(moduleX, moduleY, moduleSize, moduleSize, radii)
+      }
+    }
+    svgContent += `<path d="${dataPath}" ${dotsFill} />`
   }
-  svg += `<path d="${dataPath}" ${dotsFill} />`
 
   // Logo
   if (image) {
-    svg += `<image xlink:href="${image}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" />`
+    svgContent += `<image xlink:href="${image}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" />`
   }
 
-  svg += `</svg>`
-  return svg
+  return `<svg width="${width}" height="${width}" viewBox="0 0 ${width} ${width}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>${defsContent}</defs>
+${svgContent}
+</svg>`
 }

@@ -29,7 +29,7 @@ type CornerDotType = "square" | "rounded" | "extra-rounded" | "dot" | "classy" |
 export type QRStyleOptions = {
   width: number
   dotsOptions: {
-    type: "square" | "rounded" | "dots" | "classy" | "classy-rounded" | "extra-rounded"
+    type: "square" | "rounded" | "dots" | "classy" | "classy-rounded" | "extra-rounded" | "fluid" | "fluid-smooth"
     color?: string
     gradient?: Gradient
   }
@@ -176,6 +176,8 @@ export function ConfigPanel({
                             <SelectItem value="classy">Classy</SelectItem>
                             <SelectItem value="classy-rounded">Classy Rounded</SelectItem>
                             <SelectItem value="dots">Dots (Circle)</SelectItem>
+                            <SelectItem value="fluid">Fluid</SelectItem>
+                            <SelectItem value="fluid-smooth">Fluid (Smooth)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
