@@ -48,7 +48,7 @@ export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
           animate="visible"
           exit="exit"
           className={`w-10 h-10 rounded-full flex items-center justify-center text-neo-text border-2 border-neo-text ${bg}`}
-          style={{ boxShadow: `3px 3px 0px var(--neo-text)` }}
+          style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
         >
           {icon}
         </motion.div>

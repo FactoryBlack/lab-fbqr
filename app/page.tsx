@@ -227,7 +227,9 @@ export default function QRGeneratorPage() {
         >
           <header className="flex items-stretch justify-between w-full flex-shrink-0 border-b-[var(--neo-border-width)] border-b-[var(--neo-text)]">
             <div className="p-4 flex items-center">
-              <h1 className="font-heading text-3xl md:text-4xl">LAB:01 - FBQR</h1>
+              <h1 className="font-heading text-5xl md:text-6xl">
+                LAB01<span className="text-[var(--neo-accent)]">/</span>FBQR
+              </h1>
             </div>
             <div className="border-l-[var(--neo-border-width)] border-l-[var(--neo-text)] p-4 flex items-center">
               <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />

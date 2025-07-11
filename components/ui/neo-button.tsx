@@ -7,13 +7,13 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const neoButtonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap text-base font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full border-[var(--neo-border-width)] border-neo-text active:translate-x-px active:translate-y-px active:shadow-none font-sans",
+  "inline-flex items-center justify-center whitespace-nowrap text-base font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full border-[var(--neo-border-width)] border-neo-text font-sans",
   {
     variants: {
       variant: {
         default: "bg-[var(--neo-accent)] text-[var(--neo-text)] hover:bg-[var(--neo-accent)]/90",
         destructive:
-          "bg-[var(--neo-destructive-accent)] text-[var(--neo-text)] hover:bg-[var(--neo-destructive-accent)]/90",
+          "bg-[hsl(var(--neo-destructive-accent))] text-[var(--neo-text)] hover:bg-[hsl(var(--neo-destructive-accent),0.9)]",
         outline: "bg-transparent hover:bg-[var(--neo-white)]",
         secondary: "bg-[var(--neo-muted-bg)] text-[var(--neo-text)] hover:bg-[var(--neo-muted-bg)]/90",
         ghost: "border-0 shadow-none hover:bg-accent hover:text-accent-foreground",
@@ -43,12 +43,15 @@ export interface NeoButtonProps
 const NeoButton = React.forwardRef<HTMLButtonElement, NeoButtonProps>(
   ({ className, variant, size, asChild = false, noShadow = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    const hasShadow = !noShadow && variant !== "ghost" && variant !== "link"
+
     return (
       <Comp
-        className={cn(neoButtonVariants({ variant, size, className }))}
-        style={{
-          boxShadow: noShadow || variant === "ghost" || variant === "link" ? "none" : `4px 4px 0px var(--neo-text)`,
-        }}
+        className={cn(
+          neoButtonVariants({ variant, size, className }),
+          hasShadow &&
+            "shadow-[8px_8px_0px_var(--neo-text)] hover:shadow-[6px_6px_0px_var(--neo-text)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[8px] active:translate-y-[8px]",
+        )}
         ref={ref}
         {...props}
       />
