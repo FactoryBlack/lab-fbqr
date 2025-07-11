@@ -12,13 +12,16 @@ import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { AuthModal } from "@/components/auth-modal" // Import the new modal
 
+// In the QRCodeResult interface, add originalUrl
 export interface QRCodeResult {
   id: string
   text: string
+  originalUrl?: string // Add this line
   qrConfig: QRStyleOptions & { data: string; image?: string | null }
   createdAt: string
 }
 
+// In the QRGeneratorPage component, add the new state for the checkbox
 export default function QRGeneratorPage() {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false) // State for modal
@@ -28,6 +31,9 @@ export default function QRGeneratorPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
+  // ... other states
+  const [shouldShortenUrl, setShouldShortenUrl] = useState(false)
+  // ...
 
   useEffect(() => {
     const {
@@ -109,15 +115,50 @@ export default function QRGeneratorPage() {
     }
   }
 
+  // Update the handleGenerateClick function
   const handleGenerateClick = async () => {
     if (!text.trim()) {
       toast.error("Error", { description: "Content cannot be empty." })
       return
     }
+
+    let qrText = text
+    let originalUrl: string | undefined = undefined
+
+    if (shouldShortenUrl) {
+      if (!user) {
+        toast.error("Please log in to create a short link.")
+        setIsAuthModalOpen(true)
+        return
+      }
+      setIsGenerating(true)
+      try {
+        const response = await fetch("/api/shorten-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: text }),
+        })
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to create short link.")
+        }
+        qrText = data.shortUrl
+        originalUrl = text
+        toast.success("URL shortened!", { description: `Your new link is: ${qrText}` })
+      } catch (error: any) {
+        toast.error("Shortening Failed", { description: error.message })
+        setIsGenerating(false)
+        return
+      } finally {
+        setIsGenerating(false)
+      }
+    }
+
     const newQrCode: QRCodeResult = {
       id: Date.now().toString(),
-      text,
-      qrConfig: { ...style, data: text, image: logoPreview },
+      text: qrText,
+      originalUrl,
+      qrConfig: { ...style, data: qrText, image: logoPreview },
       createdAt: new Date().toISOString(),
     }
     setQrCodes((prev) => [newQrCode, ...prev])
@@ -160,6 +201,7 @@ export default function QRGeneratorPage() {
     }
   }
 
+  // In the return statement, pass the new state and handler to ConfigPanel
   return (
     <>
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
@@ -177,6 +219,8 @@ export default function QRGeneratorPage() {
               isGenerating={isGenerating}
               onLogoUpload={handleLogoUpload}
               logoPreview={logoPreview}
+              shouldShortenUrl={shouldShortenUrl} // Add this
+              onShouldShortenUrlChange={setShouldShortenUrl} // Add this
             />
           </div>
           <div className="space-y-8">

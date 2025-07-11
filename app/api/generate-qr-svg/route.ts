@@ -250,6 +250,7 @@ function renderSvg(qr: QRCode, options: any): string {
   if (dotStyle === "fluid" || dotStyle === "fluid-smooth") {
     let fluidShapes = ""
     const radius = moduleSize / 2
+    const overlap = 0.5 // 0.5px overlap to fill gaps
 
     fluidShapes += `<g ${dotsFill}>`
 
@@ -271,16 +272,16 @@ function renderSvg(qr: QRCode, options: any): string {
             continue
         }
 
-        // Draw the circle for the module
-        fluidShapes += `<circle cx="${moduleX + radius}" cy="${moduleY + radius}" r="${radius}" />`
+        // Draw the circle for the module, slightly larger to overlap
+        fluidShapes += `<circle cx="${moduleX + radius}" cy="${moduleY + radius}" r="${radius + overlap}" />`
 
-        // Draw connector to the right
+        // Draw connector to the right, slightly larger to overlap
         if (getNeighbor(r, c + 1) && !isCorner(r, c + 1)) {
-          fluidShapes += `<rect x="${moduleX + radius}" y="${moduleY}" width="${moduleSize}" height="${moduleSize}" />`
+          fluidShapes += `<rect x="${moduleX + radius}" y="${moduleY - overlap}" width="${moduleSize}" height="${moduleSize + 2 * overlap}" />`
         }
-        // Draw connector to the bottom
+        // Draw connector to the bottom, slightly larger to overlap
         if (getNeighbor(r + 1, c) && !isCorner(r + 1, c)) {
-          fluidShapes += `<rect x="${moduleX}" y="${moduleY + radius}" width="${moduleSize}" height="${moduleSize}" />`
+          fluidShapes += `<rect x="${moduleX - overlap}" y="${moduleY + radius}" width="${moduleSize + 2 * overlap}" height="${moduleSize}" />`
         }
       }
     }
@@ -288,6 +289,8 @@ function renderSvg(qr: QRCode, options: any): string {
     // Add concave corners for 'fluid-smooth'
     if (dotStyle === "fluid-smooth") {
       const cornerRadius = moduleSize / 2
+      const newCornerRadius = cornerRadius + overlap
+
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
           if (qr.modules.get(r, c)) continue // We are looking for empty spaces
@@ -307,36 +310,31 @@ function renderSvg(qr: QRCode, options: any): string {
 
           if (isCorner(r, c)) continue
 
-          // Stricter check for inner corners.
-          // An inner corner is an empty space surrounded by 3 filled neighbors in a 2x2 block.
           const top = getNeighbor(r - 1, c)
           const bottom = getNeighbor(r + 1, c)
           const left = getNeighbor(r, c - 1)
           const right = getNeighbor(r, c + 1)
 
-          // Bottom-right corner of the empty cell (top-left of the filled block)
+          // Each corner piece is expanded by `overlap` to fill gaps.
           if (top && left && getNeighbor(r - 1, c - 1)) {
-            const cx = moduleX
-            const cy = moduleY
-            fluidShapes += `<path d="M ${cx},${cy + cornerRadius} A ${cornerRadius},${cornerRadius} 0 0 1 ${cx + cornerRadius},${cy} L ${cx},${cy} Z" />`
+            const cx = moduleX - overlap
+            const cy = moduleY - overlap
+            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${cx + newCornerRadius},${cy} L ${cx},${cy} Z" />`
           }
-          // Bottom-left corner of the empty cell (top-right of the filled block)
           if (top && right && getNeighbor(r - 1, c + 1)) {
-            const cx = moduleX + moduleSize
-            const cy = moduleY
-            fluidShapes += `<path d="M ${cx},${cy + cornerRadius} A ${cornerRadius},${cornerRadius} 0 0 0 ${cx - cornerRadius},${cy} L ${cx},${cy} Z" />`
+            const cx = moduleX + moduleSize + overlap
+            const cy = moduleY - overlap
+            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${cx - newCornerRadius},${cy} L ${cx},${cy} Z" />`
           }
-          // Top-right corner of the empty cell (bottom-left of the filled block)
           if (bottom && left && getNeighbor(r + 1, c - 1)) {
-            const cx = moduleX
-            const cy = moduleY + moduleSize
-            fluidShapes += `<path d="M ${cx + cornerRadius},${cy} A ${cornerRadius},${cornerRadius} 0 0 1 ${cx},${cy - cornerRadius} L ${cx},${cy} Z" />`
+            const cx = moduleX - overlap
+            const cy = moduleY + moduleSize + overlap
+            fluidShapes += `<path d="M ${cx + newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${cx},${cy - newCornerRadius} L ${cx},${cy} Z" />`
           }
-          // Top-left corner of the empty cell (bottom-right of the filled block)
           if (bottom && right && getNeighbor(r + 1, c + 1)) {
-            const cx = moduleX + moduleSize
-            const cy = moduleY + moduleSize
-            fluidShapes += `<path d="M ${cx - cornerRadius},${cy} A ${cornerRadius},${cornerRadius} 0 0 0 ${cx},${cy - cornerRadius} L ${cx},${cy} Z" />`
+            const cx = moduleX + moduleSize + overlap
+            const cy = moduleY + moduleSize + overlap
+            fluidShapes += `<path d="M ${cx - newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${cx},${cy - newCornerRadius} L ${cx},${cy} Z" />`
           }
         }
       }

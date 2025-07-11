@@ -3,7 +3,7 @@
 import React from "react"
 import type { ReactElement } from "react"
 import { useState } from "react"
-import { ImageIcon, Settings, Droplets, Eye, Palette } from "lucide-react"
+import { ImageIcon, Settings, Droplets, Eye, Palette, Link } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { NeoButton } from "@/components/ui/neo-button"
@@ -66,6 +66,8 @@ interface ConfigPanelProps {
   isGenerating: boolean
   onLogoUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
   logoPreview: string | null
+  shouldShortenUrl: boolean
+  onShouldShortenUrlChange: (value: boolean) => void
 }
 
 export function ConfigPanel({
@@ -77,9 +79,20 @@ export function ConfigPanel({
   isGenerating,
   onLogoUpload,
   logoPreview,
+  shouldShortenUrl,
+  onShouldShortenUrlChange,
 }: ConfigPanelProps): ReactElement {
   const [activeTab, setActiveTab] = useState("style")
   const fileInputRef = React.createRef<HTMLInputElement>()
+
+  const isUrl = (str: string) => {
+    try {
+      new URL(str)
+      return true
+    } catch (_) {
+      return false
+    }
+  }
 
   const handleStyleValueChange = (path: string, value: any) => {
     const newStyle = JSON.parse(JSON.stringify(styleOptions))
@@ -121,6 +134,15 @@ export function ConfigPanel({
           onChange={(e) => onTextChange(e.target.value)}
           rows={4}
         />
+        {isUrl(text) && (
+          <div className="flex items-center space-x-2 pt-2">
+            <Checkbox id="shorten-url" checked={shouldShortenUrl} onCheckedChange={onShouldShortenUrlChange} />
+            <label htmlFor="shorten-url" className="text-sm font-bold font-sans uppercase flex items-center gap-2">
+              <Link size={14} />
+              Shorten URL with fblk.io
+            </label>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
