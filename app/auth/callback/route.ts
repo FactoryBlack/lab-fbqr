@@ -9,8 +9,10 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = createClient()
+    // This is the crucial line that exchanges the code from the URL for a user session
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // On success, it redirects you to the homepage, now with a valid session cookie
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
