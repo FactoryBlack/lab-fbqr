@@ -10,30 +10,27 @@ import { CollectionPanel } from "@/components/collection-panel"
 import { NeoButton } from "@/components/ui/neo-button"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
-import { AuthModal } from "@/components/auth-modal" // Import the new modal
+import { AuthModal } from "@/components/auth-modal"
 
-// In the QRCodeResult interface, add originalUrl
 export interface QRCodeResult {
   id: string
   text: string
-  originalUrl?: string // Add this line
+  originalUrl?: string
   qrConfig: QRStyleOptions & { data: string; image?: string | null }
   createdAt: string
 }
 
-// In the QRGeneratorPage component, add the new state for the checkbox
 export default function QRGeneratorPage() {
   const [user, setUser] = useState<User | null>(null)
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false) // State for modal
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [text, setText] = useState("https://vercel.com")
+  const [originalUrl, setOriginalUrl] = useState<string | undefined>(undefined)
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isShortening, setIsShortening] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
-  // ... other states
-  const [shouldShortenUrl, setShouldShortenUrl] = useState(false)
-  // ...
 
   useEffect(() => {
     const {
@@ -42,7 +39,6 @@ export default function QRGeneratorPage() {
       setUser(session?.user ?? null)
     })
 
-    // Get initial session
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
     })
@@ -50,7 +46,6 @@ export default function QRGeneratorPage() {
     return () => subscription.unsubscribe()
   }, [supabase.auth])
 
-  // Load collections if user is logged in
   useEffect(() => {
     const loadCollections = async () => {
       if (user) {
@@ -70,7 +65,6 @@ export default function QRGeneratorPage() {
           setIsLoading(false)
         }
       } else {
-        // If user logs out, clear the collection
         setQrCodes([])
       }
     }
@@ -115,53 +109,48 @@ export default function QRGeneratorPage() {
     }
   }
 
-  // Update the handleGenerateClick function
+  const handleShortenUrl = async () => {
+    if (!user) {
+      toast.error("Please log in to create a short link.")
+      setIsAuthModalOpen(true)
+      return
+    }
+    setIsShortening(true)
+    try {
+      const response = await fetch("/api/shorten-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: text }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create short link.")
+      }
+      setOriginalUrl(text)
+      setText(data.shortUrl)
+      toast.success("URL shortened!", { description: `Your new link is: ${data.shortUrl}` })
+    } catch (error: any) {
+      toast.error("Shortening Failed", { description: error.message })
+    } finally {
+      setIsShortening(false)
+    }
+  }
+
   const handleGenerateClick = async () => {
     if (!text.trim()) {
       toast.error("Error", { description: "Content cannot be empty." })
       return
     }
 
-    let qrText = text
-    let originalUrl: string | undefined = undefined
-
-    if (shouldShortenUrl) {
-      if (!user) {
-        toast.error("Please log in to create a short link.")
-        setIsAuthModalOpen(true)
-        return
-      }
-      setIsGenerating(true)
-      try {
-        const response = await fetch("/api/shorten-url", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: text }),
-        })
-        const data = await response.json()
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to create short link.")
-        }
-        qrText = data.shortUrl
-        originalUrl = text
-        toast.success("URL shortened!", { description: `Your new link is: ${qrText}` })
-      } catch (error: any) {
-        toast.error("Shortening Failed", { description: error.message })
-        setIsGenerating(false)
-        return
-      } finally {
-        setIsGenerating(false)
-      }
-    }
-
     const newQrCode: QRCodeResult = {
       id: Date.now().toString(),
-      text: qrText,
-      originalUrl,
-      qrConfig: { ...style, data: qrText, image: logoPreview },
+      text: text,
+      originalUrl: originalUrl,
+      qrConfig: { ...style, data: text, image: logoPreview },
       createdAt: new Date().toISOString(),
     }
     setQrCodes((prev) => [newQrCode, ...prev])
+    setOriginalUrl(undefined) // Reset after adding to collection
     toast("QR Code Added", { description: "Added to your local collection." })
   }
 
@@ -182,7 +171,6 @@ export default function QRGeneratorPage() {
 
     setIsLoading(true)
     try {
-      // For simplicity, we save the entire current collection as "Default Collection"
       const response = await fetch("/api/save-collection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -201,7 +189,6 @@ export default function QRGeneratorPage() {
     }
   }
 
-  // In the return statement, pass the new state and handler to ConfigPanel
   return (
     <>
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
@@ -212,15 +199,18 @@ export default function QRGeneratorPage() {
             <HeaderBar user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
             <ConfigPanel
               text={text}
-              onTextChange={setText}
+              onTextChange={(newText) => {
+                setText(newText)
+                setOriginalUrl(undefined) // Reset if user types a new URL
+              }}
               styleOptions={style}
               onStyleChange={handleStyleChange}
               onGenerateClick={handleGenerateClick}
-              isGenerating={isGenerating}
+              isGenerating={isGenerating || isShortening}
               onLogoUpload={handleLogoUpload}
               logoPreview={logoPreview}
-              shouldShortenUrl={shouldShortenUrl} // Add this
-              onShouldShortenUrlChange={setShouldShortenUrl} // Add this
+              onShortenUrl={handleShortenUrl}
+              isShortening={isShortening}
             />
           </div>
           <div className="space-y-8">

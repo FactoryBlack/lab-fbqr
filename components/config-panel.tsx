@@ -3,7 +3,7 @@
 import React from "react"
 import type { ReactElement } from "react"
 import { useState } from "react"
-import { ImageIcon, Settings, Droplets, Eye, Palette, Link } from "lucide-react"
+import { ImageIcon, Settings, Droplets, Eye, Palette, Link, Loader2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { NeoButton } from "@/components/ui/neo-button"
@@ -66,8 +66,8 @@ interface ConfigPanelProps {
   isGenerating: boolean
   onLogoUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
   logoPreview: string | null
-  shouldShortenUrl: boolean
-  onShouldShortenUrlChange: (value: boolean) => void
+  onShortenUrl: () => Promise<void>
+  isShortening: boolean
 }
 
 export function ConfigPanel({
@@ -79,13 +79,15 @@ export function ConfigPanel({
   isGenerating,
   onLogoUpload,
   logoPreview,
-  shouldShortenUrl,
-  onShouldShortenUrlChange,
+  onShortenUrl,
+  isShortening,
 }: ConfigPanelProps): ReactElement {
   const [activeTab, setActiveTab] = useState("style")
   const fileInputRef = React.createRef<HTMLInputElement>()
 
   const isUrl = (str: string) => {
+    // Don't show for already shortened URLs or very short URLs
+    if (str.startsWith("fblk.io") || str.length < 15) return false
     try {
       new URL(str)
       return true
@@ -124,9 +126,17 @@ export function ConfigPanel({
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <Label htmlFor="text" className="font-sans font-bold text-lg uppercase">
-          Content
-        </Label>
+        <div className="flex justify-between items-center">
+          <Label htmlFor="text" className="font-sans font-bold text-lg uppercase">
+            Content
+          </Label>
+          {isUrl(text) && (
+            <NeoButton size="xs" variant="outline" onClick={onShortenUrl} disabled={isShortening} className="uppercase">
+              {isShortening ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Link size={14} className="mr-2" />}
+              Shorten
+            </NeoButton>
+          )}
+        </div>
         <Textarea
           id="text"
           placeholder="Enter URL or text"
@@ -134,14 +144,8 @@ export function ConfigPanel({
           onChange={(e) => onTextChange(e.target.value)}
           rows={4}
         />
-        {isUrl(text) && (
-          <div className="flex items-center space-x-2 pt-2">
-            <Checkbox id="shorten-url" checked={shouldShortenUrl} onCheckedChange={onShouldShortenUrlChange} />
-            <label htmlFor="shorten-url" className="text-sm font-bold font-sans uppercase flex items-center gap-2">
-              <Link size={14} />
-              Shorten URL with fblk.io
-            </label>
-          </div>
+        {isUrl(text) && text.length > 35 && (
+          <p className="text-xs text-gray-500 pt-2 font-sans">This URL is long. Shorten it for a cleaner QR code.</p>
         )}
       </div>
 
