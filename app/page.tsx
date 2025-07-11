@@ -209,11 +209,7 @@ export default function QRGeneratorPage() {
       <div className="fixed inset-0 dot-grid-bg -z-10" />
       <main className="h-screen max-h-screen overflow-hidden p-4 sm:p-6 md:p-8 flex flex-col">
         <header className="flex items-start justify-between w-full">
-          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl leading-none">
-            QR
-            <br />
-            BRUTAL
-          </h1>
+          <h1 className="font-heading text-5xl md:text-6xl tracking-widest">LAB:01 - FBQR</h1>
           <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
         </header>
 

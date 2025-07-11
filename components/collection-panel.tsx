@@ -33,7 +33,7 @@ export function CollectionPanel({
         <h2 className="font-heading text-xl">Collection</h2>
         {qrCodes.length > 0 && <p className="font-mono text-sm">{qrCodes.length} items</p>}
       </div>
-      <div className="flex-1 min-h-0 border-[var(--neo-border-width)] border-neo-text p-2 rounded-lg bg-[var(--neo-off-white)]">
+      <div className="flex-1 min-h-0 border-[var(--neo-border-width)] border-neo-text p-2 bg-[var(--neo-off-white)]">
         <ScrollArea className="h-full">
           <div className="p-2">
             {qrCodes.length === 0 ? (

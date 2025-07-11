@@ -42,7 +42,7 @@ export function ValidationStatus({ status }: ValidationStatusProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className={`flex items-center justify-center gap-2 p-3 font-mono text-sm border-[var(--neo-border-width)] border-dashed rounded-md ${config.color}`}
+      className={`flex items-center justify-center gap-2 p-3 font-mono text-sm border-[var(--neo-border-width)] border-dashed ${config.color}`}
     >
       {Icon && <Icon className={status === "checking" ? "animate-spin" : ""} />}
       <span>{config.text}</span>

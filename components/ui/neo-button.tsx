@@ -3,7 +3,6 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
@@ -42,16 +41,7 @@ export interface NeoButtonProps
 const NeoButton = React.forwardRef<HTMLButtonElement, NeoButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
-    return (
-      <motion.div
-        whileHover={{ scale: 1.02, y: -2 }}
-        whileTap={{ scale: 0.98, y: 1 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        className="w-full"
-      >
-        <Comp className={cn(neoButtonVariants({ variant, size, className }))} ref={ref} {...props} />
-      </motion.div>
-    )
+    return <Comp className={cn(neoButtonVariants({ variant, size, className }))} ref={ref} {...props} />
   },
 )
 NeoButton.displayName = "NeoButton"

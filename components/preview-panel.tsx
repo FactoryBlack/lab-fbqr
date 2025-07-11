@@ -101,7 +101,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
     <div className="flex flex-col h-full">
       <div
         ref={containerRef}
-        className="aspect-square bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 rounded-lg relative flex-shrink-0"
+        className="aspect-square bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative flex-shrink-0"
       >
         {isLoading && !svgContent && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/50">

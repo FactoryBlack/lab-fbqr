@@ -154,7 +154,7 @@ export function ConfigPanel({
             </h3>
             <Accordion type="multiple" className="w-full" defaultValue={["dots"]}>
               <AccordionItem value="dots">
-                <AccordionTrigger>
+                <AccordionTrigger className="text-2xl">
                   <Droplets className="mr-2" /> Dots
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-4">
@@ -189,7 +189,7 @@ export function ConfigPanel({
               </AccordionItem>
 
               <AccordionItem value="corners">
-                <AccordionTrigger>
+                <AccordionTrigger className="text-2xl">
                   <Eye className="mr-2" /> Corners
                 </AccordionTrigger>
                 <AccordionContent className="space-y-6 pt-4">
@@ -247,7 +247,7 @@ export function ConfigPanel({
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="background">
-                <AccordionTrigger>
+                <AccordionTrigger className="text-2xl">
                   <Palette className="mr-2" /> Background
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-4">

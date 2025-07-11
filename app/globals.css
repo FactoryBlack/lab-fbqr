@@ -32,7 +32,7 @@
     --border: var(--neo-border-color);
     --input: var(--neo-off-white);
     --ring: var(--neo-accent);
-    --radius: 0.5rem;
+    --radius: 0rem;
 
     /* Style Properties */
     --neo-border-width: 2px;
