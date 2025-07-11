@@ -4,9 +4,13 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { NeoButton } from "./ui/neo-button"
 import type { User } from "@supabase/supabase-js"
-import Link from "next/link"
 
-export default function AuthButton({ user }: { user: User | null }) {
+interface AuthButtonProps {
+  user: User | null
+  onLoginClick: () => void
+}
+
+export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -23,10 +27,8 @@ export default function AuthButton({ user }: { user: User | null }) {
       </NeoButton>
     </div>
   ) : (
-    <Link href="/login">
-      <NeoButton variant="outline" size="sm">
-        Login
-      </NeoButton>
-    </Link>
+    <NeoButton onClick={onLoginClick} variant="outline" size="sm">
+      Login
+    </NeoButton>
   )
 }

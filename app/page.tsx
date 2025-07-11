@@ -10,6 +10,7 @@ import { CollectionPanel } from "@/components/collection-panel"
 import { NeoButton } from "@/components/ui/neo-button"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
+import { AuthModal } from "@/components/auth-modal" // Import the new modal
 
 export interface QRCodeResult {
   id: string
@@ -20,6 +21,7 @@ export interface QRCodeResult {
 
 export default function QRGeneratorPage() {
   const [user, setUser] = useState<User | null>(null)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false) // State for modal
   const [text, setText] = useState("https://vercel.com")
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
@@ -160,11 +162,12 @@ export default function QRGeneratorPage() {
 
   return (
     <>
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <div className="fixed inset-0 dot-grid-bg -z-10" />
       <div className="min-h-screen p-6 md:p-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <div className="space-y-8">
-            <HeaderBar user={user} />
+            <HeaderBar user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
             <ConfigPanel
               text={text}
               onTextChange={setText}
