@@ -9,7 +9,7 @@ interface AnimatedCheckCrossProps {
 
 const circleVariants = {
   unchecked: { fill: "hsl(var(--neo-destructive-accent))" },
-  checked: { fill: "hsl(var(--primary))" },
+  checked: { fill: "var(--neo-accent)" },
 }
 
 const iconVariants = {

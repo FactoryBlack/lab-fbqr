@@ -1,7 +1,7 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BrutalistSlider } from "@/components/ui/brutalist-slider"
 import { ColorInput } from "./ui/color-input"
@@ -62,7 +62,7 @@ export function GradientPicker({
         <Label htmlFor="gradient-switch" className="font-bold uppercase">
           USE GRADIENT
         </Label>
-        <Switch id="gradient-switch" checked={isEnabled} onCheckedChange={handleToggle} />
+        <Checkbox id="gradient-switch" checked={isEnabled} onCheckedChange={handleToggle} />
       </div>
 
       {isEnabled && gradient ? (

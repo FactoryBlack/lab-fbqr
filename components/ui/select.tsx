@@ -20,9 +20,9 @@ const SelectTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       "flex h-11 w-full items-center justify-between bg-[var(--neo-interactive-bg)] px-3 py-2 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-sans border-[var(--neo-border-width)] border-neo-text",
+      "shadow-[4px_4px_0px_var(--neo-text)] hover:shadow-[2px_2px_0px_var(--neo-text)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all",
       className,
     )}
-    style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
     {...props}
   >
     {children}
