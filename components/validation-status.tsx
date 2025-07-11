@@ -36,7 +36,7 @@ export function ValidationStatus({ status }: ValidationStatusProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className={`flex items-center justify-center gap-2 p-3 font-sans text-base font-bold ${config.color}`}
+      className={`flex items-center justify-center gap-2 p-3 font-sans text-lg font-black uppercase tracking-wider ${config.color}`}
     >
       <span>{config.text}</span>
     </motion.div>

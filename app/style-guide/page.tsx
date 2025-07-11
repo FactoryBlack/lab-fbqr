@@ -70,7 +70,7 @@ export default function StyleGuidePage() {
               <h2 className="font-heading text-3xl">Heading 2</h2>
               <h3 className="font-heading text-2xl">Heading 3</h3>
               <p>This is a paragraph of body text using the default sans-serif font.</p>
-              <p className="font-mono">This is a paragraph of monospaced text for UI elements and labels.</p>
+              <p className="font-sans">This is a paragraph of monospaced text for UI elements and labels.</p>
             </NeoCardContent>
           </NeoCard>
 
@@ -81,13 +81,13 @@ export default function StyleGuidePage() {
             <NeoCardContent className="space-y-6">
               <div className="flex items-center gap-4">
                 <Switch id="style-guide-switch" />
-                <Label htmlFor="style-guide-switch" className="font-mono font-bold">
+                <Label htmlFor="style-guide-switch" className="font-sans font-bold">
                   Switch
                 </Label>
               </div>
               <div className="flex items-center gap-4">
                 <Checkbox id="style-guide-checkbox" />
-                <Label htmlFor="style-guide-checkbox" className="font-mono font-bold">
+                <Label htmlFor="style-guide-checkbox" className="font-sans font-bold">
                   Checkbox
                 </Label>
               </div>
@@ -103,19 +103,19 @@ export default function StyleGuidePage() {
             </NeoCardHeader>
             <NeoCardContent className="space-y-4">
               <div>
-                <Label htmlFor="sg-input" className="font-mono font-bold text-sm">
+                <Label htmlFor="sg-input" className="font-sans font-bold text-sm">
                   Input Field
                 </Label>
                 <Input id="sg-input" placeholder="Placeholder text..." />
               </div>
               <div>
-                <Label htmlFor="sg-textarea" className="font-mono font-bold text-sm">
+                <Label htmlFor="sg-textarea" className="font-sans font-bold text-sm">
                   Text Area
                 </Label>
                 <Textarea id="sg-textarea" placeholder="Placeholder text..." />
               </div>
               <div>
-                <Label htmlFor="sg-select" className="font-mono font-bold text-sm">
+                <Label htmlFor="sg-select" className="font-sans font-bold text-sm">
                   Select Menu
                 </Label>
                 <Select>

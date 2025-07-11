@@ -21,7 +21,7 @@ export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
   if (user) {
     return (
       <div className="flex items-center gap-4">
-        <span className="text-sm font-mono hidden sm:inline">{user.email}</span>
+        <span className="text-sm font-sans hidden sm:inline">{user.email}</span>
         <NeoButton onClick={handleLogout} variant="outline" className="uppercase w-auto">
           Logout
         </NeoButton>

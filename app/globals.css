@@ -7,9 +7,11 @@
     /* Purely Neutral Brutalist Palette */
     --page-bg: #cccccc; /* Light grey page background */
     --neo-bg: #e0e0e0; /* Main element background */
+    --neo-interactive-bg: #f0f0f0; /* Lighter bg for inputs/preview */
     --neo-text: #1c1c1c; /* Dark charcoal for text and borders */
-    --neo-white: #e0e0e0; /* Used for hover states, same as bg */
-    --neo-off-white: #e0e0e0; /* Input background, same as bg */
+    --neo-accent: #e3ff32; /* Neon green accent */
+    --neo-white: #f0f0f0; /* Used for hover states, same as interactive bg */
+    --neo-off-white: #f0f0f0; /* Input background, same as interactive bg */
     --neo-border-color: #1c1c1c;
 
     /* Mapped to existing theme for component compatibility */
@@ -19,18 +21,18 @@
     --card-foreground: var(--neo-text);
     --popover: var(--neo-bg);
     --popover-foreground: var(--neo-text);
-    --primary: var(--neo-text);
-    --primary-foreground: var(--neo-bg);
+    --primary: var(--neo-accent); /* Mapped to neon green */
+    --primary-foreground: var(--neo-text); /* Dark text on neon green */
     --secondary: var(--neo-text);
     --secondary-foreground: var(--neo-bg);
     --muted: var(--neo-bg);
     --muted-foreground: var(--neo-text);
-    --accent: var(--neo-text); /* Mapped to dark color */
-    --accent-foreground: var(--neo-bg); /* Mapped to light color */
+    --accent: var(--neo-accent);
+    --accent-foreground: var(--neo-text);
     --destructive: var(--neo-text);
     --destructive-foreground: var(--neo-bg);
     --border: var(--neo-border-color);
-    --input: var(--neo-off-white);
+    --input: var(--neo-interactive-bg);
     --ring: var(--neo-text);
     --radius: 0rem;
 

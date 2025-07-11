@@ -57,7 +57,7 @@ export function GradientPicker({
   }
 
   return (
-    <div className="space-y-4 border border-solid border-neo-text/50 p-4">
+    <div className="space-y-4 p-4">
       <div className="flex items-center justify-between">
         <Label htmlFor="gradient-switch" className="font-bold uppercase">
           USE GRADIENT

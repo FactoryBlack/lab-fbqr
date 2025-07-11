@@ -100,7 +100,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
     <div className="flex flex-col h-full items-center justify-center p-6">
       <div
         ref={containerRef}
-        className="w-full max-h-[70vh] aspect-square bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
+        className="w-full max-w-[70vh] aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
         style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
       >
         {isLoading && !svgContent && (
