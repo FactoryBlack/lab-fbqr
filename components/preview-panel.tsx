@@ -98,10 +98,10 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
   }, [debouncedText, debouncedStyle, debouncedLogo, validateQRCode])
 
   return (
-    <div className="flex flex-col h-full p-6">
+    <div className="flex flex-col h-full items-center justify-center">
       <div
         ref={containerRef}
-        className="aspect-square bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative flex-shrink-0"
+        className="w-full max-w-[calc(100vh-200px)] aspect-square bg-[var(--neo-off-white)] flex items-center justify-center p-4 md:p-8 relative"
       >
         {isLoading && !svgContent && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/50">
@@ -116,7 +116,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
           />
         )}
       </div>
-      <div className="pt-4 flex-1 flex flex-col justify-end">
+      <div className="pt-4">
         <ValidationStatus status={validationStatus} />
       </div>
     </div>

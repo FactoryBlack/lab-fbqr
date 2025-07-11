@@ -11,10 +11,10 @@ const neoButtonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[var(--neo-accent)] text-[var(--neo-white)] border-[var(--neo-border-width)] border-neo-text",
+        default: "bg-[var(--neo-accent)] text-[var(--neo-white)]",
         destructive: "border-[var(--neo-border-width)] border-neo-text bg-transparent hover:bg-[var(--neo-white)]",
         outline: "border-[var(--neo-border-width)] border-neo-text bg-transparent hover:bg-[var(--neo-white)]",
-        secondary: "bg-secondary text-secondary-foreground border-[var(--neo-border-width)] border-neo-text",
+        secondary: "bg-[var(--neo-text)] text-[var(--neo-white)] border-[var(--neo-border-width)] border-neo-text",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },

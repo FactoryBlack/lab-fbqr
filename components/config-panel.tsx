@@ -137,9 +137,10 @@ export function ConfigPanel({
             {isUrl(text) && (
               <NeoButton
                 size="sm"
+                variant="secondary"
                 onClick={onShortenUrl}
                 disabled={isShortening}
-                className="uppercase bg-[var(--neo-text)] text-[var(--neo-white)] hover:bg-[var(--neo-text)]/90 rounded-t-none -mt-px"
+                className="uppercase rounded-t-none -mt-px"
               >
                 {isShortening ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Link size={14} className="mr-2" />}
                 Shorten URL
@@ -151,13 +152,13 @@ export function ConfigPanel({
         <ScrollArea className="flex-1 pr-4 -mr-4">
           <div className="space-y-4">
             {/* Style Section */}
-            <div className="space-y-3 border-t-[var(--neo-border-width)] border-t-[var(--neo-text)] pt-4">
+            <div className="space-y-3 border-t-[var(--neo-border-width)] border-t-black/10 pt-4">
               <h3 className="font-heading text-xl flex items-center gap-2">
                 <Settings size={20} /> Style
               </h3>
               <Accordion type="multiple" className="w-full" defaultValue={["dots"]}>
                 <AccordionItem value="dots">
-                  <AccordionTrigger className="text-2xl">
+                  <AccordionTrigger>
                     <Droplets className="mr-2" /> Dots
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 pt-4">
@@ -192,7 +193,7 @@ export function ConfigPanel({
                 </AccordionItem>
 
                 <AccordionItem value="corners">
-                  <AccordionTrigger className="text-2xl">
+                  <AccordionTrigger>
                     <Eye className="mr-2" /> Corners
                   </AccordionTrigger>
                   <AccordionContent className="space-y-6 pt-4">
@@ -250,7 +251,7 @@ export function ConfigPanel({
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="background">
-                  <AccordionTrigger className="text-2xl">
+                  <AccordionTrigger>
                     <Palette className="mr-2" /> Background
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 pt-4">
@@ -276,63 +277,65 @@ export function ConfigPanel({
                     )}
                   </AccordionContent>
                 </AccordionItem>
+                <AccordionItem value="logo">
+                  <AccordionTrigger>
+                    <ImageIcon className="mr-2" /> Logo
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-4 pt-4">
+                    <NeoButton variant="outline" onClick={() => fileInputRef.current?.click()}>
+                      {logoPreview ? "Change Logo" : "Upload Logo"}
+                    </NeoButton>
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={onLogoUpload} className="hidden" />
+
+                    {logoPreview && (
+                      <div className="space-y-4 pt-2">
+                        <div className="space-y-2">
+                          <Label className="font-sans font-bold uppercase text-xs">Logo Size</Label>
+                          <BrutalistSlider
+                            value={[styleOptions.imageOptions.imageSize]}
+                            max={0.4}
+                            step={0.01}
+                            onValueChange={(v) => handleStyleValueChange("imageOptions.imageSize", v[0])}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="font-sans font-bold uppercase text-xs">Logo Margin</Label>
+                          <BrutalistSlider
+                            value={[styleOptions.imageOptions.margin]}
+                            max={40}
+                            step={1}
+                            onValueChange={(v) => handleStyleValueChange("imageOptions.margin", v[0])}
+                          />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="hide-dots"
+                            checked={styleOptions.imageOptions.hideBackgroundDots}
+                            onCheckedChange={(c) => handleStyleValueChange("imageOptions.hideBackgroundDots", c)}
+                          />
+                          <label htmlFor="hide-dots" className="text-sm font-bold font-sans uppercase">
+                            Hide dots behind logo
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
               </Accordion>
-            </div>
-
-            {/* Logo Section */}
-            <div className="space-y-3 border-t-[var(--neo-border-width)] border-t-[var(--neo-text)] pt-4">
-              <h3 className="font-heading text-xl flex items-center gap-2">
-                <ImageIcon size={20} /> Logo
-              </h3>
-              <NeoButton variant="outline" onClick={() => fileInputRef.current?.click()}>
-                {logoPreview ? "Change Logo" : "Upload Logo"}
-              </NeoButton>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={onLogoUpload} className="hidden" />
-
-              {logoPreview && (
-                <div className="space-y-4 pt-2">
-                  <div className="space-y-2">
-                    <Label className="font-sans font-bold uppercase text-xs">Logo Size</Label>
-                    <BrutalistSlider
-                      value={[styleOptions.imageOptions.imageSize]}
-                      max={0.4}
-                      step={0.01}
-                      onValueChange={(v) => handleStyleValueChange("imageOptions.imageSize", v[0])}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-sans font-bold uppercase text-xs">Logo Margin</Label>
-                    <BrutalistSlider
-                      value={[styleOptions.imageOptions.margin]}
-                      max={40}
-                      step={1}
-                      onValueChange={(v) => handleStyleValueChange("imageOptions.margin", v[0])}
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="hide-dots"
-                      checked={styleOptions.imageOptions.hideBackgroundDots}
-                      onCheckedChange={(c) => handleStyleValueChange("imageOptions.hideBackgroundDots", c)}
-                    />
-                    <label htmlFor="hide-dots" className="text-sm font-bold font-sans uppercase">
-                      Hide dots behind logo
-                    </label>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </ScrollArea>
 
-        <NeoButton
-          onClick={onGenerateClick}
-          disabled={isGenerating || !text.trim() || isLoading}
-          size="lg"
-          className="uppercase w-full text-lg mt-auto"
-        >
-          {isLoading ? "Loading Collection..." : isGenerating ? "Generating..." : "Add to Collection"}
-        </NeoButton>
+        <div className="mt-auto pt-4 border-t-[var(--neo-border-width)] border-t-black/10">
+          <NeoButton
+            onClick={onGenerateClick}
+            disabled={isGenerating || !text.trim() || isLoading}
+            size="lg"
+            className="uppercase w-full text-lg"
+          >
+            {isLoading ? "Loading..." : isGenerating ? "Generating..." : "Add to Collection"}
+          </NeoButton>
+        </div>
       </div>
     </div>
   )

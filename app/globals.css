@@ -8,7 +8,7 @@
     --page-bg: #e5e5e5;
     --neo-bg: #f1e9d2; /* Card background */
     --neo-text: #292732;
-    --neo-accent: #eb1950;
+    --neo-accent: #ff007a;
     --neo-white: #ffffff;
     --neo-off-white: #f5f3ed; /* Input background */
     --neo-border-color: #292732;
@@ -69,9 +69,5 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-  .dot-grid-bg {
-    background-image: radial-gradient(hsla(0, 0%, 0%, 0.15) 1px, transparent 0);
-    background-size: 20px 20px;
   }
 }
