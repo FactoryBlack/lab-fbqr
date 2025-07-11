@@ -83,8 +83,11 @@ function renderSvg(qr: QRCode, options: any): string {
   const { width, dotsOptions, cornersSquareOptions, cornersDotOptions, backgroundOptions, image, imageOptions } =
     options
 
+  const quietZoneModules = 4 // Standard quiet zone for better scannability
   const size = qr.modules.size
-  const moduleSize = width / size
+  const totalSizeInModules = size + quietZoneModules * 2
+  const moduleSize = width / totalSizeInModules
+  const offset = quietZoneModules * moduleSize
 
   let svg = `<svg width="${width}" height="${width}" viewBox="0 0 ${width} ${width}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">`
 
@@ -124,7 +127,7 @@ function renderSvg(qr: QRCode, options: any): string {
   defs += "</defs>"
   svg += defs
 
-  // Background
+  // Background - covers the entire SVG area, including the new quiet zone
   if (backgroundOptions.color !== "transparent") {
     const bgFill = backgroundOptions.gradient
       ? addGradient("bg", backgroundOptions.gradient)
@@ -133,6 +136,7 @@ function renderSvg(qr: QRCode, options: any): string {
   }
 
   // Helper to generate a path for a rectangle with different radii for each corner
+  // Now applies the quiet zone offset automatically
   const drawRoundedRect = (
     x: number,
     y: number,
@@ -140,7 +144,9 @@ function renderSvg(qr: QRCode, options: any): string {
     h: number,
     r: { tl: number; tr: number; br: number; bl: number },
   ) => {
-    return `M${x + r.tl},${y} H${x + w - r.tr} A${r.tr},${r.tr} 0 0 1 ${x + w},${y + r.tr} V${y + h - r.br} A${r.br},${r.br} 0 0 1 ${x + w - r.br},${y + h} H${x + r.bl} A${r.bl},${r.bl} 0 0 1 ${x},${y + h - r.bl} V${y + r.tl} A${r.tl},${r.tl} 0 0 1 ${x + r.tl},${y} Z`
+    const newX = x + offset
+    const newY = y + offset
+    return `M${newX + r.tl},${newY} H${newX + w - r.tr} A${r.tr},${r.tr} 0 0 1 ${newX + w},${newY + r.tr} V${newY + h - r.br} A${r.br},${r.br} 0 0 1 ${newX + w - r.br},${newY + h} H${newX + r.bl} A${r.bl},${r.bl} 0 0 1 ${newX},${newY + h - r.bl} V${newY + r.tl} A${r.tl},${r.tl} 0 0 1 ${newX + r.tl},${newY} Z`
   }
 
   // Modules
@@ -160,10 +166,11 @@ function renderSvg(qr: QRCode, options: any): string {
     return qr.modules.get(r, c)
   }
 
+  const qrWidth = size * moduleSize
   const logoMargin = imageOptions?.margin || 0
-  const logoSize = imageOptions?.imageSize ? width * imageOptions.imageSize : 0
-  const logoX = width / 2 - logoSize / 2
-  const logoY = width / 2 - logoSize / 2
+  const logoSize = imageOptions?.imageSize ? qrWidth * imageOptions.imageSize : 0
+  const logoX = offset + qrWidth / 2 - logoSize / 2
+  const logoY = offset + qrWidth / 2 - logoSize / 2
   const logoBox = {
     x1: logoX - logoMargin,
     y1: logoY - logoMargin,
@@ -263,11 +270,14 @@ function renderSvg(qr: QRCode, options: any): string {
       const moduleY = r * moduleSize
 
       if (image && imageOptions?.hideBackgroundDots) {
+        // Check against absolute logoBox coordinates
+        const absoluteModuleX = moduleX + offset
+        const absoluteModuleY = moduleY + offset
         if (
-          moduleX + moduleSize > logoBox.x1 &&
-          moduleX < logoBox.x2 &&
-          moduleY + moduleSize > logoBox.y1 &&
-          moduleY < logoBox.y2
+          absoluteModuleX + moduleSize > logoBox.x1 &&
+          absoluteModuleX < logoBox.x2 &&
+          absoluteModuleY + moduleSize > logoBox.y1 &&
+          absoluteModuleY < logoBox.y2
         ) {
           continue
         }
