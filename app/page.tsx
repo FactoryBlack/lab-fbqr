@@ -3,7 +3,6 @@
 import type React from "react"
 import { useState, useCallback, useEffect } from "react"
 import { toast } from "sonner"
-import { HeaderBar } from "@/components/header-bar"
 import { ConfigPanel, type QRStyleOptions } from "@/components/config-panel"
 import { PreviewPanel } from "@/components/preview-panel"
 import { CollectionPanel } from "@/components/collection-panel"
@@ -11,6 +10,8 @@ import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { AuthModal } from "@/components/auth-modal"
 import QRCodeStyling from "qr-code-styling"
+import AuthButton from "@/components/auth-button"
+import { VerticalDivider } from "@/components/vertical-divider"
 
 export interface QRCodeResult {
   id: string
@@ -206,10 +207,19 @@ export default function QRGeneratorPage() {
     <>
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <div className="fixed inset-0 dot-grid-bg -z-10" />
-      <main className="min-h-screen p-4 sm:p-6 md:p-8">
-        <HeaderBar user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-screen-2xl mx-auto">
-          <div className="lg:col-span-1">
+      <main className="h-screen max-h-screen overflow-hidden p-4 sm:p-6 md:p-8 flex flex-col">
+        <header className="flex items-start justify-between w-full">
+          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl leading-none">
+            QR
+            <br />
+            BRUTAL
+          </h1>
+          <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
+        </header>
+
+        <div className="flex-1 grid grid-cols-[1fr_auto_2fr_auto_1fr] gap-6 min-h-0 py-6">
+          {/* Column 1: Config */}
+          <div className="flex flex-col min-h-0">
             <ConfigPanel
               text={text}
               onTextChange={(newText) => {
@@ -226,13 +236,28 @@ export default function QRGeneratorPage() {
               isShortening={isShortening}
             />
           </div>
-          <div className="lg:col-span-2 space-y-8">
+
+          {/* Column 2: Divider */}
+          <VerticalDivider>QR-BRUTAL V.01</VerticalDivider>
+
+          {/* Column 3: Preview */}
+          <div className="flex flex-col min-h-0">
             <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
+          </div>
+
+          {/* Column 4: Divider */}
+          <VerticalDivider>COLLECTION</VerticalDivider>
+
+          {/* Column 5: Collection */}
+          <div className="flex flex-col min-h-0">
             <CollectionPanel
               qrCodes={qrCodes}
               copiedId={copiedId}
               setCopiedId={setCopiedId}
               onRemove={handleRemoveQrCode}
+              onSave={handleSaveCollection}
+              isLoading={isLoading}
+              user={user}
             />
           </div>
         </div>

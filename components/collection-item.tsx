@@ -78,12 +78,12 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   }
 
   return (
-    <div className="bg-[var(--neo-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] p-3 rounded-md space-y-3">
-      <div className="flex items-start gap-3">
+    <div className="bg-transparent dashed-border-b last:border-b-0 pb-2 space-y-2">
+      <div className="flex items-center gap-3">
         <img
           src={thumbnail || getApiUrl({ ...qrConfig, width: 64 })}
           alt={`QR for ${text}`}
-          className="w-16 h-16 flex-shrink-0 bg-white p-1 border-[var(--neo-border-width)] border-[var(--neo-text)]"
+          className="w-12 h-12 flex-shrink-0 bg-white p-1 border-[var(--neo-border-width)] border-[var(--neo-text)]"
         />
         <div className="flex-1 min-w-0">
           <p className="font-mono text-sm truncate" title={text}>
@@ -91,25 +91,25 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
           </p>
           <p className="text-xs text-gray-500 font-mono">{new Date(qrCodeResult.createdAt).toLocaleDateString()}</p>
         </div>
-      </div>
-      <div className="flex gap-2">
-        <NeoButton variant="outline" size="icon" className="flex-1" onClick={handleCopy}>
-          {isCopied ? <Check size={16} /> : <Copy size={16} />}
-        </NeoButton>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <NeoButton variant="outline" size="icon" className="flex-1">
-              <Download size={16} />
-            </NeoButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={handleDownloadSvg}>SVG</DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDownloadPng}>PNG</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <NeoButton variant="destructive" size="icon" className="flex-1" onClick={() => onRemove(qrCodeResult.id)}>
-          <Trash2 size={16} />
-        </NeoButton>
+        <div className="flex gap-1">
+          <NeoButton variant="outline" size="icon" className="w-8 h-8" onClick={handleCopy}>
+            {isCopied ? <Check size={14} /> : <Copy size={14} />}
+          </NeoButton>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <NeoButton variant="outline" size="icon" className="w-8 h-8">
+                <Download size={14} />
+              </NeoButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={handleDownloadSvg}>SVG</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownloadPng}>PNG</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <NeoButton variant="destructive" size="icon" className="w-8 h-8" onClick={() => onRemove(qrCodeResult.id)}>
+            <Trash2 size={14} />
+          </NeoButton>
+        </div>
       </div>
     </div>
   )

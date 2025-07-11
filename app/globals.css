@@ -73,4 +73,17 @@
     background-image: radial-gradient(hsla(0, 0%, 0%, 0.15) 1px, transparent 0);
     background-size: 20px 20px;
   }
+
+  .dashed-border-t {
+    border-top: var(--neo-border-width) dashed var(--neo-text);
+  }
+  .dashed-border-b {
+    border-bottom: var(--neo-border-width) dashed var(--neo-text);
+  }
+  .dashed-border-l {
+    border-left: var(--neo-border-width) dashed var(--neo-text);
+  }
+  .dashed-border-r {
+    border-right: var(--neo-border-width) dashed var(--neo-text);
+  }
 }
