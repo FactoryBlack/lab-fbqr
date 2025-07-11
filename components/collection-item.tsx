@@ -103,7 +103,7 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   }
 
   return (
-    <div className="bg-transparent dashed-border-b last:border-b-0 pb-2 space-y-2">
+    <div className="bg-transparent border-b border-b-neo-text last:border-b-0 pb-2 space-y-2">
       <div className="flex items-center gap-3">
         <img
           src={thumbnail || "/placeholder.svg"}

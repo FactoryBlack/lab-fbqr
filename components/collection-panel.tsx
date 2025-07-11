@@ -17,7 +17,7 @@ interface CollectionPanelProps {
 
 export function CollectionPanel({ qrCodes, copiedId, setCopiedId, onRemove, isLoading, user }: CollectionPanelProps) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="border-[var(--neo-border-width)] border-[var(--neo-text)] p-4 h-full flex flex-col bg-[var(--neo-bg)]">
       <div className="flex items-center justify-between pb-2">
         <h2 className="font-heading text-xl">Collection</h2>
         {qrCodes.length > 0 && <p className="font-mono text-sm">{qrCodes.length} items</p>}

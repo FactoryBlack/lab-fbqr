@@ -236,7 +236,7 @@ export default function QRGeneratorPage() {
         </header>
 
         {/* Desktop Layout */}
-        <div className="hidden md:grid flex-1 md:grid-cols-[400px_auto_1fr_auto_400px] gap-6 min-h-0 py-6 w-full max-w-screen-2xl mx-auto">
+        <div className="hidden lg:grid flex-1 lg:grid-cols-[400px_auto_1fr_auto_400px] gap-6 min-h-0 pt-8 w-full max-w-screen-2xl mx-auto">
           <ConfigPanel
             text={text}
             onTextChange={(newText) => {
@@ -266,8 +266,8 @@ export default function QRGeneratorPage() {
           />
         </div>
 
-        {/* Mobile Layout */}
-        <div className="md:hidden flex-1 min-h-0 py-6">
+        {/* Mobile & Tablet Layout */}
+        <div className="lg:hidden flex-1 min-h-0 py-6">
           <ScrollArea className="h-full">
             <div className="flex flex-col gap-8">
               <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />

@@ -22,7 +22,7 @@ export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
     return (
       <div className="flex items-center gap-4">
         <span className="text-sm font-mono hidden sm:inline">{user.email}</span>
-        <NeoButton onClick={handleLogout} variant="outline" className="uppercase">
+        <NeoButton onClick={handleLogout} variant="outline" className="uppercase w-auto">
           Logout
         </NeoButton>
       </div>
@@ -30,7 +30,7 @@ export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
   }
 
   return (
-    <NeoButton onClick={onLoginClick} className="uppercase">
+    <NeoButton onClick={onLoginClick} className="uppercase w-auto">
       Login / Signup
     </NeoButton>
   )
