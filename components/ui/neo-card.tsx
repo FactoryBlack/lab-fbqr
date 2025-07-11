@@ -11,7 +11,7 @@ const NeoCard = React.forwardRef<HTMLDivElement, NeoCardProps>(({ className, noS
   <div
     ref={ref}
     className={cn(
-      "bg-[var(--card)] text-card-foreground border-[var(--neo-border-width)] border-[var(--neo-text)] transition-all",
+      "bg-[var(--neo-bg)] text-card-foreground border-[var(--neo-border-width)] border-[var(--neo-text)] transition-all",
       className,
     )}
     style={{

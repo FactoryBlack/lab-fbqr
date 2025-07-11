@@ -5,17 +5,18 @@
 @layer base {
   :root {
     /* Swiss-Tech Brutalist Palette */
-    --neo-bg: #f1e9d2;
+    --page-bg: #e5e5e5;
+    --neo-bg: #f1e9d2; /* Card background */
     --neo-text: #292732;
     --neo-accent: #eb1950;
     --neo-white: #ffffff;
-    --neo-off-white: #f5f3ed;
+    --neo-off-white: #f5f3ed; /* Input background */
     --neo-border-color: #292732;
 
     /* Mapped to existing theme for component compatibility */
-    --background: var(--neo-bg);
+    --background: var(--page-bg); /* Page background */
     --foreground: var(--neo-text);
-    --card: var(--neo-bg);
+    --card: var(--neo-bg); /* Card background */
     --card-foreground: var(--neo-text);
     --popover: var(--neo-bg);
     --popover-foreground: var(--neo-text);
@@ -45,7 +46,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-color: var(--neo-bg);
+    background-color: var(--page-bg);
   }
 
   .font-heading {
