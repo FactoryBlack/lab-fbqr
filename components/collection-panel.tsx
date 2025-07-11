@@ -1,10 +1,29 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import type { QRCodeResult } from "@/app/page"
 import { CollectionItem } from "./collection-item"
 import { ScrollArea } from "./ui/scroll-area"
 import type { User } from "@supabase/supabase-js"
+import { Skeleton } from "./ui/skeleton"
+
+const SkeletonCollectionItem = () => (
+  <div className="space-y-3 pb-3">
+    <div className="flex items-center gap-4">
+      <Skeleton className="w-16 h-16 flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
+      </div>
+    </div>
+    <div className="grid grid-cols-4 gap-2">
+      <Skeleton className="h-10" />
+      <Skeleton className="h-10" />
+      <Skeleton className="h-10" />
+      <Skeleton className="h-10" />
+    </div>
+  </div>
+)
 
 interface CollectionPanelProps {
   qrCodes: QRCodeResult[]
@@ -26,32 +45,36 @@ export function CollectionPanel({ qrCodes, copiedId, setCopiedId, onRemove, isLo
         <ScrollArea className="h-full pr-2">
           <div className="p-2">
             {isLoading && qrCodes.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="font-sans text-sm">Loading collection...</p>
+              <div className="space-y-4">
+                <SkeletonCollectionItem />
+                <SkeletonCollectionItem />
+                <SkeletonCollectionItem />
               </div>
             ) : qrCodes.length === 0 ? (
               <div className="text-center py-8">
                 <p className="font-sans text-sm">Your generated codes will appear here.</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {qrCodes.map((qr) => (
-                  <motion.div
-                    key={qr.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                  >
-                    <CollectionItem
-                      qrCodeResult={qr}
-                      isCopied={copiedId === qr.id}
-                      setCopiedId={setCopiedId}
-                      onRemove={onRemove}
-                    />
-                  </motion.div>
-                ))}
-              </div>
+              <AnimatePresence>
+                <div className="space-y-2">
+                  {qrCodes.map((qr) => (
+                    <motion.div
+                      key={qr.id}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -50, transition: { duration: 0.2 } }}
+                    >
+                      <CollectionItem
+                        qrCodeResult={qr}
+                        isCopied={copiedId === qr.id}
+                        setCopiedId={setCopiedId}
+                        onRemove={onRemove}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </AnimatePresence>
             )}
           </div>
         </ScrollArea>

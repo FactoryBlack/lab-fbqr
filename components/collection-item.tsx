@@ -116,13 +116,13 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
         </div>
       </div>
       <div className="grid grid-cols-4 gap-2">
-        <NeoButton variant="outline" size="sm" onClick={handleCopy}>
+        <NeoButton variant="secondary" size="sm" onClick={handleCopy}>
           {isCopied ? "COPIED" : "COPY"}
         </NeoButton>
-        <NeoButton variant="outline" size="sm" onClick={handleDownloadSvg}>
+        <NeoButton variant="default" size="sm" onClick={handleDownloadSvg}>
           SVG
         </NeoButton>
-        <NeoButton variant="outline" size="sm" onClick={handleDownloadPng}>
+        <NeoButton variant="default" size="sm" onClick={handleDownloadPng}>
           PNG
         </NeoButton>
         <NeoButton variant="destructive" size="sm" onClick={() => onRemove(qrCodeResult.id)}>

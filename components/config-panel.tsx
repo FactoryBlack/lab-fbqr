@@ -121,7 +121,7 @@ export function ConfigPanel({
     <div className="h-full flex flex-col bg-transparent p-6">
       <div className="flex flex-col h-full space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="text" className="font-heading text-2xl">
+          <Label htmlFor="text" className="font-heading text-3xl">
             Content
           </Label>
           <div>
@@ -150,7 +150,7 @@ export function ConfigPanel({
         <ScrollArea className="flex-1 pr-4 -mr-4">
           <div className="space-y-4">
             <div className="space-y-3 border-t-[var(--neo-border-width)] border-t-black/20 pt-4">
-              <h3 className="font-heading text-2xl">Style</h3>
+              <h3 className="font-heading text-3xl">Style</h3>
               <Accordion type="multiple" className="w-full" defaultValue={["dots"]}>
                 <AccordionItem value="dots">
                   <AccordionTrigger>Dots</AccordionTrigger>

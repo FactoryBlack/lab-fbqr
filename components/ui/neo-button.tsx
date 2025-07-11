@@ -7,14 +7,15 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const neoButtonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap text-base font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full border-[var(--neo-border-width)] border-neo-text active:translate-x-px active:translate-y-px active:shadow-none",
+  "inline-flex items-center justify-center whitespace-nowrap text-base font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full border-[var(--neo-border-width)] border-neo-text active:translate-x-px active:translate-y-px active:shadow-none font-sans",
   {
     variants: {
       variant: {
         default: "bg-[var(--neo-accent)] text-[var(--neo-text)] hover:bg-[var(--neo-accent)]/90",
-        destructive: "bg-transparent hover:bg-[var(--neo-white)]",
+        destructive:
+          "bg-[var(--neo-destructive-accent)] text-[var(--neo-text)] hover:bg-[var(--neo-destructive-accent)]/90",
         outline: "bg-transparent hover:bg-[var(--neo-white)]",
-        secondary: "bg-secondary text-secondary-foreground",
+        secondary: "bg-[var(--neo-muted-bg)] text-[var(--neo-text)] hover:bg-[var(--neo-muted-bg)]/90",
         ghost: "border-0 shadow-none hover:bg-accent hover:text-accent-foreground",
         link: "border-0 shadow-none text-primary underline-offset-4 hover:underline",
       },

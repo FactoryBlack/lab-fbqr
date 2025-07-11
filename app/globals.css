@@ -13,6 +13,8 @@
     --neo-white: #f0f0f0; /* Used for hover states, same as interactive bg */
     --neo-off-white: #f0f0f0; /* Input background, same as interactive bg */
     --neo-border-color: #1c1c1c;
+    --neo-destructive-accent: 16 100% 50%; /* Orangey-Red */
+    --neo-muted-bg: #d1d1d1; /* Light Grey */
 
     /* Mapped to existing theme for component compatibility */
     --background: var(--page-bg);
@@ -29,7 +31,7 @@
     --muted-foreground: var(--neo-text);
     --accent: var(--neo-accent);
     --accent-foreground: var(--neo-text);
-    --destructive: var(--neo-text);
+    --destructive: var(--neo-destructive-accent);
     --destructive-foreground: var(--neo-bg);
     --border: var(--neo-border-color);
     --input: var(--neo-interactive-bg);

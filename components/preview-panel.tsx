@@ -6,6 +6,15 @@ import jsQR from "jsqr"
 import { ValidationStatus, type Status as ValidationState } from "./validation-status"
 import useResizeObserver from "use-resize-observer"
 import type { QRStyleOptions } from "./config-panel"
+import { motion } from "framer-motion"
+
+const Loader = () => (
+  <motion.div
+    className="w-16 h-16 border-4 border-t-transparent border-[var(--neo-text)] rounded-full"
+    animate={{ rotate: 360 }}
+    transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+  />
+)
 
 interface PreviewPanelProps {
   text: string
@@ -103,12 +112,12 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
         className="w-full max-w-[70vh] aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
         style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
       >
-        {isLoading && !svgContent && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/50">
-            <p>Loading...</p>
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-[var(--neo-interactive-bg)]/80">
+            <Loader />
           </div>
         )}
-        {svgContent && (
+        {svgContent && !isLoading && (
           <img
             className="w-full h-full object-contain"
             src={`data:image/svg+xml;base64,${btoa(svgContent)}`}
