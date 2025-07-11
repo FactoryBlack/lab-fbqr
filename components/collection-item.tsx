@@ -46,7 +46,6 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
 
     image.onload = () => {
       const canvas = document.createElement("canvas")
-      // Use a higher resolution for better quality
       const scale = 4
       canvas.width = image.width * scale
       canvas.height = image.height * scale
@@ -81,9 +80,9 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
   return (
     <div className="flex items-center gap-4 bg-[var(--neo-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] p-2 rounded-md">
       <img
-        src={getApiUrl({ ...qrConfig, width: 64 || "/placeholder.svg" }) || "/placeholder.svg"}
+        src={getApiUrl({ ...qrConfig, width: 64 || "/placeholder.svg" })}
         alt={`QR for ${qrCodeResult.text}`}
-        className="w-16 h-16 flex-shrink-0"
+        className="w-16 h-16 flex-shrink-0 bg-white p-1"
       />
       <p className="flex-1 font-mono text-sm truncate">{qrCodeResult.text}</p>
       <div className="flex gap-2">

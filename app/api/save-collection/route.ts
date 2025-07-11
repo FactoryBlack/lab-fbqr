@@ -1,46 +1,32 @@
+import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
-import { nanoid } from "nanoid"
-import { sql } from "@neondatabase/serverless"
 
 export async function POST(request: Request) {
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
   try {
     const { qrCodes } = await request.json()
 
-    if (!qrCodes || !Array.isArray(qrCodes) || qrCodes.length === 0) {
-      return NextResponse.json({ error: "Invalid collection data" }, { status: 400 })
+    if (!qrCodes || !Array.isArray(qrCodes)) {
+      return NextResponse.json({ error: "Invalid data" }, { status: 400 })
     }
 
-    let pin
-    let attempts = 0
-    const maxAttempts = 10
-    let success = false
+    // This is a simple "upsert" logic. It replaces the user's entire collection
+    // with the current one from the client. A more complex app might allow multiple named collections.
+    const { error } = await supabase
+      .from("qr_collections")
+      .upsert({ user_id: user.id, qr_codes: qrCodes, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
 
-    // Loop to handle potential PIN collisions
-    while (!success && attempts < maxAttempts) {
-      pin = nanoid(6)
-      try {
-        await sql`
-          INSERT INTO qr_collections (pin, qr_codes)
-          VALUES (${pin}, ${JSON.stringify(qrCodes)}::jsonb)
-        `
-        success = true
-      } catch (error: any) {
-        // Check if it's a unique constraint violation
-        if (error.code === "23505") {
-          // PIN already exists, try again
-          attempts++
-        } else {
-          // Different error, throw it
-          throw error
-        }
-      }
-    }
+    if (error) throw error
 
-    if (!success) {
-      throw new Error("Failed to generate a unique PIN after multiple attempts.")
-    }
-
-    return NextResponse.json({ pin })
+    return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error("Save error:", error)
     return NextResponse.json({ error: `Failed to save collection: ${error.message}` }, { status: 500 })

@@ -1,14 +1,15 @@
 "use client"
 
 import type React from "react"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { toast } from "sonner"
-import { PinModal } from "@/components/pin-modal"
 import { HeaderBar } from "@/components/header-bar"
 import { ConfigPanel, type QRStyleOptions } from "@/components/config-panel"
 import { PreviewPanel } from "@/components/preview-panel"
 import { CollectionPanel } from "@/components/collection-panel"
 import { NeoButton } from "@/components/ui/neo-button"
+import { createClient } from "@/lib/supabase/client"
+import type { User } from "@supabase/supabase-js"
 
 export interface QRCodeResult {
   id: string
@@ -18,14 +19,55 @@ export interface QRCodeResult {
 }
 
 export default function QRGeneratorPage() {
+  const [user, setUser] = useState<User | null>(null)
   const [text, setText] = useState("https://vercel.com")
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
-
-  const [pinToLoad, setPinToLoad] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [savedPin, setSavedPin] = useState<string | null>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    // Get initial session
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
+
+  // Load collections if user is logged in
+  useEffect(() => {
+    const loadCollections = async () => {
+      if (user) {
+        setIsLoading(true)
+        try {
+          const response = await fetch("/api/get-collections")
+          if (response.ok) {
+            const data = await response.json()
+            const allQrCodes = data.collections.flatMap((c: any) => c.qr_codes)
+            setQrCodes(allQrCodes)
+          } else {
+            toast.error("Failed to load your collections.")
+          }
+        } catch (error) {
+          toast.error("An error occurred while loading collections.")
+        } finally {
+          setIsLoading(false)
+        }
+      } else {
+        // If user logs out, clear the collection
+        setQrCodes([])
+      }
+    }
+    loadCollections()
+  }, [user])
 
   const [style, setStyle] = useState<QRStyleOptions>({
     width: 300,
@@ -49,9 +91,7 @@ export default function QRGeneratorPage() {
 
   const handleSizeChange = useCallback((size: number) => {
     setStyle((prev) => {
-      if (prev.width === size) {
-        return prev
-      }
+      if (prev.width === size) return prev
       return { ...prev, width: size }
     })
   }, [])
@@ -63,9 +103,7 @@ export default function QRGeneratorPage() {
       reader.onload = (e) => setLogoPreview(e.target?.result as string)
       reader.readAsDataURL(file)
       setStyle((prev) => ({ ...prev, qrOptions: { ...prev.qrOptions, errorCorrectionLevel: "H" } }))
-      toast("Logo Added", {
-        description: "Error correction boosted to High for best scanning.",
-      })
+      toast("Logo Added", { description: "Error correction boosted for best scanning." })
     }
   }
 
@@ -74,38 +112,34 @@ export default function QRGeneratorPage() {
       toast.error("Error", { description: "Content cannot be empty." })
       return
     }
-
-    setIsGenerating(true)
-    const id = Date.now().toString()
-
     const newQrCode: QRCodeResult = {
-      id,
+      id: Date.now().toString(),
       text,
-      qrConfig: {
-        ...style,
-        data: text,
-        image: logoPreview,
-      },
+      qrConfig: { ...style, data: text, image: logoPreview },
       createdAt: new Date().toISOString(),
     }
     setQrCodes((prev) => [newQrCode, ...prev])
-    setIsGenerating(false)
-    toast("QR Code Added", { description: "Added to your collection." })
+    toast("QR Code Added", { description: "Added to your local collection." })
   }
 
   const handleRemoveQrCode = (id: string) => {
     setQrCodes((prev) => prev.filter((qr) => qr.id !== id))
-    toast("Removed from collection")
+    toast("Removed from local collection")
   }
 
   const handleSaveCollection = async () => {
+    if (!user) {
+      toast.error("Please log in to save your collection.")
+      return
+    }
     if (qrCodes.length === 0) {
-      toast.error("Empty Collection", { description: "Generate at least one QR code." })
+      toast.error("Your collection is empty.")
       return
     }
 
     setIsLoading(true)
     try {
+      // For simplicity, we save the entire current collection as "Default Collection"
       const response = await fetch("/api/save-collection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,34 +147,12 @@ export default function QRGeneratorPage() {
       })
       const data = await response.json()
       if (response.ok) {
-        setSavedPin(data.pin)
+        toast.success("Collection saved successfully!")
       } else {
         throw new Error(data.error || "Failed to save")
       }
     } catch (error: any) {
-      toast.error("Save Failed", {
-        description: error.message,
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleLoadCollection = async () => {
-    if (!pinToLoad.trim()) return
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/load-collection?pin=${pinToLoad.trim()}`)
-      const data = await response.json()
-      if (response.ok) {
-        setQrCodes(data.qrCodes)
-        toast("Collection Loaded", { description: `Successfully loaded collection for PIN ${pinToLoad}.` })
-        setPinToLoad("")
-      } else {
-        throw new Error(data.error || "Failed to load")
-      }
-    } catch (error: any) {
-      toast.error("Load Failed", { description: error.message })
+      toast.error("Save Failed", { description: error.message })
     } finally {
       setIsLoading(false)
     }
@@ -149,17 +161,10 @@ export default function QRGeneratorPage() {
   return (
     <>
       <div className="fixed inset-0 dot-grid-bg -z-10" />
-      <PinModal pin={savedPin} onClose={() => setSavedPin(null)} />
-
       <div className="min-h-screen p-6 md:p-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <div className="space-y-8">
-            <HeaderBar
-              pinToLoad={pinToLoad}
-              onPinChange={setPinToLoad}
-              onLoadClick={handleLoadCollection}
-              isLoading={isLoading}
-            />
+            <HeaderBar user={user} />
             <ConfigPanel
               text={text}
               onTextChange={setText}
@@ -171,22 +176,23 @@ export default function QRGeneratorPage() {
               logoPreview={logoPreview}
             />
           </div>
-
           <div className="space-y-8">
             <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-heading text-3xl">Collection</h2>
-                <div className="w-auto">
-                  <NeoButton
-                    size="sm"
-                    onClick={handleSaveCollection}
-                    disabled={isLoading || qrCodes.length === 0}
-                    className="uppercase"
-                  >
-                    {isLoading ? "Saving..." : "Save Collection"}
-                  </NeoButton>
-                </div>
+                {user && (
+                  <div className="w-auto">
+                    <NeoButton
+                      size="sm"
+                      onClick={handleSaveCollection}
+                      disabled={isLoading || qrCodes.length === 0}
+                      className="uppercase"
+                    >
+                      {isLoading ? "Saving..." : "Save Collection"}
+                    </NeoButton>
+                  </div>
+                )}
               </div>
               <CollectionPanel
                 qrCodes={qrCodes}
