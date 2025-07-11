@@ -9,7 +9,6 @@ import { CollectionPanel } from "@/components/collection-panel"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { AuthModal } from "@/components/auth-modal"
-import QRCodeStyling from "qr-code-styling"
 import AuthButton from "@/components/auth-button"
 import { VerticalDivider } from "@/components/vertical-divider"
 
@@ -144,28 +143,42 @@ export default function QRGeneratorPage() {
       return
     }
 
-    const qrCodeStyling = new QRCodeStyling({
-      width: 64,
-      height: 64,
-      ...style,
-      data: text,
-      image: logoPreview,
-    })
+    setIsGenerating(true)
+    try {
+      const response = await fetch("/api/generate-qr-svg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...style,
+          width: 64, // for thumbnail
+          data: text,
+          image: logoPreview,
+        }),
+      })
 
-    const svgString = await qrCodeStyling.getSvg()
-    const thumbnailDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`
+      if (!response.ok) {
+        throw new Error("Failed to generate QR code thumbnail")
+      }
 
-    const newQrCode: QRCodeResult = {
-      id: Date.now().toString(),
-      text: text,
-      originalUrl: originalUrl,
-      qrConfig: { ...style, data: text, image: logoPreview },
-      thumbnail: thumbnailDataUrl,
-      createdAt: new Date().toISOString(),
+      const svgString = await response.text()
+      const thumbnailDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`
+
+      const newQrCode: QRCodeResult = {
+        id: Date.now().toString(),
+        text: text,
+        originalUrl: originalUrl,
+        qrConfig: { ...style, data: text, image: logoPreview },
+        thumbnail: thumbnailDataUrl,
+        createdAt: new Date().toISOString(),
+      }
+      setQrCodes((prev) => [newQrCode, ...prev])
+      setOriginalUrl(undefined)
+      toast("QR Code Added", { description: "Added to your local collection." })
+    } catch (error: any) {
+      toast.error("Generation Failed", { description: error.message })
+    } finally {
+      setIsGenerating(false)
     }
-    setQrCodes((prev) => [newQrCode, ...prev])
-    setOriginalUrl(undefined) // Reset after adding to collection
-    toast("QR Code Added", { description: "Added to your local collection." })
   }
 
   const handleRemoveQrCode = (id: string) => {
