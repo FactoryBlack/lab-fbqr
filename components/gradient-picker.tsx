@@ -67,25 +67,18 @@ export function GradientPicker({
 
       {isEnabled && gradient ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-xs">Color 1</Label>
-              <Input
-                type="color"
-                value={gradient.colorStops[0].color}
-                onChange={(e) => updateColorStop(0, e.target.value)}
-                className="h-10 neo-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs">Color 2</Label>
-              <Input
-                type="color"
-                value={gradient.colorStops[1].color}
-                onChange={(e) => updateColorStop(1, e.target.value)}
-                className="h-10 neo-input"
-              />
-            </div>
+          <div className="space-y-2">
+            {gradient.colorStops.map((stop, index) => (
+              <div key={index} className="flex items-center justify-between gap-4">
+                <Label className="text-xs font-bold whitespace-nowrap">Color {index + 1}</Label>
+                <Input
+                  type="color"
+                  value={stop.color}
+                  onChange={(e) => updateColorStop(index, e.target.value)}
+                  className="h-10 w-full"
+                />
+              </div>
+            ))}
           </div>
           <div className="space-y-2">
             <Label className="text-xs">Type</Label>

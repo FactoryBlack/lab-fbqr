@@ -125,33 +125,35 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
 
   return (
     <div className="flex flex-col h-full items-center justify-center p-6">
-      <div
-        ref={containerRef}
-        className="w-full max-w-[70vh] aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
-        style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
-      >
-        <AnimatePresence>
-          {isLoading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center bg-[var(--neo-interactive-bg)]/80 z-20"
-            >
-              <Loader />
-            </motion.div>
+      <div className="w-full sticky top-6">
+        <div
+          ref={containerRef}
+          className="w-full max-w-[70vh] mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
+          style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
+        >
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex items-center justify-center bg-[var(--neo-interactive-bg)]/80 z-20"
+              >
+                <Loader />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {svgContent && (
+            <img
+              className="w-full h-full object-contain"
+              src={`data:image/svg+xml;base64,${btoa(svgContent)}`}
+              alt="Generated QR Code"
+            />
           )}
-        </AnimatePresence>
 
-        {svgContent && (
-          <img
-            className="w-full h-full object-contain"
-            src={`data:image/svg+xml;base64,${btoa(svgContent)}`}
-            alt="Generated QR Code"
-          />
-        )}
-
-        <QrStatusIndicator status={validationStatus} />
+          <QrStatusIndicator status={validationStatus} />
+        </div>
       </div>
       <AnimatePresence>
         {validationStatus === "invalid" && <UnscannableExplanation hasLogo={!!logoPreview} />}

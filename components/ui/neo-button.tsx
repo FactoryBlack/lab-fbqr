@@ -50,7 +50,7 @@ const NeoButton = React.forwardRef<HTMLButtonElement, NeoButtonProps>(
         className={cn(
           neoButtonVariants({ variant, size, className }),
           hasShadow &&
-            "shadow-[8px_8px_0px_var(--neo-text)] hover:shadow-[6px_6px_0px_var(--neo-text)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[8px] active:translate-y-[8px]",
+            "shadow-[4px_4px_0px_var(--neo-text)] hover:shadow-[2px_2px_0px_var(--neo-text)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]",
         )}
         ref={ref}
         {...props}

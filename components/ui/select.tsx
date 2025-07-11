@@ -22,7 +22,7 @@ const SelectTrigger = React.forwardRef<
       "flex h-11 w-full items-center justify-between bg-[var(--neo-interactive-bg)] px-3 py-2 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-sans border-[var(--neo-border-width)] border-neo-text",
       className,
     )}
-    style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
+    style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
     {...props}
   >
     {children}
@@ -46,7 +46,7 @@ const SelectContent = React.forwardRef<
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className,
       )}
-      style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
+      style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
       position={position}
       {...props}
     >
