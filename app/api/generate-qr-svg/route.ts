@@ -153,11 +153,6 @@ function renderSvg(qr: QRCode, options: any): string {
     return cornerPositions.some(([pr, pc]) => r >= pr && r < pr + 7 && c >= pc && c < pc + 7)
   }
 
-  const getNeighbor = (r: number, c: number) => {
-    if (r < 0 || r >= size || c < 0 || c >= size) return false
-    return qr.modules.get(r, c)
-  }
-
   const qrWidth = size * moduleSize
   const logoMargin = imageOptions?.margin || 0
   const logoSize = imageOptions?.imageSize ? qrWidth * imageOptions.imageSize : 0
@@ -168,6 +163,26 @@ function renderSvg(qr: QRCode, options: any): string {
     y1: logoY - logoMargin,
     x2: logoX + logoSize + logoMargin,
     y2: logoY + logoSize + logoMargin,
+  }
+
+  const isModuleRendered = (r: number, c: number): boolean => {
+    if (r < 0 || r >= size || c < 0 || c >= size) return false
+    if (!qr.modules.get(r, c)) return false
+
+    // A module is not rendered if it's hidden by the logo
+    if (image && imageOptions?.hideBackgroundDots && !isCorner(r, c)) {
+      const moduleX = c * moduleSize + offset
+      const moduleY = r * moduleSize + offset
+      if (
+        moduleX + moduleSize > logoBox.x1 &&
+        moduleX < logoBox.x2 &&
+        moduleY + moduleSize > logoBox.y1 &&
+        moduleY < logoBox.y2
+      ) {
+        return false // This module is hidden by the logo
+      }
+    }
+    return true
   }
 
   // Draw corner elements
@@ -242,7 +257,13 @@ function renderSvg(qr: QRCode, options: any): string {
         cdRadii.br = 0.75 * moduleSize
       }
     }
-    svgContent += `<path d="${drawRoundedRect((pc + 2) * moduleSize, (pr + 2) * moduleSize, 3 * moduleSize, 3 * moduleSize, cdRadii)}" ${cornersDotFill} />`
+    svgContent += `<path d="${drawRoundedRect(
+      (pc + 2) * moduleSize,
+      (pr + 2) * moduleSize,
+      3 * moduleSize,
+      3 * moduleSize,
+      cdRadii,
+    )}" ${cornersDotFill} />`
   })
 
   // Draw data modules
@@ -257,31 +278,25 @@ function renderSvg(qr: QRCode, options: any): string {
     // Draw base circles and connectors
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
-        if (!qr.modules.get(r, c) || isCorner(r, c)) continue
+        if (!isModuleRendered(r, c) || isCorner(r, c)) continue
 
         const moduleX = c * moduleSize + offset
         const moduleY = r * moduleSize + offset
 
-        if (image && imageOptions?.hideBackgroundDots) {
-          if (
-            moduleX + moduleSize > logoBox.x1 &&
-            moduleX < logoBox.x2 &&
-            moduleY + moduleSize > logoBox.y1 &&
-            moduleY < logoBox.y2
-          )
-            continue
-        }
-
         // Draw the circle for the module, slightly larger to overlap
         fluidShapes += `<circle cx="${moduleX + radius}" cy="${moduleY + radius}" r="${radius + overlap}" />`
 
-        // Draw connector to the right, slightly larger to overlap
-        if (getNeighbor(r, c + 1) && !isCorner(r, c + 1)) {
-          fluidShapes += `<rect x="${moduleX + radius}" y="${moduleY - overlap}" width="${moduleSize}" height="${moduleSize + 2 * overlap}" />`
+        // Draw connector to the right if neighbor is rendered
+        if (isModuleRendered(r, c + 1)) {
+          fluidShapes += `<rect x="${moduleX + radius}" y="${moduleY - overlap}" width="${moduleSize}" height="${
+            moduleSize + 2 * overlap
+          }" />`
         }
-        // Draw connector to the bottom, slightly larger to overlap
-        if (getNeighbor(r + 1, c) && !isCorner(r + 1, c)) {
-          fluidShapes += `<rect x="${moduleX - overlap}" y="${moduleY + radius}" width="${moduleSize + 2 * overlap}" height="${moduleSize}" />`
+        // Draw connector to the bottom if neighbor is rendered
+        if (isModuleRendered(r + 1, c)) {
+          fluidShapes += `<rect x="${moduleX - overlap}" y="${moduleY + radius}" width="${
+            moduleSize + 2 * overlap
+          }" height="${moduleSize}" />`
         }
       }
     }
@@ -293,48 +308,45 @@ function renderSvg(qr: QRCode, options: any): string {
 
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-          if (qr.modules.get(r, c)) continue // We are looking for empty spaces
+          // We draw corners in visually empty spaces.
+          if (isModuleRendered(r, c) || isCorner(r, c)) continue
 
           const moduleX = c * moduleSize + offset
           const moduleY = r * moduleSize + offset
 
-          if (image && imageOptions?.hideBackgroundDots) {
-            if (
-              moduleX + moduleSize > logoBox.x1 &&
-              moduleX < logoBox.x2 &&
-              moduleY + moduleSize > logoBox.y1 &&
-              moduleY < logoBox.y2
-            )
-              continue
-          }
-
-          if (isCorner(r, c)) continue
-
-          const top = getNeighbor(r - 1, c)
-          const bottom = getNeighbor(r + 1, c)
-          const left = getNeighbor(r, c - 1)
-          const right = getNeighbor(r, c + 1)
+          const top = isModuleRendered(r - 1, c)
+          const bottom = isModuleRendered(r + 1, c)
+          const left = isModuleRendered(r, c - 1)
+          const right = isModuleRendered(r, c + 1)
 
           // Each corner piece is expanded by `overlap` to fill gaps.
-          if (top && left && getNeighbor(r - 1, c - 1)) {
+          if (top && left && isModuleRendered(r - 1, c - 1)) {
             const cx = moduleX - overlap
             const cy = moduleY - overlap
-            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${cx + newCornerRadius},${cy} L ${cx},${cy} Z" />`
+            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${
+              cx + newCornerRadius
+            },${cy} L ${cx},${cy} Z" />`
           }
-          if (top && right && getNeighbor(r - 1, c + 1)) {
+          if (top && right && isModuleRendered(r - 1, c + 1)) {
             const cx = moduleX + moduleSize + overlap
             const cy = moduleY - overlap
-            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${cx - newCornerRadius},${cy} L ${cx},${cy} Z" />`
+            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${
+              cx - newCornerRadius
+            },${cy} L ${cx},${cy} Z" />`
           }
-          if (bottom && left && getNeighbor(r + 1, c - 1)) {
+          if (bottom && left && isModuleRendered(r + 1, c - 1)) {
             const cx = moduleX - overlap
             const cy = moduleY + moduleSize + overlap
-            fluidShapes += `<path d="M ${cx + newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${cx},${cy - newCornerRadius} L ${cx},${cy} Z" />`
+            fluidShapes += `<path d="M ${cx + newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${cx},${
+              cy - newCornerRadius
+            } L ${cx},${cy} Z" />`
           }
-          if (bottom && right && getNeighbor(r + 1, c + 1)) {
+          if (bottom && right && isModuleRendered(r + 1, c + 1)) {
             const cx = moduleX + moduleSize + overlap
             const cy = moduleY + moduleSize + overlap
-            fluidShapes += `<path d="M ${cx - newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${cx},${cy - newCornerRadius} L ${cx},${cy} Z" />`
+            fluidShapes += `<path d="M ${cx - newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${cx},${
+              cy - newCornerRadius
+            } L ${cx},${cy} Z" />`
           }
         }
       }
@@ -345,22 +357,10 @@ function renderSvg(qr: QRCode, options: any): string {
     let dataPath = ""
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
-        if (!qr.modules.get(r, c) || isCorner(r, c)) continue
+        if (!isModuleRendered(r, c) || isCorner(r, c)) continue
 
         const moduleX = c * moduleSize
         const moduleY = r * moduleSize
-
-        if (image && imageOptions?.hideBackgroundDots) {
-          const absoluteModuleX = moduleX + offset
-          const absoluteModuleY = moduleY + offset
-          if (
-            absoluteModuleX + moduleSize > logoBox.x1 &&
-            absoluteModuleX < logoBox.x2 &&
-            absoluteModuleY + moduleSize > logoBox.y1 &&
-            absoluteModuleY < logoBox.y2
-          )
-            continue
-        }
 
         const shapeType = dotsOptions.type
         const radii = { tl: 0, tr: 0, br: 0, bl: 0 }
@@ -370,10 +370,10 @@ function renderSvg(qr: QRCode, options: any): string {
         else if (shapeType === "rounded") radii.tl = radii.tr = radii.br = radii.bl = radius * 0.5
         else if (shapeType === "extra-rounded") radii.tl = radii.tr = radii.br = radii.bl = radius
         else if (shapeType === "classy" || shapeType === "classy-rounded") {
-          const top = getNeighbor(r - 1, c)
-          const bottom = getNeighbor(r + 1, c)
-          const left = getNeighbor(r, c - 1)
-          const right = getNeighbor(r, c + 1)
+          const top = isModuleRendered(r - 1, c)
+          const bottom = isModuleRendered(r + 1, c)
+          const left = isModuleRendered(r, c - 1)
+          const right = isModuleRendered(r, c + 1)
 
           if (shapeType === "classy") {
             if (top && left) radii.tl = radius
