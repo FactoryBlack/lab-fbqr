@@ -31,7 +31,6 @@ export default function QRGeneratorPage() {
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [isShortening, setIsShortening] = useState(false)
-  const [copiedId, setCopiedId] = useState<string | null>(null)
   const [isCollectionLoaded, setIsCollectionLoaded] = useState(false)
   const supabase = createClient()
 
@@ -208,6 +207,19 @@ export default function QRGeneratorPage() {
     }
   }
 
+  const handleLoadQrCode = (qrCodeToLoad: QRCodeResult) => {
+    const { qrConfig, text, originalUrl } = qrCodeToLoad
+    // Destructure to separate style options from other config data
+    const { data, image, ...styleOptions } = qrConfig
+
+    setText(text)
+    setOriginalUrl(originalUrl)
+    setStyle(styleOptions)
+    setLogoPreview(image || null)
+
+    toast("Style Loaded", { description: "Configuration has been applied from your collection." })
+  }
+
   const handleRemoveQrCode = (id: string) => {
     const newQrCodes = qrCodes.filter((qr) => qr.id !== id)
     setQrCodes(newQrCodes)
@@ -258,10 +270,10 @@ export default function QRGeneratorPage() {
             <VerticalDivider />
             <CollectionPanel
               qrCodes={qrCodes}
-              copiedId={copiedId}
-              setCopiedId={setCopiedId}
               onRemove={handleRemoveQrCode}
+              onLoad={handleLoadQrCode}
               user={user}
+              isLoading={!isCollectionLoaded}
             />
           </div>
 
@@ -291,10 +303,10 @@ export default function QRGeneratorPage() {
                 </div>
                 <CollectionPanel
                   qrCodes={qrCodes}
-                  copiedId={copiedId}
-                  setCopiedId={setCopiedId}
                   onRemove={handleRemoveQrCode}
+                  onLoad={handleLoadQrCode}
                   user={user}
+                  isLoading={!isCollectionLoaded}
                 />
               </div>
             </ScrollArea>

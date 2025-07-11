@@ -27,14 +27,13 @@ const SkeletonCollectionItem = () => (
 
 interface CollectionPanelProps {
   qrCodes: QRCodeResult[]
-  copiedId: string | null
-  setCopiedId: (id: string | null) => void
   onRemove: (id: string) => void
+  onLoad: (qrCodeResult: QRCodeResult) => void
   isLoading: boolean
   user: User | null
 }
 
-export function CollectionPanel({ qrCodes, copiedId, setCopiedId, onRemove, isLoading, user }: CollectionPanelProps) {
+export function CollectionPanel({ qrCodes, onRemove, onLoad, isLoading, user }: CollectionPanelProps) {
   return (
     <div className="p-6 h-full flex flex-col bg-transparent">
       <div className="flex items-center justify-between pb-2">
@@ -65,12 +64,7 @@ export function CollectionPanel({ qrCodes, copiedId, setCopiedId, onRemove, isLo
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: -50, transition: { duration: 0.2 } }}
                     >
-                      <CollectionItem
-                        qrCodeResult={qr}
-                        isCopied={copiedId === qr.id}
-                        setCopiedId={setCopiedId}
-                        onRemove={onRemove}
-                      />
+                      <CollectionItem qrCodeResult={qr} onRemove={onRemove} onLoad={onLoad} />
                     </motion.div>
                   ))}
                 </div>

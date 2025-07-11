@@ -6,12 +6,11 @@ import type { QRCodeResult } from "@/app/page"
 
 interface CollectionItemProps {
   qrCodeResult: QRCodeResult
-  isCopied: boolean
-  setCopiedId: (id: string | null) => void
   onRemove: (id: string) => void
+  onLoad: (qrCodeResult: QRCodeResult) => void
 }
 
-export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }: CollectionItemProps) {
+export function CollectionItem({ qrCodeResult, onRemove, onLoad }: CollectionItemProps) {
   const { qrConfig, thumbnail, text } = qrCodeResult
 
   const fetchQrSvgBlob = async () => {
@@ -82,24 +81,6 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
     }
   }
 
-  const handleCopy = async () => {
-    try {
-      const response = await fetch("/api/generate-qr-svg", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(qrConfig),
-      })
-      if (!response.ok) throw new Error("Failed to fetch SVG for copying.")
-      const svgText = await response.text()
-      await navigator.clipboard.writeText(svgText)
-      toast("Copied!", { description: "SVG code copied to clipboard." })
-      setCopiedId(qrCodeResult.id)
-      setTimeout(() => setCopiedId(null), 2000)
-    } catch (error: any) {
-      toast.error("Copy Failed", { description: error.message || "Could not copy SVG code." })
-    }
-  }
-
   return (
     <div className="bg-transparent border-b border-b-neo-text/20 last:border-b-0 pb-3 space-y-3">
       <div className="flex items-center gap-4">
@@ -116,8 +97,8 @@ export function CollectionItem({ qrCodeResult, isCopied, setCopiedId, onRemove }
         </div>
       </div>
       <div className="grid grid-cols-4 gap-2">
-        <NeoButton variant="secondary" size="sm" onClick={handleCopy}>
-          {isCopied ? "COPIED" : "COPY"}
+        <NeoButton variant="secondary" size="sm" onClick={() => onLoad(qrCodeResult)}>
+          LOAD
         </NeoButton>
         <NeoButton variant="default" size="sm" onClick={handleDownloadSvg}>
           SVG
