@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS qr_collections (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   -- Let's just store the whole array for simplicity. A more complex app might normalize this.
-  qr_codes JSONB NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  qr_codes JSONB,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Optional: A function to automatically update the updated_at timestamp
