@@ -125,7 +125,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
 
   return (
     <div className="flex flex-col h-full items-center justify-center p-6">
-      <div className="w-full sticky top-6">
+      <div className="w-full sticky top-6 max-h-[calc(100vh-10rem)]">
         <div
           ref={containerRef}
           className="w-full max-w-[70vh] mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
@@ -152,12 +152,9 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
             />
           )}
 
-          <QrStatusIndicator status={validationStatus} />
+          <QrStatusIndicator status={validationStatus} hasLogo={!!debouncedLogo} />
         </div>
       </div>
-      <AnimatePresence>
-        {validationStatus === "invalid" && <UnscannableExplanation hasLogo={!!logoPreview} />}
-      </AnimatePresence>
     </div>
   )
 }
