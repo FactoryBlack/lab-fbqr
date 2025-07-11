@@ -3,10 +3,11 @@
 import { useEffect, useState, useCallback } from "react"
 import { useDebounce } from "use-debounce"
 import jsQR from "jsqr"
-import { ValidationStatus, type Status as ValidationState } from "./validation-status"
+import { QrStatusIndicator, type Status as ValidationState } from "./qr-status-indicator"
 import useResizeObserver from "use-resize-observer"
 import type { QRStyleOptions } from "./config-panel"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import { NeoCard, NeoCardContent } from "./ui/neo-card"
 
 const Loader = () => (
   <motion.div
@@ -14,6 +15,23 @@ const Loader = () => (
     animate={{ rotate: 360 }}
     transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
   />
+)
+
+const UnscannableExplanation = ({ hasLogo }: { hasLogo: boolean }) => (
+  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
+    <NeoCard className="mt-6">
+      <NeoCardContent className="p-4">
+        <p className="font-sans text-base font-bold uppercase text-red-600">Unscannable Code</p>
+        <p className="font-sans text-sm mt-2">This QR code might not be readable. Try the following:</p>
+        <ul className="list-disc list-inside font-sans text-sm mt-2 space-y-1">
+          <li>Reduce the amount of text in the 'Content' field.</li>
+          {hasLogo && <li>Try making the logo smaller or removing it.</li>}
+          <li>Use simpler dot and corner styles.</li>
+          <li>Avoid very light colors or gradients for the dots.</li>
+        </ul>
+      </NeoCardContent>
+    </NeoCard>
+  </motion.div>
 )
 
 interface PreviewPanelProps {
@@ -112,22 +130,32 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
         className="w-full max-w-[70vh] aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
         style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
       >
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[var(--neo-interactive-bg)]/80">
-            <Loader />
-          </div>
-        )}
-        {svgContent && !isLoading && (
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center bg-[var(--neo-interactive-bg)]/80 z-20"
+            >
+              <Loader />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {svgContent && (
           <img
             className="w-full h-full object-contain"
             src={`data:image/svg+xml;base64,${btoa(svgContent)}`}
             alt="Generated QR Code"
           />
         )}
+
+        <QrStatusIndicator status={validationStatus} />
       </div>
-      <div className="pt-6">
-        <ValidationStatus status={validationStatus} />
-      </div>
+      <AnimatePresence>
+        {validationStatus === "invalid" && <UnscannableExplanation hasLogo={!!logoPreview} />}
+      </AnimatePresence>
     </div>
   )
 }

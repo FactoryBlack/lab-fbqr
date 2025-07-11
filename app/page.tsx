@@ -32,7 +32,6 @@ export default function QRGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isShortening, setIsShortening] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [isCollectionLoaded, setIsCollectionLoaded] = useState(false)
   const supabase = createClient()
 
@@ -64,15 +63,11 @@ export default function QRGeneratorPage() {
       if (!currentUser) {
         setQrCodes([])
         setIsCollectionLoaded(false)
-        setIsLoading(false)
       }
     })
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
-      if (!user) {
-        setIsLoading(false)
-      }
     })
 
     return () => subscription.unsubscribe()
@@ -81,7 +76,6 @@ export default function QRGeneratorPage() {
   useEffect(() => {
     const loadCollection = async () => {
       if (user && !isCollectionLoaded) {
-        setIsLoading(true)
         try {
           const response = await fetch("/api/get-collections")
           if (response.ok) {
@@ -94,7 +88,6 @@ export default function QRGeneratorPage() {
         } catch (error) {
           toast.error("An error occurred while loading collection.")
         } finally {
-          setIsLoading(false)
           setIsCollectionLoaded(true)
         }
       }
@@ -253,7 +246,6 @@ export default function QRGeneratorPage() {
               onStyleChange={handleStyleChange}
               onGenerateClick={handleGenerateClick}
               isGenerating={isGenerating || isShortening}
-              isLoading={isLoading}
               onLogoUpload={handleLogoUpload}
               logoPreview={logoPreview}
               onShortenUrl={handleShortenUrl}
@@ -267,7 +259,6 @@ export default function QRGeneratorPage() {
               copiedId={copiedId}
               setCopiedId={setCopiedId}
               onRemove={handleRemoveQrCode}
-              isLoading={isLoading}
               user={user}
             />
           </div>
@@ -290,7 +281,6 @@ export default function QRGeneratorPage() {
                     onStyleChange={handleStyleChange}
                     onGenerateClick={handleGenerateClick}
                     isGenerating={isGenerating || isShortening}
-                    isLoading={isLoading}
                     onLogoUpload={handleLogoUpload}
                     logoPreview={logoPreview}
                     onShortenUrl={handleShortenUrl}
@@ -302,7 +292,6 @@ export default function QRGeneratorPage() {
                   copiedId={copiedId}
                   setCopiedId={setCopiedId}
                   onRemove={handleRemoveQrCode}
-                  isLoading={isLoading}
                   user={user}
                 />
               </div>

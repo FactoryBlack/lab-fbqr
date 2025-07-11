@@ -38,7 +38,7 @@ export function CollectionPanel({ qrCodes, copiedId, setCopiedId, onRemove, isLo
   return (
     <div className="p-6 h-full flex flex-col bg-transparent">
       <div className="flex items-center justify-between pb-2">
-        <h2 className="font-heading text-xl">Collection</h2>
+        <h2 className="font-heading text-3xl">Collection</h2>
         {qrCodes.length > 0 && <p className="font-sans text-sm">{qrCodes.length} items</p>}
       </div>
       <div className="flex-1 min-h-0 p-2">

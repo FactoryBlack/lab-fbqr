@@ -62,7 +62,6 @@ interface ConfigPanelProps {
   onStyleChange: (newOptions: Partial<QRStyleOptions>) => void
   onGenerateClick: () => void
   isGenerating: boolean
-  isLoading: boolean
   onLogoUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
   logoPreview: string | null
   onShortenUrl: () => Promise<void>
@@ -76,7 +75,6 @@ export function ConfigPanel({
   onStyleChange,
   onGenerateClick,
   isGenerating,
-  isLoading,
   onLogoUpload,
   logoPreview,
   onShortenUrl,
@@ -316,11 +314,11 @@ export function ConfigPanel({
         <div className="mt-auto pt-6 border-t-[var(--neo-border-width)] border-t-black/20">
           <NeoButton
             onClick={onGenerateClick}
-            disabled={isGenerating || !text.trim() || isLoading}
+            disabled={isGenerating || !text.trim()}
             size="lg"
             className="uppercase w-full"
           >
-            {isLoading ? "Loading..." : isGenerating ? "Generating..." : "Add to Collection"}
+            {isGenerating ? "Generating..." : "Add to Collection"}
           </NeoButton>
         </div>
       </div>
