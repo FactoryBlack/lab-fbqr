@@ -5,39 +5,52 @@
 @layer base {
   :root {
     /* Swiss-Tech Brutalist Palette */
-    --neo-bg: #f1e9d2;
-    --neo-text: #292732;
-    --neo-accent: #eb1950;
-    --neo-white: #ffffff;
-    --neo-off-white: #f5f3ed; /* New off-white color */
-    --neo-border-color: #292732;
+    --neo-bg: 48 25% 94%; /* beige */
+    --neo-text: 248 8% 18%; /* dark purple-gray */
+    --neo-accent: 340 82% 52%; /* pink */
+    --neo-white: 0 0% 100%;
+    --neo-off-white: 48 25% 98%;
+    --neo-border-color: 214.3 31.8% 91.4%; /* Updated border color */
 
     /* Mapped to existing theme for component compatibility */
-    --background: var(--neo-bg);
-    --foreground: var(--neo-text);
-    --card: var(--neo-bg);
-    --card-foreground: var(--neo-text);
-    --popover: var(--neo-bg);
-    --popover-foreground: var(--neo-text);
-    --primary: var(--neo-text);
-    --primary-foreground: var(--neo-bg);
-    --secondary: var(--neo-text);
-    --secondary-foreground: var(--neo-white);
-    --muted: var(--neo-bg);
-    --muted-foreground: var(--neo-text);
-    --accent: var(--neo-accent);
-    --accent-foreground: var(--neo-white);
-    --destructive: #eb1950;
-    --destructive-foreground: var(--neo-white);
-    --border: var(--neo-border-color);
-    --input: var(--neo-off-white); /* Use new off-white for inputs */
-    --ring: var(--neo-accent);
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 340 82% 52%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
     --radius: 0.5rem;
 
-    /* Style Properties */
+    /* Neo Brutalism Palette */
     --neo-border-width: 2px;
     --font-sans: "Montserrat", sans-serif;
     --font-mono: "IBM Plex Mono", monospace; /* New mono font variable */
+  }
+
+  .dark {
+    /* ... dark mode colors ... */
   }
 
   * {
@@ -45,7 +58,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-color: var(--neo-bg);
+    background-color: hsl(var(--neo-bg));
+    color: hsl(var(--neo-text));
+    font-family: var(--font-sans);
   }
 
   .font-heading {
@@ -57,11 +72,11 @@
 
   /* Style for dropdown content */
   .select-content {
-    @apply bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] font-sans;
+    @apply bg-[hsl(var(--neo-off-white))] border-[var(--neo-border-width)] border-[hsl(var(--neo-text))] font-sans;
   }
 
   .select-item {
-    @apply font-sans focus:bg-black/10 focus:text-[var(--neo-text)];
+    @apply font-sans focus:bg-black/10 focus:text-[hsl(var(--neo-text))];
   }
 }
 
@@ -70,8 +85,7 @@
     text-wrap: balance;
   }
   .dot-grid-bg {
-    background-image: radial-gradient(var(--neo-text) 1px, transparent 0);
+    background-image: radial-gradient(hsl(var(--neo-text) / 0.2) 1px, transparent 0);
     background-size: 20px 20px;
-    opacity: 0.1;
   }
 }
