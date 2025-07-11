@@ -98,7 +98,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
   }, [debouncedText, debouncedStyle, debouncedLogo, validateQRCode])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full p-6">
       <div
         ref={containerRef}
         className="aspect-square bg-[var(--neo-off-white)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative flex-shrink-0"

@@ -119,7 +119,7 @@ export function ConfigPanel({
   }
 
   return (
-    <div className="border-[var(--neo-border-width)] border-[var(--neo-text)] p-4 h-full flex flex-col bg-[var(--neo-bg)]">
+    <div className="h-full flex flex-col bg-transparent p-6">
       <div className="flex flex-col h-full space-y-4">
         <div className="space-y-2">
           <Label htmlFor="text" className="font-heading text-xl">

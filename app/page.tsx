@@ -230,73 +230,86 @@ export default function QRGeneratorPage() {
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <div className="fixed inset-0 dot-grid-bg -z-10" />
       <main className="min-h-screen p-4 sm:p-6 md:p-8 flex flex-col">
-        <header className="flex items-start justify-between w-full flex-shrink-0">
-          <h1 className="font-heading text-5xl md:text-6xl tracking-widest">LAB:01 - FBQR</h1>
-          <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
-        </header>
-
-        {/* Desktop Layout */}
-        <div className="hidden lg:grid flex-1 lg:grid-cols-[400px_auto_1fr_auto_400px] gap-6 min-h-0 pt-8 w-full max-w-screen-2xl mx-auto">
-          <ConfigPanel
-            text={text}
-            onTextChange={(newText) => {
-              setText(newText)
-              setOriginalUrl(undefined)
-            }}
-            styleOptions={style}
-            onStyleChange={handleStyleChange}
-            onGenerateClick={handleGenerateClick}
-            isGenerating={isGenerating || isShortening}
-            isLoading={isLoading}
-            onLogoUpload={handleLogoUpload}
-            logoPreview={logoPreview}
-            onShortenUrl={handleShortenUrl}
-            isShortening={isShortening}
-          />
-          <VerticalDivider>QR-BRUTAL V.01</VerticalDivider>
-          <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
-          <VerticalDivider>COLLECTION</VerticalDivider>
-          <CollectionPanel
-            qrCodes={qrCodes}
-            copiedId={copiedId}
-            setCopiedId={setCopiedId}
-            onRemove={handleRemoveQrCode}
-            isLoading={isLoading}
-            user={user}
-          />
-        </div>
-
-        {/* Mobile & Tablet Layout */}
-        <div className="lg:hidden flex-1 min-h-0 py-6">
-          <ScrollArea className="h-full">
-            <div className="flex flex-col gap-8">
-              <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
-              <ConfigPanel
-                text={text}
-                onTextChange={(newText) => {
-                  setText(newText)
-                  setOriginalUrl(undefined)
-                }}
-                styleOptions={style}
-                onStyleChange={handleStyleChange}
-                onGenerateClick={handleGenerateClick}
-                isGenerating={isGenerating || isShortening}
-                isLoading={isLoading}
-                onLogoUpload={handleLogoUpload}
-                logoPreview={logoPreview}
-                onShortenUrl={handleShortenUrl}
-                isShortening={isShortening}
-              />
-              <CollectionPanel
-                qrCodes={qrCodes}
-                copiedId={copiedId}
-                setCopiedId={setCopiedId}
-                onRemove={handleRemoveQrCode}
-                isLoading={isLoading}
-                user={user}
-              />
+        <div
+          className="bg-[var(--neo-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex-1 flex flex-col"
+          style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
+        >
+          <header className="flex items-stretch justify-between w-full flex-shrink-0 border-b-[var(--neo-border-width)] border-b-[var(--neo-text)]">
+            <div className="p-4">
+              <h1 className="font-heading text-3xl md:text-4xl tracking-widest">LAB:01 - FBQR</h1>
             </div>
-          </ScrollArea>
+            <div className="border-l-[var(--neo-border-width)] border-l-[var(--neo-text)] p-4 flex items-center">
+              <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
+            </div>
+          </header>
+
+          {/* Desktop Layout */}
+          <div className="hidden lg:grid flex-1 lg:grid-cols-[400px_auto_1fr_auto_400px] min-h-0 w-full">
+            <ConfigPanel
+              text={text}
+              onTextChange={(newText) => {
+                setText(newText)
+                setOriginalUrl(undefined)
+              }}
+              styleOptions={style}
+              onStyleChange={handleStyleChange}
+              onGenerateClick={handleGenerateClick}
+              isGenerating={isGenerating || isShortening}
+              isLoading={isLoading}
+              onLogoUpload={handleLogoUpload}
+              logoPreview={logoPreview}
+              onShortenUrl={handleShortenUrl}
+              isShortening={isShortening}
+            />
+            <VerticalDivider />
+            <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
+            <VerticalDivider />
+            <CollectionPanel
+              qrCodes={qrCodes}
+              copiedId={copiedId}
+              setCopiedId={setCopiedId}
+              onRemove={handleRemoveQrCode}
+              isLoading={isLoading}
+              user={user}
+            />
+          </div>
+
+          {/* Mobile & Tablet Layout */}
+          <div className="lg:hidden flex-1 min-h-0">
+            <ScrollArea className="h-full">
+              <div className="flex flex-col">
+                <div className="border-b-[var(--neo-border-width)] border-b-[var(--neo-text)]">
+                  <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
+                </div>
+                <div className="border-b-[var(--neo-border-width)] border-b-[var(--neo-text)]">
+                  <ConfigPanel
+                    text={text}
+                    onTextChange={(newText) => {
+                      setText(newText)
+                      setOriginalUrl(undefined)
+                    }}
+                    styleOptions={style}
+                    onStyleChange={handleStyleChange}
+                    onGenerateClick={handleGenerateClick}
+                    isGenerating={isGenerating || isShortening}
+                    isLoading={isLoading}
+                    onLogoUpload={handleLogoUpload}
+                    logoPreview={logoPreview}
+                    onShortenUrl={handleShortenUrl}
+                    isShortening={isShortening}
+                  />
+                </div>
+                <CollectionPanel
+                  qrCodes={qrCodes}
+                  copiedId={copiedId}
+                  setCopiedId={setCopiedId}
+                  onRemove={handleRemoveQrCode}
+                  isLoading={isLoading}
+                  user={user}
+                />
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       </main>
     </>
