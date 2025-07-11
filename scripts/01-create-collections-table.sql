@@ -1,6 +1,3 @@
--- This script creates the table for storing QR code collections.
--- You should run this once on your Neon database.
-
 CREATE TABLE IF NOT EXISTS qr_collections (
   pin VARCHAR(6) PRIMARY KEY,
   qr_codes JSONB NOT NULL,

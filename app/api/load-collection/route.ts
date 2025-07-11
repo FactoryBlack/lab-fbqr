@@ -1,10 +1,7 @@
-import { neon } from "@neondatabase/serverless"
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
+import { sql } from "@neondatabase/serverless"
 
-// Initialize Neon client
-const sql = neon(process.env.DATABASE_URL!)
-
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const pin = searchParams.get("pin")
 
@@ -13,15 +10,18 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await sql`SELECT qr_codes FROM qr_collections WHERE pin = ${pin}`
+    const { rows } = await sql`
+      SELECT qr_codes FROM qr_collections WHERE pin = ${pin}
+    `
 
-    if (result.length === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: "Collection not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ qrCodes: result[0].qr_codes })
-  } catch (error) {
+    const collection = rows[0]
+    return NextResponse.json({ qrCodes: collection.qr_codes })
+  } catch (error: any) {
     console.error("Load error:", error)
-    return NextResponse.json({ error: `Failed to load collection. Original error: ${error.message}` }, { status: 500 })
+    return NextResponse.json({ error: `Failed to load collection: ${error.message}` }, { status: 500 })
   }
 }
