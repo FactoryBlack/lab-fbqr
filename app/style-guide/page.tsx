@@ -25,7 +25,10 @@ export default function StyleGuidePage() {
     <div className="bg-page-bg min-h-screen p-4 sm:p-6 md:p-8">
       <header className="flex items-center justify-between mb-8">
         <h1 className="font-heading text-5xl md:text-6xl">Style Guide</h1>
-        <Link href="/" className="inline-flex items-center gap-2 font-bold font-mono uppercase hover:underline text-sm">
+        <Link
+          href="/fbqr"
+          className="inline-flex items-center gap-2 font-bold font-mono uppercase hover:underline text-sm"
+        >
           <ArrowLeft size={16} />
           Back to App
         </Link>

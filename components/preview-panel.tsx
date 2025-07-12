@@ -155,7 +155,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
             />
           )}
 
-          <QrStatusIndicator status={validationStatus} hasLogo={!!debouncedLogo} />
+          <QrStatusIndicator status={validationStatus} />
         </div>
       </div>
     </div>

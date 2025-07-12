@@ -7,7 +7,6 @@ export type Status = "valid" | "invalid" | "checking" | "idle"
 
 interface QrStatusIndicatorProps {
   status: Status
-  hasLogo: boolean
 }
 
 const iconVariants = {
@@ -17,17 +16,19 @@ const iconVariants = {
 }
 
 const explanationContainerVariants = {
-  hidden: { width: 0, marginRight: 0, opacity: 0 },
+  hidden: { width: 0, marginRight: 0, opacity: 0, x: 20 },
   visible: {
     width: "auto",
-    marginRight: "0.75rem", // mr-3
+    marginRight: "-1rem",
     opacity: 1,
-    transition: { type: "spring", stiffness: 400, damping: 30, when: "beforeChildren" },
+    x: 0,
+    transition: { type: "spring", stiffness: 500, damping: 30, when: "beforeChildren" },
   },
   exit: {
     width: 0,
     marginRight: 0,
     opacity: 0,
+    x: 20,
     transition: { duration: 0.2, when: "afterChildren" },
   },
 }
@@ -38,7 +39,7 @@ const explanationContentVariants = {
   exit: { opacity: 0, transition: { duration: 0.1 } },
 }
 
-export function QrStatusIndicator({ status, hasLogo }: QrStatusIndicatorProps) {
+export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
   if (status === "idle") {
     return null
   }
@@ -54,7 +55,7 @@ export function QrStatusIndicator({ status, hasLogo }: QrStatusIndicatorProps) {
 
   return (
     <div className="absolute top-3 right-3 z-10">
-      <div className="relative flex items-center">
+      <div className="relative flex items-center h-10">
         <AnimatePresence>
           {status === "invalid" && (
             <motion.div
@@ -62,18 +63,19 @@ export function QrStatusIndicator({ status, hasLogo }: QrStatusIndicatorProps) {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="overflow-hidden origin-right whitespace-nowrap rounded-md bg-neo-text text-neo-bg"
+              className="overflow-hidden origin-right"
             >
-              <motion.div className="p-4 w-64" variants={explanationContentVariants}>
-                <p className="font-sans text-base font-bold uppercase text-red-500">Unscannable</p>
-                <p className="font-sans text-sm mt-2 whitespace-normal">This QR code may not be readable. Try:</p>
-                <ul className="list-disc list-inside font-sans text-sm mt-2 space-y-1 whitespace-normal">
-                  <li>Reducing the amount of text content.</li>
-                  {hasLogo && <li>Making the logo smaller or removing it.</li>}
-                  <li>Using simpler dot and corner styles.</li>
-                  <li>Avoiding light colors for the dots.</li>
-                </ul>
-              </motion.div>
+              <div
+                className="h-10 bg-neo-text text-neo-bg rounded-md flex items-center px-4"
+                style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
+              >
+                <motion.div className="whitespace-nowrap" variants={explanationContentVariants}>
+                  <p className="font-sans text-sm font-black uppercase text-[hsl(var(--neo-destructive-accent))]">
+                    Unscannable
+                  </p>
+                  <p className="font-sans text-xs text-neo-bg/70 -mt-1">Try simpler styles or less content.</p>
+                </motion.div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

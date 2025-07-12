@@ -14,9 +14,10 @@ import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from "./ui/neo-c
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
+  redirectTo?: string
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, redirectTo = "/" }: AuthModalProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isSignUp, setIsSignUp] = useState(false)
@@ -30,12 +31,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setError(null)
     setMessage(null)
 
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
+
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: "https://lab.factory.black/auth/callback",
+          emailRedirectTo: callbackUrl,
         },
       })
       if (error) {
@@ -55,10 +58,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   }
 
   const handleGoogleSignIn = async () => {
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "https://lab.factory.black/auth/callback",
+        redirectTo: callbackUrl,
       },
     })
   }
