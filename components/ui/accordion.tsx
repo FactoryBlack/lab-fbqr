@@ -58,7 +58,7 @@ const AccordionContent = React.forwardRef<
         },
       }}
     >
-      <div className={cn("pb-4 pt-0", className)}>{children}</div>
+      <div className={cn("pb-6 pt-0", className)}>{children}</div>
     </motion.div>
   </AccordionPrimitive.Content>
 ))

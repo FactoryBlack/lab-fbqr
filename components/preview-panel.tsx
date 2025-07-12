@@ -131,7 +131,7 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
       <div className="w-full sticky top-6">
         <div
           ref={containerRef}
-          className="w-full mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
+          className="w-full lg:max-w-[70vh] mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
           style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
         >
           <AnimatePresence>

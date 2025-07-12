@@ -152,7 +152,7 @@ export function ConfigPanel({
               <Accordion type="multiple" className="w-full" defaultValue={["dots"]}>
                 <AccordionItem value="dots">
                   <AccordionTrigger>Dots</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-4">
+                  <AccordionContent className="space-y-4 pt-4 p-3">
                     <div className="space-y-2">
                       <Label className="font-sans font-bold text-sm uppercase">Style</Label>
                       <Select
@@ -185,7 +185,7 @@ export function ConfigPanel({
 
                 <AccordionItem value="corners">
                   <AccordionTrigger>Corners</AccordionTrigger>
-                  <AccordionContent className="space-y-6 pt-4">
+                  <AccordionContent className="space-y-6 pt-4 p-3">
                     <div className="space-y-4">
                       <Label className="font-sans font-bold text-base uppercase mb-2 block">Corner Squares</Label>
                       <Select
@@ -241,7 +241,7 @@ export function ConfigPanel({
                 </AccordionItem>
                 <AccordionItem value="background">
                   <AccordionTrigger>Background</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-4">
+                  <AccordionContent className="space-y-4 pt-4 p-3">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="transparent-bg"
@@ -266,7 +266,7 @@ export function ConfigPanel({
                 </AccordionItem>
                 <AccordionItem value="logo">
                   <AccordionTrigger>Logo</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-4">
+                  <AccordionContent className="space-y-4 pt-4 p-3">
                     <NeoButton variant="outline" onClick={() => fileInputRef.current?.click()}>
                       {logoPreview ? "Change Logo" : "Upload Logo"}
                     </NeoButton>
