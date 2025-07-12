@@ -65,34 +65,3 @@
     text-wrap: balance;
   }
 }
-
-@layer components {
-  /* Sonner Toast Overrides */
-  [data-sonner-toast] {
-    font-family: var(--font-sans);
-    color: var(--neo-text);
-    border: 2px solid var(--neo-text);
-    box-shadow: 4px 4px 0px var(--neo-text);
-    border-radius: 0;
-    padding: 1rem;
-    width: 100%;
-  }
-  [data-sonner-toast][data-type="default"] {
-    @apply bg-[var(--neo-bg)];
-  }
-  [data-sonner-toast][data-type="success"] {
-    @apply bg-[var(--neo-accent)];
-  }
-  [data-sonner-toast][data-type="error"] {
-    @apply bg-[hsl(var(--neo-destructive-accent))];
-  }
-  [data-sonner-toast] [data-title] {
-    @apply font-bold uppercase text-base;
-  }
-  [data-sonner-toast] [data-description] {
-    @apply text-sm opacity-80;
-  }
-  [data-sonner-toast] [data-close-button] {
-    @apply border-0 bg-transparent hover:bg-black/10 right-2 top-2;
-  }
-}

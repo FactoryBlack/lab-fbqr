@@ -1,6 +1,6 @@
 "use client"
 
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { NeoButton } from "@/components/ui/neo-button"
 import type { User } from "@supabase/supabase-js"
@@ -12,10 +12,11 @@ interface AuthButtonProps {
 
 export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
   const supabase = createClient()
+  const { toast } = useToast()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    toast("Logged out.")
+    toast({ title: "Logged out." })
   }
 
   if (user) {

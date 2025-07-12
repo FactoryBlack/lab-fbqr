@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useCallback, useEffect } from "react"
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-toast"
 import { useDebouncedCallback } from "use-debounce"
 import ConfigPanel from "@/components/config-panel"
 import PreviewPanel from "@/components/preview-panel"
@@ -25,6 +25,7 @@ export default function QRGeneratorPage() {
   const [isShortening, setIsShortening] = useState(false)
   const [isCollectionLoaded, setIsCollectionLoaded] = useState(false)
   const supabase = createClient()
+  const { toast } = useToast()
 
   const saveCollectionDebounced = useDebouncedCallback(async (codesToSave: QRCodeResult[]) => {
     if (!user) return
@@ -39,9 +40,9 @@ export default function QRGeneratorPage() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to save")
       }
-      toast.success("Collection auto-saved!")
+      toast({ title: "Collection auto-saved!", variant: "success" })
     } catch (error: any) {
-      toast.error("Cloud Save Failed", { description: error.message })
+      toast({ variant: "destructive", title: "Cloud Save Failed", description: error.message })
     }
   }, 2000)
 
@@ -74,17 +75,17 @@ export default function QRGeneratorPage() {
             const allQrCodes = data.collections.flatMap((c: any) => c.qr_codes)
             setQrCodes(allQrCodes)
           } else {
-            toast.error("Failed to load your collection.")
+            toast({ variant: "destructive", title: "Failed to load your collection." })
           }
         } catch (error) {
-          toast.error("An error occurred while loading collection.")
+          toast({ variant: "destructive", title: "An error occurred while loading collection." })
         } finally {
           setIsCollectionLoaded(true)
         }
       }
     }
     loadCollection()
-  }, [user, isCollectionLoaded])
+  }, [user, isCollectionLoaded, toast])
 
   const [style, setStyle] = useState<QRStyleOptions>({
     width: 300,
@@ -120,18 +121,18 @@ export default function QRGeneratorPage() {
       reader.onload = (e) => setLogoPreview(e.target?.result as string)
       reader.readAsDataURL(file)
       setStyle((prev) => ({ ...prev, qrOptions: { ...prev.qrOptions, errorCorrectionLevel: "H" } }))
-      toast("Logo Added", { description: "Error correction boosted for best scanning." })
+      toast({ title: "Logo Added", description: "Error correction boosted for best scanning.", variant: "success" })
     }
   }
 
   const handleRemoveLogo = () => {
     setLogoPreview(null)
-    toast("Logo Removed")
+    toast({ title: "Logo Removed" })
   }
 
   const handleShortenUrl = async () => {
     if (!user) {
-      toast.error("Please log in to create a short link.")
+      toast({ variant: "destructive", title: "Please log in to create a short link." })
       setIsAuthModalOpen(true)
       return
     }
@@ -148,9 +149,13 @@ export default function QRGeneratorPage() {
       }
       setOriginalUrl(text)
       setText(data.shortUrl)
-      toast.success("URL shortened!", { description: `Your new link is: ${data.shortUrl}` })
+      toast({
+        variant: "success",
+        title: "URL shortened!",
+        description: `Your new link is: ${data.shortUrl}`,
+      })
     } catch (error: any) {
-      toast.error("Shortening Failed", { description: error.message })
+      toast({ variant: "destructive", title: "Shortening Failed", description: error.message })
     } finally {
       setIsShortening(false)
     }
@@ -158,7 +163,7 @@ export default function QRGeneratorPage() {
 
   const handleGenerateClick = async () => {
     if (!text.trim()) {
-      toast.error("Error", { description: "Content cannot be empty." })
+      toast({ variant: "destructive", title: "Error", description: "Content cannot be empty." })
       return
     }
 
@@ -196,9 +201,9 @@ export default function QRGeneratorPage() {
       }
 
       setOriginalUrl(undefined)
-      toast("QR Code Added", { description: "Added to your local collection." })
+      toast({ title: "QR Code Added", description: "Added to your local collection." })
     } catch (error: any) {
-      toast.error("Generation Failed", { description: error.message })
+      toast({ variant: "destructive", title: "Generation Failed", description: error.message })
     } finally {
       setIsGenerating(false)
     }
@@ -213,7 +218,7 @@ export default function QRGeneratorPage() {
     setStyle(styleOptions)
     setLogoPreview(image || null)
 
-    toast("Style Loaded", { description: "Configuration has been applied from your collection." })
+    toast({ title: "Style Loaded", description: "Configuration has been applied from your collection." })
   }
 
   const handleRemoveQrCode = (id: string) => {
@@ -222,7 +227,7 @@ export default function QRGeneratorPage() {
     if (user) {
       saveCollectionDebounced(newQrCodes)
     }
-    toast("Removed from collection")
+    toast({ title: "Removed from collection" })
   }
 
   return (

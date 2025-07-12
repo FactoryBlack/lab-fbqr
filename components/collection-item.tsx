@@ -1,7 +1,7 @@
 "use client"
 
 import { NeoButton } from "@/components/ui/neo-button"
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-toast"
 import type { QRCodeResult } from "@/app/page"
 
 interface CollectionItemProps {
@@ -12,6 +12,7 @@ interface CollectionItemProps {
 
 export function CollectionItem({ qrCodeResult, onRemove, onLoad }: CollectionItemProps) {
   const { qrConfig, thumbnail, text } = qrCodeResult
+  const { toast } = useToast()
 
   const fetchQrSvgBlob = async () => {
     const response = await fetch("/api/generate-qr-svg", {
@@ -41,7 +42,7 @@ export function CollectionItem({ qrCodeResult, onRemove, onLoad }: CollectionIte
       const blob = await fetchQrSvgBlob()
       downloadFile(blob, `qr-code-${Date.now()}.svg`)
     } catch (error: any) {
-      toast.error("SVG Download Failed", { description: error.message })
+      toast({ variant: "destructive", title: "SVG Download Failed", description: error.message })
     }
   }
 
@@ -72,12 +73,16 @@ export function CollectionItem({ qrCodeResult, onRemove, onLoad }: CollectionIte
 
       image.onerror = () => {
         URL.revokeObjectURL(url)
-        toast.error("PNG Download Failed", { description: "Could not load QR code image." })
+        toast({ variant: "destructive", title: "PNG Download Failed", description: "Could not load QR code image." })
       }
 
       image.src = url
     } catch (error: any) {
-      toast.error("PNG Download Failed", { description: error.message || "An error occurred." })
+      toast({
+        variant: "destructive",
+        title: "PNG Download Failed",
+        description: error.message || "An error occurred.",
+      })
     }
   }
 
