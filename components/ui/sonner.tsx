@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
@@ -17,7 +16,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast font-sans bg-[var(--neo-bg)] text-[var(--neo-text)] border-2 border-[var(--neo-text)] shadow-[4px_4px_0px_var(--neo-text)] rounded-none p-4",
+            "group toast font-sans text-[var(--neo-text)] border-2 border-[var(--neo-text)] shadow-[4px_4px_0px_var(--neo-text)] rounded-none p-4 w-full",
+          default: "bg-[var(--neo-bg)]",
+          success: "bg-[var(--neo-accent)]",
+          error: "bg-[hsl(var(--neo-destructive-accent))]",
+          info: "bg-[var(--neo-muted-bg)]",
+          warning: "bg-[hsl(var(--neo-destructive-accent))]",
           title: "font-bold uppercase text-base",
           description: "text-sm opacity-80",
           actionButton:

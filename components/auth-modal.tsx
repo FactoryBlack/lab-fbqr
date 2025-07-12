@@ -115,29 +115,22 @@ export default function AuthModal({ isOpen, onClose, redirectTo = "/" }: AuthMod
                   </NeoButton>
                 </form>
 
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-dashed border-neo-text" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-neo-bg px-2 text-neo-text">Or</span>
-                  </div>
+                <div className="space-y-4">
+                  <NeoButton onClick={handleGoogleSignIn} variant="outline" className="w-full">
+                    Continue with Google
+                  </NeoButton>
+
+                  <button
+                    onClick={() => {
+                      setIsSignUp(!isSignUp)
+                      setError(null)
+                      setMessage(null)
+                    }}
+                    className="w-full text-center text-sm hover:underline"
+                  >
+                    {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+                  </button>
                 </div>
-
-                <NeoButton onClick={handleGoogleSignIn} variant="outline" className="w-full">
-                  Continue with Google
-                </NeoButton>
-
-                <button
-                  onClick={() => {
-                    setIsSignUp(!isSignUp)
-                    setError(null)
-                    setMessage(null)
-                  }}
-                  className="w-full text-center text-sm mt-4 hover:underline"
-                >
-                  {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-                </button>
               </NeoCardContent>
             </NeoCard>
           </motion.div>
