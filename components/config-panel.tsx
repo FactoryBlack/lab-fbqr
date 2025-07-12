@@ -66,7 +66,7 @@ export default function ConfigPanel({
       <div className="p-6 border-b-2 border-[#1c1c1c]">
         <div className="space-y-2">
           <h2 className="font-heading text-3xl">CONTENT</h2>
-          <div>
+          <div className="space-y-4">
             <Textarea
               id="text"
               placeholder="https://lab.factory.black"
@@ -81,7 +81,7 @@ export default function ConfigPanel({
                 variant="default"
                 onClick={onShortenUrl}
                 disabled={isShortening}
-                className="uppercase rounded-t-none mt-2"
+                className="uppercase rounded-t-none -mt-px"
               >
                 {isShortening ? "SHORTENING..." : "SHORTEN URL"}
               </NeoButton>
@@ -91,7 +91,7 @@ export default function ConfigPanel({
       </div>
 
       <ScrollArea className="flex-1">
-        <Accordion type="multiple" className="w-full" defaultValue={[]}>
+        <Accordion type="single" className="w-full" defaultValue="logo" collapsible>
           <AccordionItem value="dots">
             <AccordionTrigger>DOTS</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
