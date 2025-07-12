@@ -8,22 +8,15 @@ import ConfigPanel from "@/components/config-panel"
 import PreviewPanel from "@/components/preview-panel"
 import CollectionPanel from "@/components/collection-panel"
 import { createClient } from "@/lib/supabase/client"
+import type { User } from "@supabase/supabase-js"
 import AuthModal from "@/components/auth-modal"
 import AuthButton from "@/components/auth-button"
 import { VerticalDivider } from "@/components/vertical-divider"
 import { ScrollArea } from "@/components/ui/scroll-area"
-
-export interface QRCodeResult {
-  id: string
-  text: string
-  originalUrl?: string
-  qrConfig: any
-  thumbnail?: string
-  createdAt: string
-}
+import type { QRCodeResult, QRStyleOptions } from "@/types"
 
 export default function QRGeneratorPage() {
-  const [user, setUser] = useState<any | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [text, setText] = useState("https://lab.factory.black")
   const [originalUrl, setOriginalUrl] = useState<string | undefined>(undefined)
@@ -93,7 +86,7 @@ export default function QRGeneratorPage() {
     loadCollection()
   }, [user, isCollectionLoaded])
 
-  const [style, setStyle] = useState<any>({
+  const [style, setStyle] = useState<QRStyleOptions>({
     width: 300,
     dotsOptions: { color: "#1c1c1c", type: "square" },
     backgroundOptions: { color: "transparent" },
@@ -109,7 +102,7 @@ export default function QRGeneratorPage() {
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
-  const handleStyleChange = useCallback((newOptions: any) => {
+  const handleStyleChange = useCallback((newOptions: Partial<QRStyleOptions>) => {
     setStyle((prev) => ({ ...prev, ...newOptions }))
   }, [])
 
@@ -129,6 +122,11 @@ export default function QRGeneratorPage() {
       setStyle((prev) => ({ ...prev, qrOptions: { ...prev.qrOptions, errorCorrectionLevel: "H" } }))
       toast("Logo Added", { description: "Error correction boosted for best scanning." })
     }
+  }
+
+  const handleRemoveLogo = () => {
+    setLogoPreview(null)
+    toast("Logo Removed")
   }
 
   const handleShortenUrl = async () => {
@@ -208,7 +206,6 @@ export default function QRGeneratorPage() {
 
   const handleLoadQrCode = (qrCodeToLoad: QRCodeResult) => {
     const { qrConfig, text, originalUrl } = qrCodeToLoad
-    // Destructure to separate style options from other config data
     const { data, image, ...styleOptions } = qrConfig
 
     setText(text)
@@ -264,6 +261,7 @@ export default function QRGeneratorPage() {
               isGenerating={isGenerating || isShortening}
               onLogoUpload={handleLogoUpload}
               logoPreview={logoPreview}
+              onRemoveLogo={handleRemoveLogo}
               onShortenUrl={handleShortenUrl}
               isShortening={isShortening}
             />
@@ -299,6 +297,7 @@ export default function QRGeneratorPage() {
                     isGenerating={isGenerating || isShortening}
                     onLogoUpload={handleLogoUpload}
                     logoPreview={logoPreview}
+                    onRemoveLogo={handleRemoveLogo}
                     onShortenUrl={handleShortenUrl}
                     isShortening={isShortening}
                   />

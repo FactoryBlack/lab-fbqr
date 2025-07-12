@@ -23,14 +23,13 @@ interface PreviewPanelProps {
   onSizeChange: (size: number) => void
 }
 
-// Define a fixed, high-resolution size for the validation canvas to ensure consistent results.
 const VALIDATION_CANVAS_SIZE = 400
 
 export default function PreviewPanel({ text, style, logoPreview, onSizeChange }: PreviewPanelProps) {
   const [svgContent, setSvgContent] = useState<string>("")
   const [validationStatus, setValidationStatus] = useState<ValidationState>("idle")
   const [isLoading, setIsLoading] = useState(false)
-  const validationRef = useRef(0) // Used to track the current validation job and prevent race conditions
+  const validationRef = useRef(0)
 
   const { ref: containerRef, width } = useResizeObserver<HTMLDivElement>()
 
@@ -51,7 +50,6 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
       return
     }
 
-    // Increment the ref to create a unique ID for this validation attempt.
     const currentValidationId = ++validationRef.current
     setIsLoading(true)
     setValidationStatus("checking")
@@ -68,7 +66,6 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
           }),
         })
 
-        // If another request has started, abort this one.
         if (validationRef.current !== currentValidationId) return
         if (!response.ok) throw new Error("Failed to generate QR code")
 
@@ -77,13 +74,11 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
 
         setSvgContent(svg)
 
-        // --- Begin Validation ---
         const image = new Image()
         image.crossOrigin = "anonymous"
         image.src = `data:image/svg+xml;base64,${btoa(svg)}`
 
         image.onload = () => {
-          // Abort if this is a stale validation
           if (validationRef.current !== currentValidationId) return
 
           const canvas = document.createElement("canvas")
@@ -100,11 +95,7 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
 
           if (validationRef.current !== currentValidationId) return
 
-          if (code && code.data === debouncedText.trim()) {
-            setValidationStatus("valid")
-          } else {
-            setValidationStatus("invalid")
-          }
+          setValidationStatus(code && code.data === debouncedText.trim() ? "valid" : "invalid")
         }
 
         image.onerror = () => {
