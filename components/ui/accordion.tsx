@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
+
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
 
 const Accordion = AccordionPrimitive.Root
 
@@ -11,7 +11,7 @@ const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={cn("border-b border-b-black/20", className)} {...props} />
+  <AccordionPrimitive.Item ref={ref} className={cn("border-b-0", className)} {...props} />
 ))
 AccordionItem.displayName = "AccordionItem"
 
@@ -23,12 +23,13 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center text-left py-4 font-sans text-lg font-black uppercase transition-all hover:opacity-80",
+        "flex flex-1 items-center justify-between py-4 font-heading text-3xl transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
         className,
       )}
       {...props}
     >
       {children}
+      {/* <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" /> */}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))
@@ -38,28 +39,12 @@ const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Content ref={ref} className="overflow-hidden text-base" {...props}>
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{
-        opacity: 1,
-        height: "auto",
-        transition: {
-          height: { duration: 0.3, ease: "easeInOut" },
-          opacity: { duration: 0.2, delay: 0.1 },
-        },
-      }}
-      exit={{
-        opacity: 0,
-        height: 0,
-        transition: {
-          height: { duration: 0.3, ease: "easeInOut" },
-          opacity: { duration: 0.2 },
-        },
-      }}
-    >
-      <div className={cn("pb-6 pt-0", className)}>{children}</div>
-    </motion.div>
+  <AccordionPrimitive.Content
+    ref={ref}
+    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    {...props}
+  >
+    <div className={cn("pb-4 pt-0", className)}>{children}</div>
   </AccordionPrimitive.Content>
 ))
 AccordionContent.displayName = AccordionPrimitive.Content.displayName

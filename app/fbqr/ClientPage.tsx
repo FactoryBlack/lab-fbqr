@@ -230,10 +230,10 @@ export default function QRGeneratorPage() {
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} redirectTo="/fbqr" />
       <div className="p-4 sm:p-6 md:p-8">
         <main
-          className="bg-[var(--neo-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex flex-col min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)]"
-          style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
+          className="bg-[var(--neo-bg)] border-2 border-black flex flex-col min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)]"
+          style={{ boxShadow: `8px 8px 0px #000` }}
         >
-          <header className="flex items-stretch justify-between w-full flex-shrink-0 border-b-[var(--neo-border-width)] border-b-[var(--neo-text)]">
+          <header className="flex items-stretch justify-between w-full flex-shrink-0 border-b-2 border-b-black">
             <div className="p-4 flex items-center">
               <h1 className="font-heading text-5xl md:text-6xl">
                 <span className="hidden lg:inline">
@@ -242,7 +242,7 @@ export default function QRGeneratorPage() {
                 FBQR
               </h1>
             </div>
-            <div className="border-l-[var(--neo-border-width)] border-l-[var(--neo-text)] p-4 flex items-center">
+            <div className="border-l-2 border-l-black p-4 flex items-center">
               <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
             </div>
           </header>
@@ -281,10 +281,10 @@ export default function QRGeneratorPage() {
           <div className="lg:hidden flex-1 min-h-0">
             <ScrollArea className="h-full">
               <div className="flex flex-col">
-                <div className="border-b-[var(--neo-border-width)] border-b-[var(--neo-text)]">
+                <div className="border-b-2 border-b-black">
                   <PreviewPanel text={text} style={style} logoPreview={logoPreview} onSizeChange={handleSizeChange} />
                 </div>
-                <div className="border-b-[var(--neo-border-width)] border-b-[var(--neo-text)]">
+                <div className="border-b-2 border-b-black">
                   <ConfigPanel
                     text={text}
                     onTextChange={(newText) => {

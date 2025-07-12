@@ -1,33 +1,17 @@
 "use client"
 
-import type React from "react"
-
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Textarea } from "@/components/ui/textarea"
+import React from "react"
+import type { ReactElement } from "react"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ColorInput } from "@/components/ui/color-input"
-import { GradientPicker } from "@/components/gradient-picker"
+import { Textarea } from "@/components/ui/textarea"
 import { NeoButton } from "@/components/ui/neo-button"
 import { BrutalistSlider } from "@/components/ui/brutalist-slider"
-import type { QRStyleOptions } from "@/types"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Checkbox } from "@/components/ui/checkbox"
+import { GradientPicker } from "./gradient-picker"
 import { ScrollArea } from "./ui/scroll-area"
-import { Loader2 } from "lucide-react"
-
-interface ConfigPanelProps {
-  text: string
-  onTextChange: (text: string) => void
-  styleOptions: QRStyleOptions
-  onStyleChange: (options: Partial<QRStyleOptions>) => void
-  onGenerateClick: () => void
-  isGenerating: boolean
-  onLogoUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
-  logoPreview: string | null
-  onRemoveLogo: () => void
-  onShortenUrl: () => void
-  isShortening: boolean
-}
+import type { ConfigPanelProps } from "@/types" // Declare the ConfigPanelProps type
 
 export default function ConfigPanel({
   text,
@@ -41,289 +25,264 @@ export default function ConfigPanel({
   onRemoveLogo,
   onShortenUrl,
   isShortening,
-}: ConfigPanelProps) {
-  const handleDotsColorChange = (color: string) => {
-    onStyleChange({ dotsOptions: { ...styleOptions.dotsOptions, color } })
+}: ConfigPanelProps): ReactElement {
+  const fileInputRef = React.createRef<HTMLInputElement>()
+
+  const isUrl = (str: string) => {
+    if (str.startsWith("fblk.io") || str.length < 15) return false
+    try {
+      new URL(str)
+      return true
+    } catch (_) {
+      return false
+    }
   }
 
-  const handleDotsTypeChange = (type: string) => {
-    onStyleChange({ dotsOptions: { ...styleOptions.dotsOptions, type } })
-  }
-
-  const handleCornersSquareColorChange = (color: string) => {
-    onStyleChange({ cornersSquareOptions: { ...styleOptions.cornersSquareOptions, color } })
-  }
-
-  const handleCornersSquareTypeChange = (type: string) => {
-    onStyleChange({ cornersSquareOptions: { ...styleOptions.cornersSquareOptions, type } })
-  }
-
-  const handleCornersDotColorChange = (color: string) => {
-    onStyleChange({ cornersDotOptions: { ...styleOptions.cornersDotOptions, color } })
-  }
-
-  const handleCornersDotTypeChange = (type: string) => {
-    onStyleChange({ cornersDotOptions: { ...styleOptions.cornersDotOptions, type } })
-  }
-
-  const handleBackgroundColorChange = (color: string) => {
-    onStyleChange({ backgroundOptions: { ...styleOptions.backgroundOptions, color } })
-  }
-
-  const handleGradientChange = (colors: [string, string], rotation: number) => {
-    onStyleChange({
-      dotsOptions: {
-        ...styleOptions.dotsOptions,
-        gradient: {
-          type: "linear",
-          colorStops: [
-            { offset: 0, color: colors[0] },
-            { offset: 1, color: colors[1] },
-          ],
-          rotation,
-        },
-      },
-    })
-  }
-
-  const handleRemoveGradient = () => {
-    const { gradient, ...rest } = styleOptions.dotsOptions
-    onStyleChange({ dotsOptions: rest })
+  const handleStyleValueChange = (path: string, value: any) => {
+    const newStyle = JSON.parse(JSON.stringify(styleOptions))
+    const keys = path.split(".")
+    let current: any = newStyle
+    for (let i = 0; i < keys.length - 1; i++) {
+      current = current[keys[i]] = { ...current[keys[i]] }
+    }
+    current[keys[keys.length - 1]] = value
+    const parentPath = keys.slice(0, -1).join(".")
+    let parent = newStyle
+    if (parentPath) {
+      parent = parentPath.split(".").reduce((obj, key) => obj[key], newStyle)
+    }
+    if (path.endsWith(".gradient")) {
+      if (value) delete parent.color
+      else delete parent.gradient
+    }
+    if (path.endsWith(".color")) {
+      if (value) delete parent.gradient
+    }
+    onStyleChange(newStyle)
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1">
-        <div className="p-6 space-y-6">
-          <Accordion type="multiple" defaultValue={["content", "style"]} className="w-full">
-            <AccordionItem value="content">
-              <AccordionTrigger>CONTENT</AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <Textarea
-                    placeholder="Your content here"
-                    value={text}
-                    onChange={(e) => onTextChange(e.target.value)}
-                    rows={4}
-                  />
-                  <NeoButton onClick={onShortenUrl} disabled={isShortening}>
-                    {isShortening ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        SHORTENING...
-                      </>
-                    ) : (
-                      "SHORTEN URL"
-                    )}
-                  </NeoButton>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="style">
-              <AccordionTrigger>STYLE</AccordionTrigger>
-              <AccordionContent>
-                <Accordion type="multiple" className="w-full space-y-2">
-                  <AccordionItem value="dots">
-                    <AccordionTrigger isNested>DOTS</AccordionTrigger>
-                    <AccordionContent isNested>
-                      <div className="space-y-4 pt-2">
-                        <div className="space-y-2">
-                          <Label>Style</Label>
-                          <Select value={styleOptions.dotsOptions.type} onValueChange={handleDotsTypeChange}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select dot style" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="square">Square</SelectItem>
-                              <SelectItem value="dots">Dots</SelectItem>
-                              <SelectItem value="rounded">Rounded</SelectItem>
-                              <SelectItem value="extra-rounded">Extra Rounded</SelectItem>
-                              <SelectItem value="classy">Classy</SelectItem>
-                              <SelectItem value="classy-rounded">Classy Rounded</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Color</Label>
-                          <ColorInput
-                            value={styleOptions.dotsOptions.color || "#000000"}
-                            onChange={handleDotsColorChange}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Gradient</Label>
-                          <GradientPicker
-                            onGradientChange={handleGradientChange}
-                            onRemoveGradient={handleRemoveGradient}
-                            initialGradient={styleOptions.dotsOptions.gradient}
-                          />
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="corners">
-                    <AccordionTrigger isNested>CORNERS</AccordionTrigger>
-                    <AccordionContent isNested>
-                      <div className="space-y-4 pt-2">
-                        <h4 className="font-bold text-sm">Corner Squares</h4>
-                        <div className="space-y-2">
-                          <Label>Style</Label>
-                          <Select
-                            value={styleOptions.cornersSquareOptions?.type}
-                            onValueChange={handleCornersSquareTypeChange}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select corner style" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="square">Square</SelectItem>
-                              <SelectItem value="dot">Dot</SelectItem>
-                              <SelectItem value="extra-rounded">Extra Rounded</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Color</Label>
-                          <ColorInput
-                            value={styleOptions.cornersSquareOptions?.color || "#000000"}
-                            onChange={handleCornersSquareColorChange}
-                          />
-                        </div>
-                        <h4 className="font-bold text-sm mt-4">Corner Dots</h4>
-                        <div className="space-y-2">
-                          <Label>Style</Label>
-                          <Select
-                            value={styleOptions.cornersDotOptions?.type}
-                            onValueChange={handleCornersDotTypeChange}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select corner dot style" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="inherit">Inherit</SelectItem>
-                              <SelectItem value="square">Square</SelectItem>
-                              <SelectItem value="dot">Dot</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Color</Label>
-                          <ColorInput
-                            value={styleOptions.cornersDotOptions?.color || "#000000"}
-                            onChange={handleCornersDotColorChange}
-                          />
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="background">
-                    <AccordionTrigger isNested>BACKGROUND</AccordionTrigger>
-                    <AccordionContent isNested>
-                      <div className="space-y-4 pt-2">
-                        <div className="space-y-2">
-                          <Label>Color</Label>
-                          <ColorInput
-                            value={styleOptions.backgroundOptions?.color || "#ffffff"}
-                            onChange={handleBackgroundColorChange}
-                          />
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="logo">
-                    <AccordionTrigger isNested>LOGO</AccordionTrigger>
-                    <AccordionContent isNested>
-                      <div className="space-y-4 pt-2">
-                        {logoPreview ? (
-                          <div className="space-y-4">
-                            <div className="relative aspect-square w-full bg-neo-interactive-bg border-2 border-neo-text p-2">
-                              <img
-                                src={logoPreview || "/placeholder.svg"}
-                                alt="Logo preview"
-                                className="w-full h-full object-contain"
-                              />
-                            </div>
-                            <NeoButton variant="destructive" onClick={onRemoveLogo}>
-                              REMOVE LOGO
-                            </NeoButton>
-                          </div>
-                        ) : (
-                          <label className="w-full cursor-pointer">
-                            <NeoButton variant="secondary" asChild>
-                              <span>UPLOAD LOGO</span>
-                            </NeoButton>
-                            <input
-                              type="file"
-                              accept="image/png, image/jpeg, image/svg+xml"
-                              className="hidden"
-                              onChange={onLogoUpload}
-                            />
-                          </label>
-                        )}
-                        <div className="items-center flex space-x-2">
-                          <Checkbox
-                            id="hideBackgroundDots"
-                            checked={styleOptions.imageOptions?.hideBackgroundDots}
-                            onCheckedChange={(checked) =>
-                              onStyleChange({
-                                imageOptions: { ...styleOptions.imageOptions, hideBackgroundDots: !!checked },
-                              })
-                            }
-                          />
-                          <Label htmlFor="hideBackgroundDots" className="text-sm font-medium">
-                            Hide background dots
-                          </Label>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Logo Size</Label>
-                          <BrutalistSlider
-                            value={[styleOptions.imageOptions?.imageSize || 0.4]}
-                            onValueChange={([value]) =>
-                              onStyleChange({
-                                imageOptions: { ...styleOptions.imageOptions, imageSize: value },
-                              })
-                            }
-                            max={1}
-                            step={0.05}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Logo Margin</Label>
-                          <BrutalistSlider
-                            value={[styleOptions.imageOptions?.margin || 0]}
-                            onValueChange={([value]) =>
-                              onStyleChange({
-                                imageOptions: { ...styleOptions.imageOptions, margin: value },
-                              })
-                            }
-                            max={20}
-                            step={1}
-                          />
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+    <div className="h-full flex flex-col bg-transparent p-6">
+      <div className="flex flex-col h-full space-y-6">
+        <div className="space-y-2">
+          <h2 className="font-heading text-3xl">CONTENT</h2>
+          <div>
+            <Textarea
+              id="text"
+              placeholder="https://lab.factory.black"
+              value={text}
+              onChange={(e) => onTextChange(e.target.value)}
+              rows={3}
+              className="rounded-b-none"
+            />
+            {isUrl(text) && (
+              <NeoButton
+                size="sm"
+                variant="default"
+                onClick={onShortenUrl}
+                disabled={isShortening}
+                className="uppercase rounded-t-none -mt-px"
+              >
+                {isShortening ? "SHORTENING..." : "SHORTEN URL"}
+              </NeoButton>
+            )}
+          </div>
         </div>
-      </ScrollArea>
-      <div className="p-6 border-t-[var(--neo-border-width)] border-t-[var(--neo-text)]">
-        <NeoButton onClick={onGenerateClick} disabled={isGenerating}>
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              SAVING...
-            </>
-          ) : (
-            "ADD TO COLLECTION"
-          )}
-        </NeoButton>
+
+        <ScrollArea className="flex-1 pr-4 -mr-4">
+          <div className="space-y-4">
+            <div className="space-y-3 border-t-[var(--neo-border-width)] border-t-black/20 pt-4">
+              <h2 className="font-heading text-3xl">STYLE</h2>
+              <Accordion type="multiple" className="w-full" defaultValue={["dots", "corners", "background", "logo"]}>
+                <AccordionItem value="dots">
+                  <AccordionTrigger>DOTS</AccordionTrigger>
+                  <AccordionContent className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label className="font-sans font-bold text-sm uppercase">Style</Label>
+                      <Select
+                        value={styleOptions.dotsOptions.type}
+                        onValueChange={(v) => handleStyleValueChange("dotsOptions.type", v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="square">Square</SelectItem>
+                          <SelectItem value="rounded">Rounded</SelectItem>
+                          <SelectItem value="extra-rounded">Extra Rounded</SelectItem>
+                          <SelectItem value="classy">Classy</SelectItem>
+                          <SelectItem value="classy-rounded">Classy Rounded</SelectItem>
+                          <SelectItem value="dots">Dots (Circle)</SelectItem>
+                          <SelectItem value="fluid">Fluid</SelectItem>
+                          <SelectItem value="fluid-smooth">Fluid (Smooth)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <GradientPicker
+                      gradient={styleOptions.dotsOptions.gradient}
+                      onGradientChange={(g) => handleStyleValueChange("dotsOptions.gradient", g)}
+                      fallbackColor={styleOptions.dotsOptions.color || "#1c1c1c"}
+                      onFallbackColorChange={(c) => handleStyleValueChange("dotsOptions.color", c)}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="corners">
+                  <AccordionTrigger>CORNERS</AccordionTrigger>
+                  <AccordionContent className="space-y-6 pt-4">
+                    <div className="space-y-4">
+                      <Label className="font-sans font-bold text-base uppercase mb-2 block">Corner Squares</Label>
+                      <div className="space-y-2">
+                        <Label className="font-sans font-normal text-sm">Style</Label>
+                        <Select
+                          value={styleOptions.cornersSquareOptions.type || "square"}
+                          onValueChange={(v) => handleStyleValueChange("cornersSquareOptions.type", v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select style..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="square">Square</SelectItem>
+                            <SelectItem value="rounded">Rounded</SelectItem>
+                            <SelectItem value="extra-rounded">Extra Rounded</SelectItem>
+                            <SelectItem value="dot">Dot (Circle)</SelectItem>
+                            <SelectItem value="classy">Classy</SelectItem>
+                            <SelectItem value="classy-rounded">Classy Rounded</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-sans font-normal text-sm">Color</Label>
+                        <GradientPicker
+                          gradient={styleOptions.cornersSquareOptions.gradient}
+                          onGradientChange={(g) => handleStyleValueChange("cornersSquareOptions.gradient", g)}
+                          fallbackColor={styleOptions.cornersSquareOptions.color || "#1c1c1c"}
+                          onFallbackColorChange={(c) => handleStyleValueChange("cornersSquareOptions.color", c)}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <Label className="font-sans font-bold text-base uppercase mb-2 block">Corner Dots</Label>
+                      <div className="space-y-2">
+                        <Label className="font-sans font-normal text-sm">Style</Label>
+                        <Select
+                          value={styleOptions.cornersDotOptions?.type ?? "inherit"}
+                          onValueChange={(v) => handleStyleValueChange("cornersDotOptions.type", v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select style..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="inherit">Inherit</SelectItem>
+                            <SelectItem value="square">Square</SelectItem>
+                            <SelectItem value="rounded">Rounded</SelectItem>
+                            <SelectItem value="extra-rounded">Extra Rounded</SelectItem>
+                            <SelectItem value="dot">Dot (Circle)</SelectItem>
+                            <SelectItem value="classy">Classy</SelectItem>
+                            <SelectItem value="classy-rounded">Classy Rounded</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-sans font-normal text-sm">Color</Label>
+                        <GradientPicker
+                          gradient={styleOptions.cornersDotOptions?.gradient}
+                          onGradientChange={(g) => handleStyleValueChange("cornersDotOptions.gradient", g)}
+                          fallbackColor={styleOptions.cornersDotOptions?.color || "#1c1c1c"}
+                          onFallbackColorChange={(c) => handleStyleValueChange("cornersDotOptions.color", c)}
+                        />
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="background">
+                  <AccordionTrigger>BACKGROUND</AccordionTrigger>
+                  <AccordionContent className="space-y-4 pt-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="transparent-bg"
+                        checked={styleOptions.backgroundOptions.color === "transparent"}
+                        onCheckedChange={(c) =>
+                          handleStyleValueChange("backgroundOptions.color", c ? "transparent" : "#e0e0e0")
+                        }
+                      />
+                      <label htmlFor="transparent-bg" className="text-base font-bold font-sans uppercase">
+                        Transparent
+                      </label>
+                    </div>
+                    {styleOptions.backgroundOptions.color !== "transparent" && (
+                      <GradientPicker
+                        gradient={styleOptions.backgroundOptions.gradient}
+                        onGradientChange={(g) => handleStyleValueChange("backgroundOptions.gradient", g)}
+                        fallbackColor={styleOptions.backgroundOptions.color || "#e0e0e0"}
+                        onFallbackColorChange={(c) => handleStyleValueChange("backgroundOptions.color", c)}
+                      />
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="logo">
+                  <AccordionTrigger>LOGO</AccordionTrigger>
+                  <AccordionContent className="space-y-4 pt-4">
+                    {logoPreview ? (
+                      <NeoButton variant="destructive" onClick={onRemoveLogo}>
+                        REMOVE LOGO
+                      </NeoButton>
+                    ) : (
+                      <NeoButton variant="secondary" onClick={() => fileInputRef.current?.click()}>
+                        UPLOAD LOGO
+                      </NeoButton>
+                    )}
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={onLogoUpload} className="hidden" />
+
+                    {logoPreview && (
+                      <div className="space-y-4 pt-2">
+                        <div className="space-y-2">
+                          <Label className="font-sans font-bold uppercase text-sm">Logo Size</Label>
+                          <BrutalistSlider
+                            value={[styleOptions.imageOptions.imageSize]}
+                            max={0.4}
+                            step={0.01}
+                            onValueChange={(v) => handleStyleValueChange("imageOptions.imageSize", v[0])}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="font-sans font-bold uppercase text-sm">Logo Margin</Label>
+                          <BrutalistSlider
+                            value={[styleOptions.imageOptions.margin]}
+                            max={40}
+                            step={1}
+                            onValueChange={(v) => handleStyleValueChange("imageOptions.margin", v[0])}
+                          />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="hide-dots"
+                            checked={styleOptions.imageOptions.hideBackgroundDots}
+                            onCheckedChange={(c) => handleStyleValueChange("imageOptions.hideBackgroundDots", c)}
+                          />
+                          <label htmlFor="hide-dots" className="text-base font-bold font-sans uppercase">
+                            Hide dots behind logo
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </div>
+        </ScrollArea>
+
+        <div className="mt-auto pt-6 border-t-[var(--neo-border-width)] border-t-black/20">
+          <NeoButton
+            onClick={onGenerateClick}
+            disabled={isGenerating || !text.trim()}
+            size="lg"
+            className="uppercase w-full"
+          >
+            {isGenerating ? "GENERATING..." : "ADD TO COLLECTION"}
+          </NeoButton>
+        </div>
       </div>
     </div>
   )

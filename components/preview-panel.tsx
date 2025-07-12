@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 const Loader = () => (
   <motion.div
-    className="w-16 h-16 border-4 border-t-transparent border-[var(--neo-text)] rounded-full"
+    className="w-16 h-16 border-4 border-t-transparent border-black rounded-full"
     animate={{ rotate: 360 }}
     transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
   />
@@ -122,8 +122,8 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
       <div className="w-full sticky top-6">
         <div
           ref={containerRef}
-          className="w-full lg:max-w-[70vh] mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
-          style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
+          className="w-full lg:max-w-[70vh] mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-2 border-black flex items-center justify-center p-4 md:p-8 relative"
+          style={{ boxShadow: `8px 8px 0px #000` }}
         >
           <AnimatePresence>
             {isLoading && (
