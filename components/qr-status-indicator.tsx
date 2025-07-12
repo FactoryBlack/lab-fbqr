@@ -53,14 +53,14 @@ export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="h-10 bg-neo-text text-neo-bg rounded-md flex items-center px-4"
+              className="h-10 bg-neo-bg text-neo-text rounded-md flex items-center px-4"
               style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
             >
               <div className="whitespace-nowrap">
                 <p className="font-sans text-sm font-black uppercase text-[hsl(var(--neo-destructive-accent))]">
                   Unscannable
                 </p>
-                <p className="font-sans text-xs text-white -mt-1">Try simpler styles or less content.</p>
+                <p className="font-sans text-xs text-neo-text -mt-1">Try simpler styles or less content.</p>
               </div>
             </motion.div>
           )}

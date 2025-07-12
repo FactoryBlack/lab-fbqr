@@ -6,6 +6,9 @@ import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
+// This component styles the Sonner toast notifications to match the app's brutalist theme.
+// We use the `group` class on the parent `Sonner` component and `group-[.toaster]` selectors
+// in the `toastOptions` to specifically target the toast elements and override the library's default styles.
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
