@@ -63,9 +63,9 @@ export default function ConfigPanel({
 
   return (
     <div className="h-full flex flex-col bg-transparent">
-      <div className="p-6 border-b-2 border-black">
+      <div className="p-6 border-b-2 border-[#1c1c1c]">
         <div className="space-y-2">
-          <h2 className="font-serif text-4xl font-bold">CONTENT</h2>
+          <h2 className="font-heading text-3xl">CONTENT</h2>
           <div>
             <Textarea
               id="text"
@@ -81,7 +81,7 @@ export default function ConfigPanel({
                 variant="default"
                 onClick={onShortenUrl}
                 disabled={isShortening}
-                className="uppercase rounded-t-none -mt-px"
+                className="uppercase rounded-t-none mt-2"
               >
                 {isShortening ? "SHORTENING..." : "SHORTEN URL"}
               </NeoButton>
@@ -263,7 +263,7 @@ export default function ConfigPanel({
         </Accordion>
       </ScrollArea>
 
-      <div className="mt-auto p-6 border-t-2 border-black">
+      <div className="mt-auto p-6 border-t-2 border-[#1c1c1c]">
         <NeoButton
           onClick={onGenerateClick}
           disabled={isGenerating || !text.trim()}
