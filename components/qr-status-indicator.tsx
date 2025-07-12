@@ -73,7 +73,7 @@ export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
                   <p className="font-sans text-sm font-black uppercase text-[hsl(var(--neo-destructive-accent))]">
                     Unscannable
                   </p>
-                  <p className="font-sans text-xs text-neo-bg/70 -mt-1">Try simpler styles or less content.</p>
+                  <p className="font-sans text-xs text-neo-bg -mt-1">Try simpler styles or less content.</p>
                 </motion.div>
               </div>
             </motion.div>

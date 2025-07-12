@@ -13,10 +13,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-[var(--neo-off-white)] group-[.toaster]:text-foreground group-[.toaster]:border-0 group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
-          actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "group toast group-[.toaster]:bg-neo-bg group-[.toaster]:text-neo-text group-[.toaster]:border-2 group-[.toaster]:border-neo-text group-[.toaster]:shadow-[4px_4px_0px_var(--neo-text)]",
+          description: "group-[.toast]:text-neo-text/80",
+          actionButton:
+            "group-[.toast]:bg-neo-accent group-[.toast]:text-neo-text group-[.toast]:border-2 group-[.toast]:border-neo-text group-[.toast]:shadow-[2px_2px_0px_var(--neo-text)] group-[.toast]:font-bold group-[.toast]:uppercase hover:group-[.toast]:bg-neo-accent/90",
+          cancelButton:
+            "group-[.toast]:bg-neo-muted-bg group-[.toast]:text-neo-text group-[.toast]:border-2 group-[.toast]:border-neo-text group-[.toast]:shadow-[2px_2px_0px_var(--neo-text)] group-[.toast]:font-bold group-[.toast]:uppercase hover:group-[.toast]:bg-neo-muted-bg/90",
         },
       }}
       {...props}
