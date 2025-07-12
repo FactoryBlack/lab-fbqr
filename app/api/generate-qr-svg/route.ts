@@ -66,27 +66,29 @@ function polygonsToPathD(polygons: number[][][][]): string {
   return d
 }
 
-// Helper to create a rectangle polygon
+// Helper to create a rectangle polygon with rounding
 function rectToPolygon(x: number, y: number, w: number, h: number): number[][][] {
+  const round = (val: number) => Math.round(val * 1000) / 1000
   return [
     [
       [
-        [x, y],
-        [x + w, y],
-        [x + w, y + h],
-        [x, y + h],
+        [round(x), round(y)],
+        [round(x + w), round(y)],
+        [round(x + w), round(y + h)],
+        [round(x), round(y + h)],
       ],
     ],
   ]
 }
 
-// Helper to create a circle polygon (approximated as an octagon)
+// Helper to create a circle polygon (approximated as an octagon) with rounding
 function circleToPolygon(cx: number, cy: number, r: number): number[][][] {
+  const round = (val: number) => Math.round(val * 1000) / 1000
   const sides = 8
   const points = []
   for (let i = 0; i < sides; i++) {
     const angle = (i / sides) * 2 * Math.PI
-    points.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)])
+    points.push([round(cx + r * Math.cos(angle)), round(cy + r * Math.sin(angle))])
   }
   return [[points]]
 }
@@ -423,8 +425,5 @@ function renderSvg(qr: QRCode, options: any): string {
     svgContent += `<image xlink:href="${image}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" />`
   }
 
-  return `<svg width="${width}" height="${width}" viewBox="0 0 ${width} ${width}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<defs>${defsContent}</defs>
-${svgContent}
-</svg>`
+  return `<svg width="${width}" height="${width}" viewBox="0 0 ${width} ${width}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>${defsContent}</defs>${svgContent}</svg>`
 }
