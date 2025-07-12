@@ -19,7 +19,7 @@ const explanationContainerVariants = {
   hidden: { width: 0, marginRight: 0, opacity: 0, x: 20 },
   visible: {
     width: "auto",
-    marginRight: "-1rem",
+    marginRight: "0.5rem",
     opacity: 1,
     x: 0,
     transition: { type: "spring", stiffness: 500, damping: 30, when: "beforeChildren" },
@@ -73,7 +73,7 @@ export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
                   <p className="font-sans text-sm font-black uppercase text-[hsl(var(--neo-destructive-accent))]">
                     Unscannable
                   </p>
-                  <p className="font-sans text-xs text-neo-bg -mt-1">Try simpler styles or less content.</p>
+                  <p className="font-sans text-xs text-white -mt-1">Try simpler styles or less content.</p>
                 </motion.div>
               </div>
             </motion.div>
