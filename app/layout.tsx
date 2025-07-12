@@ -11,9 +11,15 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: "QR-BRUTAL",
-  description: "A Swiss-Tech Brutalist QR Code Generator",
-  generator: "v0.dev",
+  title: {
+    template: "%s | The Factory Black Lab",
+    default: "The Factory Black Lab",
+  },
+  description: "A collection of helpful tools from The Factory Black.",
+  icons: {
+    icon: "/favicon.png",
+  },
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

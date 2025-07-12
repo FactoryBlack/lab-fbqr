@@ -17,7 +17,7 @@ interface AuthModalProps {
   redirectTo?: string
 }
 
-export function AuthModal({ isOpen, onClose, redirectTo = "/" }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, redirectTo = "/" }: AuthModalProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isSignUp, setIsSignUp] = useState(false)

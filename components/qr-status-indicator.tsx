@@ -16,27 +16,17 @@ const iconVariants = {
 }
 
 const explanationContainerVariants = {
-  hidden: { width: 0, marginRight: 0, opacity: 0, x: 20 },
+  hidden: { opacity: 0, x: 10 },
   visible: {
-    width: "auto",
-    marginRight: "0.5rem",
     opacity: 1,
     x: 0,
-    transition: { type: "spring", stiffness: 500, damping: 30, when: "beforeChildren" },
+    transition: { type: "spring", stiffness: 400, damping: 25 },
   },
   exit: {
-    width: 0,
-    marginRight: 0,
     opacity: 0,
-    x: 20,
-    transition: { duration: 0.2, when: "afterChildren" },
+    x: 10,
+    transition: { duration: 0.2 },
   },
-}
-
-const explanationContentVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { delay: 0.1 } },
-  exit: { opacity: 0, transition: { duration: 0.1 } },
 }
 
 export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
@@ -55,7 +45,7 @@ export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
 
   return (
     <div className="absolute top-3 right-3 z-10">
-      <div className="relative flex items-center h-10">
+      <div className="relative flex items-center h-10 gap-3">
         <AnimatePresence>
           {status === "invalid" && (
             <motion.div
@@ -63,18 +53,14 @@ export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="overflow-hidden origin-right"
+              className="h-10 bg-neo-text text-neo-bg rounded-md flex items-center px-4"
+              style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
             >
-              <div
-                className="h-10 bg-neo-text text-neo-bg rounded-md flex items-center px-4"
-                style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
-              >
-                <motion.div className="whitespace-nowrap" variants={explanationContentVariants}>
-                  <p className="font-sans text-sm font-black uppercase text-[hsl(var(--neo-destructive-accent))]">
-                    Unscannable
-                  </p>
-                  <p className="font-sans text-xs text-white -mt-1">Try simpler styles or less content.</p>
-                </motion.div>
+              <div className="whitespace-nowrap">
+                <p className="font-sans text-sm font-black uppercase text-[hsl(var(--neo-destructive-accent))]">
+                  Unscannable
+                </p>
+                <p className="font-sans text-xs text-white -mt-1">Try simpler styles or less content.</p>
               </div>
             </motion.div>
           )}

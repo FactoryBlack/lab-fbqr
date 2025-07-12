@@ -11,49 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Checkbox } from "@/components/ui/checkbox"
 import { GradientPicker } from "./gradient-picker"
 import { ScrollArea } from "./ui/scroll-area"
-
-type Gradient = {
-  type: "linear" | "radial"
-  rotation: number
-  colorStops: {
-    offset: number
-    color: string
-  }[]
-}
-
-type CornerSquareType = "square" | "rounded" | "extra-rounded" | "dot" | "classy" | "classy-rounded"
-type CornerDotType = "square" | "rounded" | "extra-rounded" | "dot" | "classy" | "classy-rounded" | "inherit"
-
-export type QRStyleOptions = {
-  width: number
-  dotsOptions: {
-    type: "square" | "rounded" | "dots" | "classy" | "classy-rounded" | "extra-rounded" | "fluid" | "fluid-smooth"
-    color?: string
-    gradient?: Gradient
-  }
-  backgroundOptions: {
-    color?: string
-    gradient?: Gradient
-  }
-  cornersSquareOptions: {
-    type: CornerSquareType | null
-    color?: string
-    gradient?: Gradient
-  }
-  cornersDotOptions?: {
-    type: CornerDotType | null
-    color?: string
-    gradient?: Gradient
-  }
-  imageOptions: {
-    imageSize: number
-    hideBackgroundDots: boolean
-    margin: number
-  }
-  qrOptions: {
-    errorCorrectionLevel: "L" | "M" | "Q" | "H"
-  }
-}
+import type { QRStyleOptions } from "@/types"
 
 interface ConfigPanelProps {
   text: string
@@ -68,7 +26,7 @@ interface ConfigPanelProps {
   isShortening: boolean
 }
 
-export function ConfigPanel({
+export default function ConfigPanel({
   text,
   onTextChange,
   styleOptions,

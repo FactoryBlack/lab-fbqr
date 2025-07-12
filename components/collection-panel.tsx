@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import type { QRCodeResult } from "@/app/page"
+import type { QRCodeResult } from "@/types"
 import { CollectionItem } from "./collection-item"
 import { ScrollArea } from "./ui/scroll-area"
 import type { User } from "@supabase/supabase-js"
@@ -33,7 +33,7 @@ interface CollectionPanelProps {
   user: User | null
 }
 
-export function CollectionPanel({ qrCodes, onRemove, onLoad, isLoading, user }: CollectionPanelProps) {
+export default function CollectionPanel({ qrCodes, onRemove, onLoad, isLoading, user }: CollectionPanelProps) {
   return (
     <div className="p-6 h-full flex flex-col bg-transparent">
       <div className="flex items-center justify-between pb-2">

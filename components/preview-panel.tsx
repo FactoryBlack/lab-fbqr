@@ -5,7 +5,7 @@ import { useDebounce } from "use-debounce"
 import jsQR from "jsqr"
 import { QrStatusIndicator, type Status as ValidationState } from "./qr-status-indicator"
 import useResizeObserver from "use-resize-observer"
-import type { QRStyleOptions } from "./config-panel"
+import type { QRStyleOptions } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
 
 const Loader = () => (
@@ -26,7 +26,7 @@ interface PreviewPanelProps {
 // Define a fixed, high-resolution size for the validation canvas to ensure consistent results.
 const VALIDATION_CANVAS_SIZE = 400
 
-export function PreviewPanel({ text, style, logoPreview, onSizeChange }: PreviewPanelProps) {
+export default function PreviewPanel({ text, style, logoPreview, onSizeChange }: PreviewPanelProps) {
   const [svgContent, setSvgContent] = useState<string>("")
   const [validationStatus, setValidationStatus] = useState<ValidationState>("idle")
   const [isLoading, setIsLoading] = useState(false)
