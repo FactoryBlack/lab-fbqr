@@ -3,8 +3,8 @@
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AnimatedBrutalistXIcon } from "./animated-brutalist-x-icon"
 
 const ToastProvider = ToastPrimitives.Provider
 
@@ -69,13 +69,13 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-2 top-2 rounded-none p-1 text-foreground/50 opacity-100 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-0",
+      "absolute right-3 top-1/2 -translate-y-1/2 rounded-none opacity-100 transition-opacity hover:opacity-80 focus:opacity-100 focus:outline-none focus:ring-0",
       className,
     )}
     toast-close=""
     {...props}
   >
-    <X className="h-4 w-4" />
+    <AnimatedBrutalistXIcon className="h-8 w-8" />
   </ToastPrimitives.Close>
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName
