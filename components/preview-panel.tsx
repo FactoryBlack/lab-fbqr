@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useDebounce } from "use-debounce"
 import jsQR from "jsqr"
 import { QrStatusIndicator, type Status as ValidationState } from "./qr-status-indicator"
@@ -23,10 +23,14 @@ interface PreviewPanelProps {
   onSizeChange: (size: number) => void
 }
 
+// Define a fixed, high-resolution size for the validation canvas to ensure consistent results.
+const VALIDATION_CANVAS_SIZE = 400
+
 export function PreviewPanel({ text, style, logoPreview, onSizeChange }: PreviewPanelProps) {
   const [svgContent, setSvgContent] = useState<string>("")
   const [validationStatus, setValidationStatus] = useState<ValidationState>("idle")
   const [isLoading, setIsLoading] = useState(false)
+  const validationRef = useRef(0) // Used to track the current validation job and prevent race conditions
 
   const { ref: containerRef, width } = useResizeObserver<HTMLDivElement>()
 
@@ -40,37 +44,6 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
   const [debouncedStyle] = useDebounce(style, 500)
   const [debouncedLogo] = useDebounce(logoPreview, 500)
 
-  const validateQRCode = useCallback(async (svgData: string, originalText: string) => {
-    if (!svgData) return
-    setValidationStatus("checking")
-    const image = new Image()
-    image.crossOrigin = "anonymous"
-    image.src = `data:image/svg+xml;base64,${btoa(svgData)}`
-
-    image.onload = () => {
-      const canvas = document.createElement("canvas")
-      canvas.width = image.width
-      canvas.height = image.height
-      const ctx = canvas.getContext("2d")
-      if (!ctx) {
-        setValidationStatus("invalid")
-        return
-      }
-      ctx.drawImage(image, 0, 0)
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const code = jsQR(imageData.data, imageData.width, imageData.height)
-
-      if (code && code.data === originalText.trim()) {
-        setValidationStatus("valid")
-      } else {
-        setValidationStatus("invalid")
-      }
-    }
-    image.onerror = () => {
-      setValidationStatus("invalid")
-    }
-  }, [])
-
   useEffect(() => {
     if (!debouncedText.trim()) {
       setSvgContent("")
@@ -78,8 +51,12 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
       return
     }
 
+    // Increment the ref to create a unique ID for this validation attempt.
+    const currentValidationId = ++validationRef.current
     setIsLoading(true)
-    const fetchQrCode = async () => {
+    setValidationStatus("checking")
+
+    const processQrCode = async () => {
       try {
         const response = await fetch("/api/generate-qr-svg", {
           method: "POST",
@@ -90,27 +67,71 @@ export function PreviewPanel({ text, style, logoPreview, onSizeChange }: Preview
             image: debouncedLogo,
           }),
         })
+
+        // If another request has started, abort this one.
+        if (validationRef.current !== currentValidationId) return
         if (!response.ok) throw new Error("Failed to generate QR code")
+
         const svg = await response.text()
+        if (validationRef.current !== currentValidationId) return
+
         setSvgContent(svg)
-        validateQRCode(svg, debouncedText)
+
+        // --- Begin Validation ---
+        const image = new Image()
+        image.crossOrigin = "anonymous"
+        image.src = `data:image/svg+xml;base64,${btoa(svg)}`
+
+        image.onload = () => {
+          // Abort if this is a stale validation
+          if (validationRef.current !== currentValidationId) return
+
+          const canvas = document.createElement("canvas")
+          canvas.width = VALIDATION_CANVAS_SIZE
+          canvas.height = VALIDATION_CANVAS_SIZE
+          const ctx = canvas.getContext("2d", { willReadFrequently: true })
+          if (!ctx) {
+            setValidationStatus("invalid")
+            return
+          }
+          ctx.drawImage(image, 0, 0, VALIDATION_CANVAS_SIZE, VALIDATION_CANVAS_SIZE)
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+          const code = jsQR(imageData.data, imageData.width, imageData.height)
+
+          if (validationRef.current !== currentValidationId) return
+
+          if (code && code.data === debouncedText.trim()) {
+            setValidationStatus("valid")
+          } else {
+            setValidationStatus("invalid")
+          }
+        }
+
+        image.onerror = () => {
+          if (validationRef.current !== currentValidationId) return
+          setValidationStatus("invalid")
+        }
       } catch (error) {
-        console.error(error)
-        setValidationStatus("invalid")
+        if (validationRef.current === currentValidationId) {
+          console.error(error)
+          setValidationStatus("invalid")
+        }
       } finally {
-        setIsLoading(false)
+        if (validationRef.current === currentValidationId) {
+          setIsLoading(false)
+        }
       }
     }
 
-    fetchQrCode()
-  }, [debouncedText, debouncedStyle, debouncedLogo, validateQRCode])
+    processQrCode()
+  }, [debouncedText, debouncedStyle, debouncedLogo, onSizeChange])
 
   return (
     <div className="flex flex-col h-full items-start justify-start p-6">
       <div className="w-full sticky top-6">
         <div
           ref={containerRef}
-          className="w-full max-w-[70vh] mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
+          className="w-full mx-auto aspect-square bg-[var(--neo-interactive-bg)] border-[var(--neo-border-width)] border-[var(--neo-text)] flex items-center justify-center p-4 md:p-8 relative"
           style={{ boxShadow: `8px 8px 0px var(--neo-text)` }}
         >
           <AnimatePresence>

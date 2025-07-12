@@ -1,8 +1,8 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { Check, X, Loader } from "lucide-react"
 import { NeoCard, NeoCardContent } from "./ui/neo-card"
+import { BrutalistCheckIcon, BrutalistLoaderIcon, BrutalistXIcon } from "./ui/brutalist-status-icons"
 
 export type Status = "valid" | "invalid" | "checking" | "idle"
 
@@ -52,9 +52,9 @@ export function QrStatusIndicator({ status, hasLogo }: QrStatusIndicatorProps) {
   }
 
   const statusConfig = {
-    checking: { icon: <Loader className="animate-spin" size={20} />, bg: "bg-gray-400" },
-    valid: { icon: <Check size={24} />, bg: "bg-[var(--neo-accent)]" },
-    invalid: { icon: <X size={24} />, bg: "bg-[hsl(var(--neo-destructive-accent))]" },
+    checking: { icon: <BrutalistLoaderIcon className="w-5 h-5" />, bg: "bg-gray-400" },
+    valid: { icon: <BrutalistCheckIcon className="w-6 h-6" />, bg: "bg-[var(--neo-accent)]" },
+    invalid: { icon: <BrutalistXIcon className="w-6 h-6" />, bg: "bg-[hsl(var(--neo-destructive-accent))]" },
     idle: { icon: null, bg: "" },
   }
 
