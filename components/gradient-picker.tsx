@@ -1,118 +1,78 @@
 "use client"
-
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BrutalistSlider } from "@/components/ui/brutalist-slider"
 import { ColorInput } from "./ui/color-input"
-
-interface Gradient {
-  type: "linear" | "radial"
-  rotation: number
-  colorStops: { offset: number; color: string }[]
-}
+import { Label } from "./ui/label"
+import { BrutalistXIcon } from "./ui/brutalist-status-icons"
+import type { Gradient } from "@/types"
 
 interface GradientPickerProps {
-  gradient: Gradient | undefined
-  onGradientChange: (gradient: Gradient | undefined) => void
+  gradient?: Gradient | null
+  onGradientChange: (gradient: Gradient | null) => void
   fallbackColor: string
   onFallbackColorChange: (color: string) => void
 }
 
-export function GradientPicker({
+export default function GradientPicker({
   gradient,
   onGradientChange,
   fallbackColor,
   onFallbackColorChange,
 }: GradientPickerProps) {
-  const isEnabled = !!gradient
-
-  const handleToggle = (checked: boolean) => {
-    if (checked) {
-      onGradientChange({
-        type: "linear",
-        rotation: 0,
-        colorStops: [
-          { offset: 0, color: "#000000" },
-          { offset: 1, color: "#ffffff" },
-        ],
-      })
-    } else {
-      onGradientChange(undefined)
-    }
+  const handleColorChange = (index: number, color: string) => {
+    if (!gradient) return
+    const newColorStops = [...gradient.colorStops]
+    newColorStops[index] = { ...newColorStops[index], color }
+    onGradientChange({ ...gradient, colorStops: newColorStops })
   }
 
-  const updateGradient = (key: keyof Gradient, value: any) => {
-    if (gradient) {
-      onGradientChange({ ...gradient, [key]: value })
-    }
+  const handleUseGradient = () => {
+    onGradientChange({
+      type: "linear",
+      rotation: 90,
+      colorStops: [
+        { offset: 0, color: "#ff0000" },
+        { offset: 1, color: "#0000ff" },
+      ],
+    })
   }
 
-  const updateColorStop = (index: number, color: string) => {
-    if (gradient) {
-      const newStops = [...gradient.colorStops]
-      newStops[index] = { ...newStops[index], color }
-      updateGradient("colorStops", newStops)
-    }
+  const handleRemoveGradient = () => {
+    onGradientChange(null)
+  }
+
+  if (gradient) {
+    return (
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <Label className="font-sans font-bold uppercase text-sm">Use Gradient</Label>
+          <button onClick={handleRemoveGradient} aria-label="Remove gradient">
+            <BrutalistXIcon />
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <ColorInput
+            value={gradient.colorStops[0].color}
+            onChange={(color) => handleColorChange(0, color)}
+            className="flex-1"
+          />
+          <ColorInput
+            value={gradient.colorStops[1].color}
+            onChange={(color) => handleColorChange(1, color)}
+            className="flex-1"
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <Label htmlFor="gradient-switch" className="font-bold uppercase">
-          USE GRADIENT
-        </Label>
-        <Checkbox id="gradient-switch" checked={isEnabled} onCheckedChange={handleToggle} />
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <Label className="font-sans font-bold uppercase text-sm">Solid Color</Label>
+        <button onClick={handleUseGradient} className="font-sans font-bold uppercase text-sm hover:underline">
+          Use Gradient
+        </button>
       </div>
-
-      {isEnabled && gradient ? (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            {gradient.colorStops.map((stop, index) => (
-              <div key={index} className="flex items-center justify-between gap-4">
-                <Label className="text-xs font-bold whitespace-nowrap">Color {index + 1}</Label>
-                <ColorInput
-                  value={stop.color}
-                  onChange={(e) => updateColorStop(index, e.target.value)}
-                  className="w-full"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs">Type</Label>
-            <Select value={gradient.type} onValueChange={(v) => updateGradient("type", v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="linear">Linear</SelectItem>
-                <SelectItem value="radial">Radial</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {gradient.type === "linear" && (
-            <div className="space-y-2">
-              <Label className="text-xs">Rotation</Label>
-              <BrutalistSlider
-                value={[gradient.rotation]}
-                max={Math.PI * 2}
-                step={0.1}
-                onValueChange={(v) => updateGradient("rotation", v[0])}
-              />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-4">
-          <Label className="text-xs font-bold">Solid Color</Label>
-          <ColorInput
-            value={fallbackColor}
-            onChange={(e) => onFallbackColorChange(e.target.value)}
-            className="w-full"
-          />
-        </div>
-      )}
+      <ColorInput value={fallbackColor} onChange={onFallbackColorChange} />
     </div>
   )
 }

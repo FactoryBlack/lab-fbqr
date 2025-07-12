@@ -1,3 +1,6 @@
+import type React from "react"
+import type { DOT_TYPES, CORNER_SQUARE_TYPES, CORNER_DOT_TYPES } from "@/lib/constants"
+
 export type Gradient = {
   type: "linear" | "radial"
   rotation: number
@@ -7,29 +10,34 @@ export type Gradient = {
   }[]
 }
 
-export type CornerSquareType = "square" | "rounded" | "extra-rounded" | "dot" | "classy" | "classy-rounded"
-export type CornerDotType = "square" | "rounded" | "extra-rounded" | "dot" | "classy" | "classy-rounded" | "inherit"
+export type DotType = (typeof DOT_TYPES)[number]
+export type CornerSquareType = (typeof CORNER_SQUARE_TYPES)[number]
+export type CornerDotType = (typeof CORNER_DOT_TYPES)[number]
 
-export type QRStyleOptions = {
+export interface QRStyleOptions {
   width: number
   dotsOptions: {
-    type: "square" | "rounded" | "dots" | "classy" | "classy-rounded" | "extra-rounded" | "fluid" | "fluid-smooth"
+    type: DotType
     color?: string
     gradient?: Gradient
+    useGradient?: boolean
   }
   backgroundOptions: {
     color?: string
     gradient?: Gradient
+    useGradient?: boolean
   }
   cornersSquareOptions: {
     type: CornerSquareType | null
     color?: string
     gradient?: Gradient
+    useGradient?: boolean
   }
-  cornersDotOptions?: {
+  cornersDotOptions: {
     type: CornerDotType | null
     color?: string
     gradient?: Gradient
+    useGradient?: boolean
   }
   imageOptions: {
     imageSize: number
@@ -41,11 +49,29 @@ export type QRStyleOptions = {
   }
 }
 
-export type QRCodeResult = {
-  id: string
-  text: string
-  style: QRStyleOptions
+export interface Config {
+  data: string
+  dotsOptions: QRStyleOptions["dotsOptions"]
+  cornersSquareOptions: QRStyleOptions["cornersSquareOptions"]
+  cornersDotOptions: QRStyleOptions["cornersDotOptions"]
+  backgroundOptions: QRStyleOptions["backgroundOptions"]
+  logoOptions: {
+    logoSize: number
+    margin: number
+  }
   logo: string | null
-  svg: string
-  shortUrl?: string
+}
+
+export interface ConfigPanelProps {
+  text: string
+  onTextChange: (value: string) => void
+  styleOptions: QRStyleOptions
+  onStyleChange: (newOptions: Partial<QRStyleOptions>) => void
+  onGenerateClick: () => void
+  isGenerating: boolean
+  onLogoUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
+  logoPreview: string | null
+  onRemoveLogo: () => void
+  onShortenUrl: () => Promise<void>
+  isShortening: boolean
 }
