@@ -115,7 +115,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo = "/" }: AuthMod
                   </NeoButton>
                 </form>
 
-                <div className="space-y-4">
+                <div className="mt-4 space-y-4">
                   <NeoButton onClick={handleGoogleSignIn} variant="outline" className="w-full">
                     Continue with Google
                   </NeoButton>
