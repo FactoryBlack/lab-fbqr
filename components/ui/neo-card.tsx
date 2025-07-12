@@ -1,25 +1,19 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-interface NeoCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  borderColor?: string
-  shadowColor?: string
-  noShadow?: boolean
-}
-
-const NeoCard = React.forwardRef<HTMLDivElement, NeoCardProps>(({ className, noShadow = false, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "bg-[var(--neo-bg)] text-card-foreground border-[var(--neo-border-width)] border-[var(--neo-text)] transition-all",
-      className,
-    )}
-    style={{
-      boxShadow: noShadow ? "none" : `8px 8px 0px var(--neo-text)`,
-    }}
-    {...props}
-  />
-))
+const NeoCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "rounded-none border-2 border-neo-text bg-[#EAEAEA] text-neo-text",
+        "shadow-[8px_8px_0px_var(--neo-text)]",
+        className,
+      )}
+      {...props}
+    />
+  ),
+)
 NeoCard.displayName = "NeoCard"
 
 const NeoCardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -48,4 +42,11 @@ const NeoCardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
 )
 NeoCardContent.displayName = "NeoCardContent"
 
-export { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardDescription, NeoCardContent }
+const NeoCardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
+  ),
+)
+NeoCardFooter.displayName = "NeoCardFooter"
+
+export { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardDescription, NeoCardContent, NeoCardFooter }
