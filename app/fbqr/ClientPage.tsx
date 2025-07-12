@@ -237,7 +237,7 @@ export default function QRGeneratorPage() {
             <div className="p-4 flex items-center">
               <h1 className="font-heading text-5xl md:text-6xl">
                 <span className="hidden lg:inline">
-                  LAB01<span className="text-yellow-300">/</span>
+                  LAB01<span className="text-[var(--neo-accent)]">/</span>
                 </span>
                 FBQR
               </h1>

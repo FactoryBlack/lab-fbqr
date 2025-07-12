@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
@@ -15,12 +17,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
+            "group toast font-sans bg-[var(--neo-bg)] text-[var(--neo-text)] border-2 border-[var(--neo-text)] shadow-[4px_4px_0px_var(--neo-text)] rounded-none p-4",
+          title: "font-bold uppercase text-base",
+          description: "text-sm opacity-80",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            "group-[.toast]:bg-[var(--neo-accent)] group-[.toast]:text-[var(--neo-text)] group-[.toast]:border-2 group-[.toast]:border-[var(--neo-text)]",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "group-[.toast]:bg-[var(--neo-muted-bg)] group-[.toast]:text-[var(--neo-text)] group-[.toast]:border-2 group-[.toast]:border-[var(--neo-text)]",
+          closeButton: "border-0 bg-transparent hover:bg-black/10 !right-2 !top-2",
         },
       }}
       {...props}

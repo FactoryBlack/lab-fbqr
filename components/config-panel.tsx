@@ -212,7 +212,7 @@ export default function ConfigPanel({
               )}
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="logo">
+          <AccordionItem value="logo" className="border-b-0">
             <AccordionTrigger>LOGO</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
               {logoPreview ? (
