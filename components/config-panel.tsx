@@ -117,6 +117,7 @@ export default function ConfigPanel({
                 </Select>
               </div>
               <GradientPicker
+                label="dots"
                 gradient={styleOptions.dotsOptions.gradient}
                 onGradientChange={(g) => handleStyleValueChange("dotsOptions.gradient", g)}
                 fallbackColor={styleOptions.dotsOptions.color || "#1c1c1c"}
@@ -150,6 +151,7 @@ export default function ConfigPanel({
                   </Select>
                 </div>
                 <GradientPicker
+                  label="corners-square"
                   gradient={styleOptions.cornersSquareOptions.gradient}
                   onGradientChange={(g) => handleStyleValueChange("cornersSquareOptions.gradient", g)}
                   fallbackColor={styleOptions.cornersSquareOptions.color || "#1c1c1c"}
@@ -179,6 +181,7 @@ export default function ConfigPanel({
                   </Select>
                 </div>
                 <GradientPicker
+                  label="corners-dot"
                   gradient={styleOptions.cornersDotOptions?.gradient}
                   onGradientChange={(g) => handleStyleValueChange("cornersDotOptions.gradient", g)}
                   fallbackColor={styleOptions.cornersDotOptions?.color || "#1c1c1c"}
@@ -204,6 +207,7 @@ export default function ConfigPanel({
               </div>
               {styleOptions.backgroundOptions.color !== "transparent" && (
                 <GradientPicker
+                  label="background"
                   gradient={styleOptions.backgroundOptions.gradient}
                   onGradientChange={(g) => handleStyleValueChange("backgroundOptions.gradient", g)}
                   fallbackColor={styleOptions.backgroundOptions.color || "#e0e0e0"}

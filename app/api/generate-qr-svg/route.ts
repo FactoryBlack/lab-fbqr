@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import qrcode, { type QRCode } from "qrcode"
+import { union as polygonUnion } from "polygon-clipping"
 
 // Helper to parse query params from a GET request
 function getQrConfigFromRequest(req: NextRequest) {
@@ -50,6 +51,45 @@ export async function POST(request: NextRequest) {
 }
 
 // --- SVG Generation Logic ---
+
+// Helper to convert a polygon (or multipolygon) to an SVG path d-string
+function polygonsToPathD(polygons: number[][][][]): string {
+  let d = ""
+  polygons.forEach((polygon) => {
+    polygon.forEach((ring) => {
+      ring.forEach((point, i) => {
+        d += `${i === 0 ? "M" : "L"}${point[0]} ${point[1]}`
+      })
+      d += "Z"
+    })
+  })
+  return d
+}
+
+// Helper to create a rectangle polygon
+function rectToPolygon(x: number, y: number, w: number, h: number): number[][][] {
+  return [
+    [
+      [
+        [x, y],
+        [x + w, y],
+        [x + w, y + h],
+        [x, y + h],
+      ],
+    ],
+  ]
+}
+
+// Helper to create a circle polygon (approximated as an octagon)
+function circleToPolygon(cx: number, cy: number, r: number): number[][][] {
+  const sides = 8
+  const points = []
+  for (let i = 0; i < sides; i++) {
+    const angle = (i / sides) * 2 * Math.PI
+    points.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)])
+  }
+  return [[points]]
+}
 
 async function generateSvg(config: any): Promise<string> {
   const {
@@ -140,7 +180,11 @@ function renderSvg(qr: QRCode, options: any): string {
   ) => {
     const newX = x + offset
     const newY = y + offset
-    return `M${newX + r.tl},${newY} H${newX + w - r.tr} A${r.tr},${r.tr} 0 0 1 ${newX + w},${newY + r.tr} V${newY + h - r.br} A${r.br},${r.br} 0 0 1 ${newX + w - r.br},${newY + h} H${newX + r.bl} A${r.bl},${r.bl} 0 0 1 ${newX},${newY + h - r.bl} V${newY + r.tl} A${r.tl},${r.tl} 0 0 1 ${newX + r.tl},${newY} Z`
+    return `M${newX + r.tl},${newY} H${newX + w - r.tr} A${r.tr},${r.tr} 0 0 1 ${newX + w},${newY + r.tr} V${
+      newY + h - r.br
+    } A${r.br},${r.br} 0 0 1 ${newX + w - r.br},${newY + h} H${newX + r.bl} A${r.bl},${r.bl} 0 0 1 ${newX},${
+      newY + h - r.bl
+    } V${newY + r.tl} A${r.tl},${r.tl} 0 0 1 ${newX + r.tl},${newY} Z`
   }
 
   const cornerPositions = [
@@ -269,13 +313,10 @@ function renderSvg(qr: QRCode, options: any): string {
   // Draw data modules
   const dotStyle = dotsOptions.type
   if (dotStyle === "fluid" || dotStyle === "fluid-smooth") {
-    let fluidShapes = ""
+    const shapes: number[][][][] = []
     const radius = moduleSize / 2
-    const overlap = 0.5 // 0.5px overlap to fill gaps
+    const overlap = 0.1 // Small overlap to ensure union works correctly
 
-    fluidShapes += `<g ${dotsFill}>`
-
-    // Draw base circles and connectors
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
         if (!isModuleRendered(r, c) || isCorner(r, c)) continue
@@ -283,76 +324,60 @@ function renderSvg(qr: QRCode, options: any): string {
         const moduleX = c * moduleSize + offset
         const moduleY = r * moduleSize + offset
 
-        // Draw the circle for the module, slightly larger to overlap
-        fluidShapes += `<circle cx="${moduleX + radius}" cy="${moduleY + radius}" r="${radius + overlap}" />`
+        // Add circle for the module
+        shapes.push(circleToPolygon(moduleX + radius, moduleY + radius, radius + overlap))
 
-        // Draw connector to the right if neighbor is rendered
-        if (isModuleRendered(r, c + 1)) {
-          fluidShapes += `<rect x="${moduleX + radius}" y="${moduleY - overlap}" width="${moduleSize}" height="${
-            moduleSize + 2 * overlap
-          }" />`
+        // Add connector to the right
+        if (isModuleRendered(r, c + 1) && !isCorner(r, c + 1)) {
+          shapes.push(rectToPolygon(moduleX + radius, moduleY, moduleSize, moduleSize))
         }
-        // Draw connector to the bottom if neighbor is rendered
-        if (isModuleRendered(r + 1, c)) {
-          fluidShapes += `<rect x="${moduleX - overlap}" y="${moduleY + radius}" width="${
-            moduleSize + 2 * overlap
-          }" height="${moduleSize}" />`
+        // Add connector to the bottom
+        if (isModuleRendered(r + 1, c) && !isCorner(r + 1, c)) {
+          shapes.push(rectToPolygon(moduleX, moduleY + radius, moduleSize, moduleSize))
         }
       }
     }
 
-    // Add concave corners for 'fluid-smooth'
     if (dotStyle === "fluid-smooth") {
-      const cornerRadius = moduleSize / 2
-      const newCornerRadius = cornerRadius + overlap
-
+      const radius = moduleSize / 2
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-          // We draw corners in visually empty spaces.
-          if (isModuleRendered(r, c) || isCorner(r, c)) continue
+          // Add corner fills for empty cells surrounded by 2 filled cells in a corner
+          if (!isModuleRendered(r, c) && !isCorner(r, c)) {
+            const moduleX = c * moduleSize + offset
+            const moduleY = r * moduleSize + offset
 
-          const moduleX = c * moduleSize + offset
-          const moduleY = r * moduleSize + offset
+            const top = isModuleRendered(r - 1, c) && !isCorner(r - 1, c)
+            const bottom = isModuleRendered(r + 1, c) && !isCorner(r + 1, c)
+            const left = isModuleRendered(r, c - 1) && !isCorner(r, c - 1)
+            const right = isModuleRendered(r, c + 1) && !isCorner(r, c + 1)
 
-          const top = isModuleRendered(r - 1, c)
-          const bottom = isModuleRendered(r + 1, c)
-          const left = isModuleRendered(r, c - 1)
-          const right = isModuleRendered(r, c + 1)
-
-          // Each corner piece is expanded by `overlap` to fill gaps.
-          if (top && left && isModuleRendered(r - 1, c - 1)) {
-            const cx = moduleX - overlap
-            const cy = moduleY - overlap
-            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${
-              cx + newCornerRadius
-            },${cy} L ${cx},${cy} Z" />`
-          }
-          if (top && right && isModuleRendered(r - 1, c + 1)) {
-            const cx = moduleX + moduleSize + overlap
-            const cy = moduleY - overlap
-            fluidShapes += `<path d="M ${cx},${cy + newCornerRadius} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${
-              cx - newCornerRadius
-            },${cy} L ${cx},${cy} Z" />`
-          }
-          if (bottom && left && isModuleRendered(r + 1, c - 1)) {
-            const cx = moduleX - overlap
-            const cy = moduleY + moduleSize + overlap
-            fluidShapes += `<path d="M ${cx + newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 1 ${cx},${
-              cy - newCornerRadius
-            } L ${cx},${cy} Z" />`
-          }
-          if (bottom && right && isModuleRendered(r + 1, c + 1)) {
-            const cx = moduleX + moduleSize + overlap
-            const cy = moduleY + moduleSize + overlap
-            fluidShapes += `<path d="M ${cx - newCornerRadius},${cy} A ${newCornerRadius},${newCornerRadius} 0 0 0 ${cx},${
-              cy - newCornerRadius
-            } L ${cx},${cy} Z" />`
+            // Bottom-right corner of (r-1, c-1)
+            if (top && left) {
+              shapes.push(rectToPolygon(moduleX, moduleY, radius, radius))
+            }
+            // Bottom-left corner of (r-1, c+1)
+            if (top && right) {
+              shapes.push(rectToPolygon(moduleX + radius, moduleY, radius, radius))
+            }
+            // Top-right corner of (r+1, c-1)
+            if (bottom && left) {
+              shapes.push(rectToPolygon(moduleX, moduleY + radius, radius, radius))
+            }
+            // Top-left corner of (r+1, c+1)
+            if (bottom && right) {
+              shapes.push(rectToPolygon(moduleX + radius, moduleY + radius, radius, radius))
+            }
           }
         }
       }
     }
-    fluidShapes += `</g>`
-    svgContent += fluidShapes
+
+    if (shapes.length > 0) {
+      const unifiedPolygon = polygonUnion(...shapes)
+      const dataPath = polygonsToPathD(unifiedPolygon)
+      svgContent += `<path d="${dataPath}" ${dotsFill} />`
+    }
   } else {
     let dataPath = ""
     for (let r = 0; r < size; r++) {

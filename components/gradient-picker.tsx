@@ -1,14 +1,16 @@
 "use client"
 import { ColorInput } from "./ui/color-input"
 import { Label } from "./ui/label"
-import { BrutalistXIcon } from "./ui/brutalist-status-icons"
+import { Checkbox } from "./ui/checkbox"
 import type { Gradient } from "@/types"
+import { AnimatePresence, motion } from "framer-motion"
 
 interface GradientPickerProps {
   gradient?: Gradient | null
   onGradientChange: (gradient: Gradient | null) => void
   fallbackColor: string
   onFallbackColorChange: (color: string) => void
+  label: string
 }
 
 export default function GradientPicker({
@@ -16,7 +18,10 @@ export default function GradientPicker({
   onGradientChange,
   fallbackColor,
   onFallbackColorChange,
+  label,
 }: GradientPickerProps) {
+  const isUsingGradient = !!gradient
+
   const handleColorChange = (index: number, color: string) => {
     if (!gradient) return
     const newColorStops = [...gradient.colorStops]
@@ -24,55 +29,63 @@ export default function GradientPicker({
     onGradientChange({ ...gradient, colorStops: newColorStops })
   }
 
-  const handleUseGradient = () => {
-    onGradientChange({
-      type: "linear",
-      rotation: 90,
-      colorStops: [
-        { offset: 0, color: "#ff0000" },
-        { offset: 1, color: "#0000ff" },
-      ],
-    })
-  }
-
-  const handleRemoveGradient = () => {
-    onGradientChange(null)
-  }
-
-  if (gradient) {
-    return (
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <Label className="font-sans font-bold uppercase text-sm">Use Gradient</Label>
-          <button onClick={handleRemoveGradient} aria-label="Remove gradient">
-            <BrutalistXIcon />
-          </button>
-        </div>
-        <div className="flex gap-2">
-          <ColorInput
-            value={gradient.colorStops[0].color}
-            onChange={(color) => handleColorChange(0, color)}
-            className="flex-1"
-          />
-          <ColorInput
-            value={gradient.colorStops[1].color}
-            onChange={(color) => handleColorChange(1, color)}
-            className="flex-1"
-          />
-        </div>
-      </div>
-    )
+  const handleCheckedChange = (checked: boolean) => {
+    if (checked) {
+      onGradientChange({
+        type: "linear",
+        rotation: 90,
+        colorStops: [
+          { offset: 0, color: "#ff0000" },
+          { offset: 1, color: "#0000ff" },
+        ],
+      })
+    } else {
+      onGradientChange(null)
+    }
   }
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <Label className="font-sans font-bold uppercase text-sm">Solid Color</Label>
-        <button onClick={handleUseGradient} className="font-sans font-bold uppercase text-sm hover:underline">
+      <div className="flex items-center space-x-2">
+        <Checkbox id={`gradient-toggle-${label}`} checked={isUsingGradient} onCheckedChange={handleCheckedChange} />
+        <Label htmlFor={`gradient-toggle-${label}`} className="text-base font-bold font-sans uppercase">
           Use Gradient
-        </button>
+        </Label>
       </div>
-      <ColorInput value={fallbackColor} onChange={onFallbackColorChange} />
+      <AnimatePresence mode="wait">
+        {isUsingGradient && gradient ? (
+          <motion.div
+            key="gradient-inputs"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex gap-2 pt-2"
+          >
+            <ColorInput
+              value={gradient.colorStops[0].color}
+              onChange={(color) => handleColorChange(0, color)}
+              className="flex-1"
+            />
+            <ColorInput
+              value={gradient.colorStops[1].color}
+              onChange={(color) => handleColorChange(1, color)}
+              className="flex-1"
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="solid-input"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="pt-2"
+          >
+            <ColorInput value={fallbackColor} onChange={onFallbackColorChange} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
