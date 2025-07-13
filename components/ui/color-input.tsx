@@ -18,7 +18,7 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
       <div className={cn("relative w-full h-11 group", className)}>
         {/* This is the visual representation of the color swatch */}
         <div
-          className="w-full h-full border-[var(--neo-border-width)] border-neo-text transition-all shadow-[4px_4px_0px_var(--neo-text)] group-hover:shadow-[2px_2px_0px_var(--neo-text)] group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-active:shadow-none group-active:translate-x-[4px] group-active:translate-y-[4px]"
+          className="w-[calc(100%-4px)] h-[calc(100%-4px)] border-2 border-black transition-all shadow-[4px_4px_0px_#000] group-hover:shadow-[2px_2px_0px_#000] group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-active:shadow-none group-active:translate-x-[4px] group-active:translate-y-[4px]"
           style={{ backgroundColor: value as string }}
         />
         {/* The actual color input is overlaid, transparent, and handles the click */}
