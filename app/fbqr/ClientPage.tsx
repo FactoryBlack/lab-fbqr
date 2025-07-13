@@ -15,6 +15,48 @@ import { VerticalDivider } from "@/components/vertical-divider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { QRCodeResult, QRStyleOptions } from "@/types"
 
+const defaultGradient = {
+  type: "linear" as const,
+  rotation: 45,
+  colorStops: [
+    { offset: 0, color: "#ff0000" },
+    { offset: 1, color: "#0000ff" },
+  ],
+}
+
+const defaultOptions: QRStyleOptions = {
+  width: 300,
+  dotsOptions: {
+    type: "square",
+    color: "#1c1c1c",
+    useGradient: false,
+    gradient: defaultGradient,
+  },
+  backgroundOptions: {
+    color: "transparent",
+    useGradient: false,
+    gradient: defaultGradient,
+  },
+  cornersSquareOptions: {
+    type: "square",
+    color: "#1c1c1c",
+    useGradient: false,
+    gradient: defaultGradient,
+  },
+  cornersDotOptions: {
+    type: "inherit",
+    color: "#1c1c1c",
+    useGradient: false,
+    gradient: defaultGradient,
+  },
+  qrOptions: { errorCorrectionLevel: "H" },
+  imageOptions: {
+    hideBackgroundDots: true,
+    imageSize: 0.2,
+    margin: 10,
+  },
+}
+
 export default function QRGeneratorPage() {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
@@ -87,19 +129,7 @@ export default function QRGeneratorPage() {
     loadCollection()
   }, [user, isCollectionLoaded, toast])
 
-  const [style, setStyle] = useState<QRStyleOptions>({
-    width: 300,
-    dotsOptions: { color: "#1c1c1c", type: "square" },
-    backgroundOptions: { color: "transparent" },
-    cornersSquareOptions: { color: "#1c1c1c", type: "square" },
-    cornersDotOptions: { type: "inherit", color: "#1c1c1c" },
-    qrOptions: { errorCorrectionLevel: "H" },
-    imageOptions: {
-      hideBackgroundDots: true,
-      imageSize: 0.2,
-      margin: 10,
-    },
-  })
+  const [style, setStyle] = useState<QRStyleOptions>(defaultOptions)
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
 

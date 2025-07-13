@@ -3,7 +3,7 @@ import type { DOT_TYPES, CORNER_SQUARE_TYPES, CORNER_DOT_TYPES } from "@/lib/con
 
 export type Gradient = {
   type: "linear" | "radial"
-  rotation: number
+  rotation?: number
   colorStops: {
     offset: number
     color: string
@@ -14,31 +14,39 @@ export type DotType = (typeof DOT_TYPES)[number]
 export type CornerSquareType = (typeof CORNER_SQUARE_TYPES)[number]
 export type CornerDotType = (typeof CORNER_DOT_TYPES)[number]
 
+export interface DotsOptions {
+  type: DotType
+  color?: string
+  useGradient: boolean
+  gradient: Gradient
+}
+
+export interface CornersSquareOptions {
+  type: CornerSquareType | null
+  color?: string
+  useGradient: boolean
+  gradient: Gradient
+}
+
+export interface CornersDotOptions {
+  type: CornerDotType | null
+  color?: string
+  useGradient: boolean
+  gradient: Gradient
+}
+
+export interface BackgroundOptions {
+  color?: string
+  useGradient: boolean
+  gradient: Gradient
+}
+
 export interface QRStyleOptions {
   width: number
-  dotsOptions: {
-    type: DotType
-    color?: string
-    gradient?: Gradient
-    useGradient?: boolean
-  }
-  backgroundOptions: {
-    color?: string
-    gradient?: Gradient
-    useGradient?: boolean
-  }
-  cornersSquareOptions: {
-    type: CornerSquareType | null
-    color?: string
-    gradient?: Gradient
-    useGradient?: boolean
-  }
-  cornersDotOptions: {
-    type: CornerDotType | null
-    color?: string
-    gradient?: Gradient
-    useGradient?: boolean
-  }
+  dotsOptions: DotsOptions
+  backgroundOptions: BackgroundOptions
+  cornersSquareOptions: CornersSquareOptions
+  cornersDotOptions: CornersDotOptions
   imageOptions: {
     imageSize: number
     hideBackgroundDots: boolean

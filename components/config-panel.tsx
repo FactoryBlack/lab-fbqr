@@ -9,9 +9,11 @@ import { BrutalistSlider } from "@/components/ui/brutalist-slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Checkbox } from "@/components/ui/checkbox"
-import GradientPicker from "./gradient-picker"
 import { ScrollArea } from "./ui/scroll-area"
-import type { ConfigPanelProps } from "@/types"
+import type { ConfigPanelProps, DotsOptions, CornersSquareOptions, CornersDotOptions, BackgroundOptions } from "@/types"
+import { GradientControls } from "./gradient-controls"
+
+type StyleOptionKey = "dotsOptions" | "cornersSquareOptions" | "cornersDotOptions" | "backgroundOptions"
 
 export default function ConfigPanel({
   text,
@@ -43,22 +45,21 @@ export default function ConfigPanel({
     const keys = path.split(".")
     let current: any = newStyle
     for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]] = { ...current[keys[i]] }
+      current = current[keys[i]] = current[keys[i]] ? { ...current[keys[i]] } : {}
     }
     current[keys[keys.length - 1]] = value
-    const parentPath = keys.slice(0, -1).join(".")
-    let parent = newStyle
-    if (parentPath) {
-      parent = parentPath.split(".").reduce((obj, key) => obj[key], newStyle)
-    }
-    if (path.endsWith(".gradient")) {
-      if (value) delete parent.color
-      else delete parent.gradient
-    }
-    if (path.endsWith(".color")) {
-      if (value) delete parent.gradient
-    }
     onStyleChange(newStyle)
+  }
+
+  const handleGradientOptionChange = (
+    optionKey: StyleOptionKey,
+    newValues: Partial<DotsOptions | CornersSquareOptions | CornersDotOptions | BackgroundOptions>,
+  ) => {
+    const newOptions = {
+      ...styleOptions[optionKey],
+      ...newValues,
+    }
+    onStyleChange({ ...styleOptions, [optionKey]: newOptions })
   }
 
   return (
@@ -91,7 +92,7 @@ export default function ConfigPanel({
       </div>
 
       <ScrollArea className="flex-1">
-        <Accordion type="single" className="w-full" defaultValue="logo" collapsible>
+        <Accordion type="single" className="w-full" defaultValue="dots" collapsible>
           <AccordionItem value="dots">
             <AccordionTrigger>DOTS</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
@@ -116,12 +117,14 @@ export default function ConfigPanel({
                   </SelectContent>
                 </Select>
               </div>
-              <GradientPicker
+              <GradientControls
                 label="dots"
+                color={styleOptions.dotsOptions.color || "#1c1c1c"}
+                onColorChange={(c) => handleGradientOptionChange("dotsOptions", { color: c })}
+                useGradient={styleOptions.dotsOptions.useGradient}
+                onUseGradientChange={(use) => handleGradientOptionChange("dotsOptions", { useGradient: use })}
                 gradient={styleOptions.dotsOptions.gradient}
-                onGradientChange={(g) => handleStyleValueChange("dotsOptions.gradient", g)}
-                fallbackColor={styleOptions.dotsOptions.color || "#1c1c1c"}
-                onFallbackColorChange={(c) => handleStyleValueChange("dotsOptions.color", c)}
+                onGradientChange={(g) => handleGradientOptionChange("dotsOptions", { gradient: g })}
               />
             </AccordionContent>
           </AccordionItem>
@@ -134,7 +137,7 @@ export default function ConfigPanel({
                 <div className="space-y-2">
                   <Label className="font-sans font-normal text-sm">Style</Label>
                   <Select
-                    value={styleOptions.cornersSquareOptions.type || "square"}
+                    value={styleOptions.cornersSquareOptions?.type || "square"}
                     onValueChange={(v) => handleStyleValueChange("cornersSquareOptions.type", v)}
                   >
                     <SelectTrigger>
@@ -150,12 +153,16 @@ export default function ConfigPanel({
                     </SelectContent>
                   </Select>
                 </div>
-                <GradientPicker
+                <GradientControls
                   label="corners-square"
+                  color={styleOptions.cornersSquareOptions?.color || "#1c1c1c"}
+                  onColorChange={(c) => handleGradientOptionChange("cornersSquareOptions", { color: c })}
+                  useGradient={styleOptions.cornersSquareOptions.useGradient}
+                  onUseGradientChange={(use) =>
+                    handleGradientOptionChange("cornersSquareOptions", { useGradient: use })
+                  }
                   gradient={styleOptions.cornersSquareOptions.gradient}
-                  onGradientChange={(g) => handleStyleValueChange("cornersSquareOptions.gradient", g)}
-                  fallbackColor={styleOptions.cornersSquareOptions.color || "#1c1c1c"}
-                  onFallbackColorChange={(c) => handleStyleValueChange("cornersSquareOptions.color", c)}
+                  onGradientChange={(g) => handleGradientOptionChange("cornersSquareOptions", { gradient: g })}
                 />
               </div>
               <div className="space-y-4">
@@ -180,12 +187,14 @@ export default function ConfigPanel({
                     </SelectContent>
                   </Select>
                 </div>
-                <GradientPicker
+                <GradientControls
                   label="corners-dot"
-                  gradient={styleOptions.cornersDotOptions?.gradient}
-                  onGradientChange={(g) => handleStyleValueChange("cornersDotOptions.gradient", g)}
-                  fallbackColor={styleOptions.cornersDotOptions?.color || "#1c1c1c"}
-                  onFallbackColorChange={(c) => handleStyleValueChange("cornersDotOptions.color", c)}
+                  color={styleOptions.cornersDotOptions?.color || "#1c1c1c"}
+                  onColorChange={(c) => handleGradientOptionChange("cornersDotOptions", { color: c })}
+                  useGradient={styleOptions.cornersDotOptions.useGradient}
+                  onUseGradientChange={(use) => handleGradientOptionChange("cornersDotOptions", { useGradient: use })}
+                  gradient={styleOptions.cornersDotOptions.gradient}
+                  onGradientChange={(g) => handleGradientOptionChange("cornersDotOptions", { gradient: g })}
                 />
               </div>
             </AccordionContent>
@@ -206,12 +215,14 @@ export default function ConfigPanel({
                 </label>
               </div>
               {styleOptions.backgroundOptions.color !== "transparent" && (
-                <GradientPicker
+                <GradientControls
                   label="background"
+                  color={styleOptions.backgroundOptions.color || "#e0e0e0"}
+                  onColorChange={(c) => handleGradientOptionChange("backgroundOptions", { color: c })}
+                  useGradient={styleOptions.backgroundOptions.useGradient}
+                  onUseGradientChange={(use) => handleGradientOptionChange("backgroundOptions", { useGradient: use })}
                   gradient={styleOptions.backgroundOptions.gradient}
-                  onGradientChange={(g) => handleStyleValueChange("backgroundOptions.gradient", g)}
-                  fallbackColor={styleOptions.backgroundOptions.color || "#e0e0e0"}
-                  onFallbackColorChange={(c) => handleStyleValueChange("backgroundOptions.color", c)}
+                  onGradientChange={(g) => handleGradientOptionChange("backgroundOptions", { gradient: g })}
                 />
               )}
             </AccordionContent>
