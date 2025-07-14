@@ -330,7 +330,7 @@ export default function ConfigPanel({
       </div>
 
       <ScrollArea className="flex-1">
-        <Accordion type="multiple" className="w-full" defaultValue={["dots", "corners", "background", "logo"]}>
+        <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="dots">
             <AccordionTrigger>DOTS</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
