@@ -23,11 +23,32 @@ interface PreviewPanelProps {
   onSizeChange: (size: number) => void
 }
 
-const VALIDATION_CANVAS_SIZE = 400
+function getScanabilityWarning(style: QRStyleOptions, moduleSize: number): string | null {
+  const { imageOptions, qrOptions, dotsOptions } = style
+
+  if (imageOptions?.imageSize && imageOptions.imageSize > 0.3) {
+    return "A large logo can make the QR code harder to scan."
+  }
+
+  if (qrOptions?.errorCorrectionLevel === "L" && imageOptions?.imageSize && imageOptions.imageSize > 0.2) {
+    return "Using a logo with low error correction can impact scannability."
+  }
+
+  if (moduleSize > 65) {
+    return "High data density can make the QR code harder for some cameras to read."
+  }
+
+  if ((dotsOptions.type === "fluid" || dotsOptions.type === "fluid-smooth") && moduleSize > 50) {
+    return "Fluid dot styles with high data density may be difficult to scan."
+  }
+
+  return null
+}
 
 export default function PreviewPanel({ text, style, logoPreview, onSizeChange }: PreviewPanelProps) {
   const [svgContent, setSvgContent] = useState<string>("")
   const [validationStatus, setValidationStatus] = useState<ValidationState>("idle")
+  const [warningMessage, setWarningMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const validationRef = useRef(0)
 
@@ -53,6 +74,7 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
     const currentValidationId = ++validationRef.current
     setIsLoading(true)
     setValidationStatus("checking")
+    setWarningMessage(null)
 
     const processQrCode = async () => {
       try {
@@ -69,7 +91,7 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
         if (validationRef.current !== currentValidationId) return
         if (!response.ok) throw new Error("Failed to generate QR code")
 
-        const svg = await response.text()
+        const { svg, moduleSize } = await response.json()
         if (validationRef.current !== currentValidationId) return
 
         setSvgContent(svg)
@@ -81,21 +103,36 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
         image.onload = () => {
           if (validationRef.current !== currentValidationId) return
 
+          const PIXELS_PER_MODULE = 8
+          const MIN_CANVAS_SIZE = 400
+          const MAX_CANVAS_SIZE = 1200
+          const validationCanvasSize = Math.max(
+            MIN_CANVAS_SIZE,
+            Math.min(MAX_CANVAS_SIZE, moduleSize * PIXELS_PER_MODULE),
+          )
+
           const canvas = document.createElement("canvas")
-          canvas.width = VALIDATION_CANVAS_SIZE
-          canvas.height = VALIDATION_CANVAS_SIZE
+          canvas.width = validationCanvasSize
+          canvas.height = validationCanvasSize
           const ctx = canvas.getContext("2d", { willReadFrequently: true })
           if (!ctx) {
             setValidationStatus("invalid")
             return
           }
-          ctx.drawImage(image, 0, 0, VALIDATION_CANVAS_SIZE, VALIDATION_CANVAS_SIZE)
+          ctx.drawImage(image, 0, 0, validationCanvasSize, validationCanvasSize)
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
           const code = jsQR(imageData.data, imageData.width, imageData.height)
 
           if (validationRef.current !== currentValidationId) return
 
-          setValidationStatus(code && code.data === debouncedText.trim() ? "valid" : "invalid")
+          if (code && code.data === debouncedText.trim()) {
+            const warning = getScanabilityWarning(debouncedStyle, moduleSize)
+            setValidationStatus(warning ? "warning" : "valid")
+            setWarningMessage(warning)
+          } else {
+            setValidationStatus("invalid")
+            setWarningMessage(null)
+          }
         }
 
         image.onerror = () => {
@@ -146,7 +183,7 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
             />
           )}
 
-          <QrStatusIndicator status={validationStatus} />
+          <QrStatusIndicator status={validationStatus} warningMessage={warningMessage} />
         </div>
       </div>
     </div>
