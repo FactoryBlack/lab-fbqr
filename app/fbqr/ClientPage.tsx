@@ -169,7 +169,7 @@ export default function QRGeneratorPage() {
     }
     setIsShortening(true)
     try {
-      const response = await fetch("/api/shorten-url", {
+      const response = await fetch("/api/short-links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: text }),

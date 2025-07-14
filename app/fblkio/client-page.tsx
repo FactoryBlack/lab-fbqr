@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { NeoCard, NeoCardContent } from "@/components/ui/neo-card"
 import AuthButton from "@/components/auth-button"
 import AuthModal from "@/components/auth-modal"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Copy, Edit, Trash2, Check, X } from "lucide-react"
 
 interface ShortLink {
@@ -18,6 +19,24 @@ interface ShortLink {
   short_code: string
   original_url: string
   created_at: string
+}
+
+function LinkSkeleton() {
+  return (
+    <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)]">
+      <NeoCardContent className="p-4 flex items-center gap-4">
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-6 w-48 bg-black/10" />
+          <Skeleton className="h-4 w-full bg-black/10" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-9 bg-black/10" />
+          <Skeleton className="h-9 w-9 bg-black/10" />
+          <Skeleton className="h-9 w-9 bg-black/10" />
+        </div>
+      </NeoCardContent>
+    </NeoCard>
+  )
 }
 
 export default function FblkIoClientPage() {
@@ -96,20 +115,22 @@ export default function FblkIoClientPage() {
   }
 
   const handleUpdate = async (id: number) => {
+    const originalLinks = [...links]
+    const optimisticUpdatedLinks = links.map((l) => (l.id === id ? { ...l, original_url: editingUrl } : l))
+    setLinks(optimisticUpdatedLinks)
+    setEditingLinkId(null)
     setIsSubmitting(true)
+
     try {
       const response = await fetch(`/api/short-links/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: editingUrl }),
       })
-      const updatedLink = await response.json()
-      if (!response.ok) throw new Error(updatedLink.error || "Failed to update link.")
-
-      setLinks(links.map((l) => (l.id === id ? { ...l, original_url: updatedLink.original_url } : l)))
-      setEditingLinkId(null)
+      if (!response.ok) throw new Error("Failed to update link.")
       toast({ variant: "success", title: "Link Updated" })
     } catch (error: any) {
+      setLinks(originalLinks) // Revert on failure
       toast({ variant: "destructive", title: "Error", description: error.message })
     } finally {
       setIsSubmitting(false)
@@ -117,13 +138,16 @@ export default function FblkIoClientPage() {
   }
 
   const handleDelete = async (id: number) => {
+    const originalLinks = [...links]
+    const optimisticLinks = links.filter((l) => l.id !== id)
+    setLinks(optimisticLinks) // Optimistically remove from UI
+
     try {
       const response = await fetch(`/api/short-links/${id}`, { method: "DELETE" })
       if (!response.ok) throw new Error("Failed to delete link.")
-
-      setLinks(links.filter((l) => l.id !== id))
       toast({ title: "Link Deleted" })
     } catch (error: any) {
+      setLinks(originalLinks) // Revert on failure
       toast({ variant: "destructive", title: "Error", description: error.message })
     }
   }
@@ -175,7 +199,11 @@ export default function FblkIoClientPage() {
 
           <div className="flex-1 p-6 space-y-4">
             {isLoading ? (
-              <p>Loading links...</p>
+              <div className="space-y-4">
+                <LinkSkeleton />
+                <LinkSkeleton />
+                <LinkSkeleton />
+              </div>
             ) : !user ? (
               <div className="text-center py-10">
                 <p className="font-sans font-bold text-lg">Please log in to manage your links.</p>
