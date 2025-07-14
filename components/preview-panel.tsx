@@ -24,7 +24,8 @@ interface PreviewPanelProps {
 }
 
 const VALIDATION_CANVAS_SIZE = 400
-const DENSITY_WARNING_THRESHOLD = 25 // QR Code Version above which we show a warning
+// Lowered the threshold to trigger the warning earlier for dense codes.
+const DENSITY_WARNING_THRESHOLD = 18 // QR Code Version above which we show a warning
 
 export default function PreviewPanel({ text, style, logoPreview, onSizeChange }: PreviewPanelProps) {
   const [svgContent, setSvgContent] = useState<string>("")

@@ -1,13 +1,9 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import {
-  BrutalistCheckIcon,
-  BrutalistLoaderIcon,
-  BrutalistWarningIcon,
-  BrutalistXIcon,
-} from "./ui/brutalist-status-icons"
+import { BrutalistCheckIcon, BrutalistLoaderIcon, BrutalistWarningIcon } from "./ui/brutalist-status-icons"
 import { cn } from "@/lib/utils"
+import type { JSX } from "react"
 
 export type Status = "valid" | "invalid" | "checking" | "idle" | "warning"
 
@@ -49,11 +45,11 @@ const statusConfig: Record<
     titleColor: "text-yellow-600",
   },
   invalid: {
-    icon: <BrutalistXIcon className="w-6 h-6" />,
-    bg: "bg-[hsl(var(--neo-destructive-accent))]",
-    title: "Unscannable",
-    message: "Try simpler styles or less content.",
-    titleColor: "text-[hsl(var(--neo-destructive-accent))]",
+    icon: <BrutalistWarningIcon className="w-6 h-6" />,
+    bg: "bg-orange-500",
+    title: "Validator Failed",
+    message: "Code may still work. Test with device.",
+    titleColor: "text-orange-700",
   },
   idle: { icon: null, bg: "" },
 }
