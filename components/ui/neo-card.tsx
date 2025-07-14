@@ -6,7 +6,7 @@ const NeoCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEle
     <div
       ref={ref}
       className={cn(
-        "rounded-none border-2 border-neo-text bg-neo-bg text-neo-text",
+        "rounded-none border-2 border-neo-text bg-[#EAEAEA] text-neo-text",
         "shadow-[8px_8px_0px_var(--neo-text)]",
         className,
       )}

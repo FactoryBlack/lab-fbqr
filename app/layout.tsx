@@ -5,7 +5,6 @@ import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
-import { ThemeProvider } from "@/components/theme-provider"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -15,10 +14,10 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | App Boilerplate",
-    default: "Brutalist App Boilerplate",
+    template: "%s | The Factory Black Lab",
+    default: "The Factory Black Lab",
   },
-  description: "A boilerplate for building apps with a brutalist design.",
+  description: "A collection of helpful tools from The Factory Black.",
   icons: {
     icon: "/favicon.png",
   },
@@ -27,13 +26,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${montserrat.variable}`}>
       <body className="font-sans">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Suspense fallback={null}>{children}</Suspense>
-          <Toaster />
-          <Analytics />
-        </ThemeProvider>
+        <Suspense fallback={null}>{children}</Suspense>
+        <Toaster />
+        <Analytics />
       </body>
     </html>
   )

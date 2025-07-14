@@ -1,38 +1,30 @@
-# Brutalist App Boilerplate
+# Simple qr code generator
 
-*Built with [v0.dev](https://v0.dev)*
+*Automatically synced with your [v0.dev](https://v0.dev) deployments*
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/factoryblack-projects/v0-simple-qr-code-generator)
+[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/PsA3dQOSHkK)
 
 ## Overview
 
-This repository is a ready-to-use boilerplate for building web applications with a distinct Swiss-Tech/Brutalist design aesthetic. It's built on Next.js, Tailwind CSS, and includes a complete, custom-styled component library.
+This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
+Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
 
-This boilerplate was forked from the [FBQR](https://v0.dev/chat/xar89cDgaSL) project and generalized for reuse.
+## Deployment
 
-## Features
+Your project is live at:
 
-- **Next.js App Router:** Modern, server-first architecture.
-- **Brutalist Component Library:** A full set of UI components like buttons, cards, inputs, and more, all styled with a unique, bold aesthetic. Find them in `/components/ui`.
-- **Supabase Auth Ready:** Includes client and server helpers, middleware, and a pre-built login/signup modal.
-- **Responsive Layout:** A flexible multi-column layout that adapts from mobile to large desktops.
-- **Customizable Theme:** Easily tweak colors and fonts via `app/globals.css`.
+**[https://vercel.com/factoryblack-projects/v0-simple-qr-code-generator](https://vercel.com/factoryblack-projects/v0-simple-qr-code-generator)**
 
-## Getting Started
+## Build your app
 
-1.  **Clone the repository.**
-2.  **Install dependencies:** `npm install`
-3.  **Set up your environment variables:** Create a `.env.local` file and add your Supabase credentials:
-  \`\`\`
-  NEXT_PUBLIC_SUPABASE_URL=...
-  NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-  \`\`\`
-4.  **Run the development server:** `npm run dev`
+Continue building your app on:
 
-Now you can start building your application by modifying `app/page.tsx`.
+**[https://v0.dev/chat/projects/PsA3dQOSHkK](https://v0.dev/chat/projects/PsA3dQOSHkK)**
 
-## Building Your App
+## How It Works
 
-- **Components:** All reusable UI components are in `/components/ui`. You can use them directly in your pages.
-- **Styling:** The core theme is defined in `app/globals.css`. You can adjust the CSS variables there to change the color palette.
-- **Authentication:** The boilerplate comes with a pre-configured `AuthModal` and `AuthButton`. To enable database integration with user accounts, you'll need to set up your own tables in Supabase.
+1. Create and modify your project using [v0.dev](https://v0.dev)
+2. Deploy your chats from the v0 interface
+3. Changes are automatically pushed to this repository
+4. Vercel deploys the latest version from this repository
