@@ -16,22 +16,13 @@ function getQrConfigFromRequest(req: NextRequest) {
   return null
 }
 
-async function generateQrData(config: any) {
-  const { data, qrOptions } = config
-  const qr = await qrcode.create(data, {
-    errorCorrectionLevel: qrOptions?.errorCorrectionLevel || "H",
-  })
-  return qr
-}
-
 export async function GET(request: NextRequest) {
   const config = getQrConfigFromRequest(request)
   if (!config) {
     return NextResponse.json({ error: "Invalid configuration" }, { status: 400 })
   }
   try {
-    const qr = await generateQrData(config)
-    const svgString = renderSvg(qr, config)
+    const svgString = await generateSvg(config)
     return new NextResponse(svgString, {
       headers: {
         "Content-Type": "image/svg+xml",
@@ -46,9 +37,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const config = await request.json()
-    const qr = await generateQrData(config)
-    const svgString = renderSvg(qr, config)
-    return NextResponse.json({ svg: svgString, moduleSize: qr.modules.size })
+    const svgString = await generateSvg(config)
+    return new NextResponse(svgString, {
+      headers: {
+        "Content-Type": "image/svg+xml",
+      },
+    })
   } catch (error) {
     console.error("SVG Generation Error:", error)
     return NextResponse.json({ error: "Failed to generate QR code SVG" }, { status: 500 })
@@ -56,6 +50,34 @@ export async function POST(request: NextRequest) {
 }
 
 // --- SVG Generation Logic ---
+
+async function generateSvg(config: any): Promise<string> {
+  const {
+    data,
+    width,
+    dotsOptions,
+    cornersSquareOptions,
+    cornersDotOptions,
+    backgroundOptions,
+    image,
+    imageOptions,
+    qrOptions,
+  } = config
+
+  const qr = await qrcode.create(data, {
+    errorCorrectionLevel: qrOptions?.errorCorrectionLevel || "H",
+  })
+
+  return renderSvg(qr, {
+    width,
+    dotsOptions,
+    cornersSquareOptions,
+    cornersDotOptions,
+    backgroundOptions,
+    image,
+    imageOptions,
+  })
+}
 
 function renderSvg(qr: QRCode, options: any): string {
   const { width, dotsOptions, cornersSquareOptions, cornersDotOptions, backgroundOptions, image, imageOptions } =
