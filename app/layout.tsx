@@ -1,6 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Montserrat } from "next/font/google"
+import { Analytics } from "@vercel/analytics/react"
+import { Suspense } from "react"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -26,8 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${montserrat.variable}`}>
       <body className="font-sans">
-        {children}
+        <Suspense fallback={null}>{children}</Suspense>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   )

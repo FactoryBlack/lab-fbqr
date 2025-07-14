@@ -180,6 +180,7 @@ export default function QRGeneratorPage() {
       }
       setOriginalUrl(text)
       setText(data.shortUrl)
+      setConfigPanelKey(Date.now()) // Force remount of ConfigPanel
       toast({
         variant: "success",
         title: "URL shortened!",
@@ -264,7 +265,7 @@ export default function QRGeneratorPage() {
 
   const handleTextChange = useCallback((newText: string) => {
     setText(newText)
-    setOriginalUrl(undefined)
+    // Do not reset originalUrl here, as the config panel now handles its own state
   }, [])
 
   return (
