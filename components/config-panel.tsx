@@ -16,6 +16,7 @@ import { GradientControls } from "./gradient-controls"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { contentTypes, type ContentType } from "./content-type-icons"
+import { useIsMobile } from "@/components/ui/use-mobile"
 
 type StyleOptionKey = "dotsOptions" | "cornersSquareOptions" | "cornersDotOptions" | "backgroundOptions"
 
@@ -87,6 +88,7 @@ export default function ConfigPanel({
   isShortening,
 }: ConfigPanelProps): ReactElement {
   const fileInputRef = React.createRef<HTMLInputElement>()
+  const isMobile = useIsMobile()
 
   const [initialState] = useState(() => getInitialState(text))
 
@@ -171,22 +173,51 @@ export default function ConfigPanel({
       <div className="p-6 border-b-2 border-[#1c1c1c]">
         <h2 className="font-heading text-3xl mb-4">CONTENT</h2>
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ContentType)} className="w-full">
-          <TabsList>
-            <TooltipProvider>
-              {contentTypes.map((ct) => (
-                <Tooltip key={ct.id}>
-                  <TooltipTrigger asChild>
-                    <TabsTrigger value={ct.id} className="px-3">
-                      <ct.icon className="w-6 h-6" />
-                    </TabsTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{ct.label}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </TooltipProvider>
-          </TabsList>
+          {isMobile ? (
+            <Select value={activeTab} onValueChange={(v) => setActiveTab(v as ContentType)}>
+              <SelectTrigger>
+                <SelectValue asChild>
+                  <div className="flex items-center gap-2">
+                    {React.createElement(contentTypes.find((ct) => ct.id === activeTab)!.icon, {
+                      className: "w-5 h-5",
+                    })}
+                    <span className="font-bold uppercase">{contentTypes.find((ct) => ct.id === activeTab)!.label}</span>
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {contentTypes.map((ct) => (
+                  <SelectItem key={ct.id} value={ct.id}>
+                    <div className="flex items-center gap-3">
+                      <ct.icon className="w-5 h-5" />
+                      <span className="font-bold uppercase">{ct.label}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <TabsList>
+              <TooltipProvider>
+                {contentTypes.map((ct) => (
+                  <Tooltip key={ct.id}>
+                    <TooltipTrigger asChild>
+                      <TabsTrigger
+                        value={ct.id}
+                        className="px-3 data-[state=active]:bg-black data-[state=active]:text-white transition-colors"
+                      >
+                        <ct.icon className="w-6 h-6" />
+                      </TabsTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{ct.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </TooltipProvider>
+            </TabsList>
+          )}
+
           <TabsContent value="url" className="space-y-4">
             <Textarea
               id="text"
