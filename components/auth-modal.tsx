@@ -1,15 +1,11 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
-import { AnimatePresence, motion } from "framer-motion"
-import { X } from "lucide-react"
 import { NeoButton } from "@/components/ui/neo-button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from "./ui/neo-card"
+import { NeoCard } from "@/components/ui/neo-card"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Github, Chrome } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -17,52 +13,29 @@ interface AuthModalProps {
   redirectTo?: string
 }
 
-export default function AuthModal({ isOpen, onClose, redirectTo = "/" }: AuthModalProps) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
-  const router = useRouter()
+export default function AuthModal({ isOpen, onClose, redirectTo }: AuthModalProps) {
   const supabase = createClient()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setMessage(null)
-
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
-
-    if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: callbackUrl,
-        },
-      })
-      if (error) {
-        setError(error.message)
-      } else {
-        setMessage("Check your email for a confirmation link!")
-      }
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) {
-        setError(error.message)
-      } else {
-        router.refresh()
-        onClose()
-      }
+  const getURL = () => {
+    let url =
+      process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production
+      process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
+      "http://localhost:3000/"
+    // Make sure to include `https` in production
+    url = url.includes("http") ? url : `https://${url}`
+    // Make sure to include a trailing `/`
+    url = url.charAt(url.length - 1) === "/" ? url : `${url}/`
+    if (redirectTo) {
+      url = `${url}${redirectTo.startsWith("/") ? redirectTo.substring(1) : redirectTo}`
     }
+    return url
   }
 
-  const handleGoogleSignIn = async () => {
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
+  const handleOAuthLogin = async (provider: "google" | "github") => {
     await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider,
       options: {
-        redirectTo: callbackUrl,
+        redirectTo: getURL(),
       },
     })
   }
@@ -70,71 +43,33 @@ export default function AuthModal({ isOpen, onClose, redirectTo = "/" }: AuthMod
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-sm"
-          >
-            <NeoCard>
-              <NeoCardHeader>
-                <NeoCardTitle>{isSignUp ? "Create Account" : "Sign In"}</NeoCardTitle>
-                <button onClick={onClose} className="absolute top-4 right-4 text-neo-text/70 hover:text-neo-text">
-                  <X size={24} />
-                </button>
-              </NeoCardHeader>
-              <NeoCardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  {error && <p className="text-sm text-red-500">{error}</p>}
-                  {message && <p className="text-sm text-green-600">{message}</p>}
-                  <NeoButton type="submit" className="w-full">
-                    {isSignUp ? "Sign Up" : "Sign In"}
-                  </NeoButton>
-                </form>
-
-                <div className="mt-4 space-y-4">
-                  <NeoButton onClick={handleGoogleSignIn} variant="outline" className="w-full">
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="p-0 bg-transparent border-none shadow-none max-w-md w-full">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+            >
+              <NeoCard className="p-8 text-center bg-page-bg-alt">
+                <h2 className="font-heading text-4xl mb-2">JOIN THE LAB</h2>
+                <p className="text-neo-text-secondary mb-6">
+                  Log in to save your QR code collections and manage your short links.
+                </p>
+                <div className="space-y-4">
+                  <NeoButton variant="primary" size="lg" className="w-full" onClick={() => handleOAuthLogin("google")}>
+                    <Chrome className="w-5 h-5 mr-2" />
                     Continue with Google
                   </NeoButton>
-
-                  <button
-                    onClick={() => {
-                      setIsSignUp(!isSignUp)
-                      setError(null)
-                      setMessage(null)
-                    }}
-                    className="w-full text-center text-sm hover:underline"
-                  >
-                    {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-                  </button>
+                  <NeoButton variant="primary" size="lg" className="w-full" onClick={() => handleOAuthLogin("github")}>
+                    <Github className="w-5 h-5 mr-2" />
+                    Continue with GitHub
+                  </NeoButton>
                 </div>
-              </NeoCardContent>
-            </NeoCard>
-          </motion.div>
-        </motion.div>
+              </NeoCard>
+            </motion.div>
+          </DialogContent>
+        </Dialog>
       )}
     </AnimatePresence>
   )

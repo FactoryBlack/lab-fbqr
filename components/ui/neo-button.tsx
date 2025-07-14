@@ -14,7 +14,7 @@ const neoButtonVariants = cva(
         default: "bg-[var(--neo-accent)] text-[#1c1c1c] hover:bg-[var(--neo-accent)]/90",
         destructive:
           "bg-[hsl(var(--neo-destructive-accent))] text-[#1c1c1c] hover:bg-[hsl(var(--neo-destructive-accent),0.9)]",
-        outline: "bg-transparent hover:bg-black/5",
+        outline: "bg-transparent hover:bg-[#1c1c1c]/5",
         secondary: "bg-[var(--neo-interactive-bg)] text-[#1c1c1c] hover:bg-[var(--neo-bg)]",
         ghost: "border-0 shadow-none hover:bg-accent hover:text-accent-foreground",
         link: "border-0 shadow-none text-primary underline-offset-4 hover:underline",

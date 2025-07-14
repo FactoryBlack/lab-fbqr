@@ -10,10 +10,10 @@ import CollectionPanel from "@/components/collection-panel"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import AuthModal from "@/components/auth-modal"
-import AuthButton from "@/components/auth-button"
 import { VerticalDivider } from "@/components/vertical-divider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { QRCodeResult, QRStyleOptions } from "@/types"
+import { PageHeader } from "@/components/page-header"
 
 const defaultGradient = {
   type: "linear" as const,
@@ -51,6 +51,7 @@ const defaultOptions: QRStyleOptions = {
   },
   qrOptions: { errorCorrectionLevel: "H" },
   imageOptions: {
+    src: null,
     hideBackgroundDots: true,
     imageSize: 0.2,
     margin: 10,
@@ -214,7 +215,7 @@ export default function QRGeneratorPage() {
 
       if (!response.ok) throw new Error("Failed to generate QR code thumbnail")
 
-      const svgString = await response.text()
+      const { svg: svgString } = await response.json()
       const thumbnailDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`
 
       const newQrCode: QRCodeResult = {
@@ -247,7 +248,7 @@ export default function QRGeneratorPage() {
 
     setText(text)
     setOriginalUrl(originalUrl)
-    setStyle(styleOptions)
+    setStyle(styleOptions as QRStyleOptions)
     setLogoPreview(image || null)
     setConfigPanelKey(Date.now()) // Force remount of ConfigPanel
 
@@ -265,7 +266,6 @@ export default function QRGeneratorPage() {
 
   const handleTextChange = useCallback((newText: string) => {
     setText(newText)
-    // Do not reset originalUrl here, as the config panel now handles its own state
   }, [])
 
   return (
@@ -276,19 +276,7 @@ export default function QRGeneratorPage() {
           className="bg-[#EAEAEA] border-2 border-[#1c1c1c] flex flex-col min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)]"
           style={{ boxShadow: `8px 8px 0px #1c1c1c` }}
         >
-          <header className="flex items-stretch justify-between w-full flex-shrink-0 border-b-2 border-b-[#1c1c1c]">
-            <div className="p-4 flex items-center">
-              <h1 className="font-heading text-5xl md:text-6xl">
-                <span className="hidden lg:inline">
-                  LAB01<span className="text-[var(--neo-accent)]">/</span>
-                </span>
-                FBQR
-              </h1>
-            </div>
-            <div className="border-l-2 border-l-[#1c1c1c] p-4 flex items-center">
-              <AuthButton user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
-            </div>
-          </header>
+          <PageHeader title="FBQR" user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
 
           {/* Mobile Layout */}
           <div className="lg:hidden flex-1 min-h-0">
@@ -305,7 +293,7 @@ export default function QRGeneratorPage() {
                     styleOptions={style}
                     onStyleChange={handleStyleChange}
                     onGenerateClick={handleGenerateClick}
-                    isGenerating={isGenerating || isShortening}
+                    isGenerating={isGenerating}
                     onLogoUpload={handleLogoUpload}
                     logoPreview={logoPreview}
                     onRemoveLogo={handleRemoveLogo}
@@ -333,7 +321,7 @@ export default function QRGeneratorPage() {
               styleOptions={style}
               onStyleChange={handleStyleChange}
               onGenerateClick={handleGenerateClick}
-              isGenerating={isGenerating || isShortening}
+              isGenerating={isGenerating}
               onLogoUpload={handleLogoUpload}
               logoPreview={logoPreview}
               onRemoveLogo={handleRemoveLogo}
@@ -365,7 +353,7 @@ export default function QRGeneratorPage() {
               styleOptions={style}
               onStyleChange={handleStyleChange}
               onGenerateClick={handleGenerateClick}
-              isGenerating={isGenerating || isShortening}
+              isGenerating={isGenerating}
               onLogoUpload={handleLogoUpload}
               logoPreview={logoPreview}
               onRemoveLogo={handleRemoveLogo}

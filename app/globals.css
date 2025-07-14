@@ -27,11 +27,11 @@
     --primary-foreground: var(--neo-text); /* Dark text on neon green */
     --secondary: var(--neo-text);
     --secondary-foreground: var(--neo-bg);
-    --muted: var(--neo-bg);
+    --muted: var(--neo-muted-bg);
     --muted-foreground: var(--neo-text);
     --accent: var(--neo-accent);
     --accent-foreground: var(--neo-text);
-    --destructive: var(--neo-destructive-accent);
+    --destructive: hsl(var(--neo-destructive-accent));
     --destructive-foreground: var(--neo-bg);
     --border: var(--neo-border-color);
     --input: var(--neo-interactive-bg);
@@ -40,8 +40,6 @@
 
     /* Style Properties */
     --neo-border-width: 2px;
-    --font-sans: "Montserrat", sans-serif;
-    --font-mono: "Montserrat", monospace; /* Fallback to sans */
   }
 
   * {
@@ -51,17 +49,20 @@
     @apply bg-background text-foreground font-sans;
     font-weight: 500;
   }
-
-  .font-heading {
-    font-family: var(--font-sans);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .font-heading {
+    /* This should be the custom Gainsborough font. 
+       It will be available via the --font-gainsborough variable 
+       once the font file is added and configured in layout.tsx.
+       For now, it falls back to the default sans-serif font. */
+    font-family: var(--font-gainsborough, var(--font-sans));
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
   }
 }

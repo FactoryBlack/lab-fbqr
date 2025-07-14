@@ -1,9 +1,10 @@
 "use client"
 
-import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
-import { NeoButton } from "@/components/ui/neo-button"
+import { useRouter } from "next/navigation"
 import type { User } from "@supabase/supabase-js"
+import { NeoButton } from "@/components/ui/neo-button"
+import { LogIn, LogOut } from "lucide-react"
 
 interface AuthButtonProps {
   user: User | null
@@ -11,28 +12,29 @@ interface AuthButtonProps {
 }
 
 export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
+  const router = useRouter()
   const supabase = createClient()
-  const { toast } = useToast()
 
-  const handleLogout = async () => {
+  const handleSignOut = async () => {
     await supabase.auth.signOut()
-    toast({ title: "Logged out." })
+    router.refresh()
   }
 
   if (user) {
     return (
       <div className="flex items-center gap-4">
-        <span className="text-sm font-sans hidden sm:inline">{user.email}</span>
-        <NeoButton onClick={handleLogout} variant="secondary" className="uppercase w-auto">
-          Logout
+        <span className="font-sans font-medium text-sm hidden sm:inline">{user.email}</span>
+        <NeoButton onClick={handleSignOut} variant="destructive" size="icon" aria-label="Sign Out">
+          <LogOut className="w-4 h-4" />
         </NeoButton>
       </div>
     )
   }
 
   return (
-    <NeoButton onClick={onLoginClick} className="uppercase w-auto">
-      Login / Signup
+    <NeoButton onClick={onLoginClick} variant="default">
+      <LogIn className="w-4 h-4 sm:mr-2" />
+      <span className="hidden sm:inline">Login</span>
     </NeoButton>
   )
 }

@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import type { ReactElement } from "react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -13,8 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "./ui/scroll-area"
 import type { ConfigPanelProps, DotsOptions, CornersSquareOptions, CornersDotOptions, BackgroundOptions } from "@/types"
 import { GradientControls } from "./gradient-controls"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { contentTypes, type ContentType } from "./content-type-icons"
 import { useIsMobile } from "@/components/ui/use-mobile"
 
@@ -24,7 +21,7 @@ function getInitialState(initialText: string) {
   const state = {
     activeTab: "url" as ContentType,
     urlValue: "",
-    textValue: "This is some text!",
+    textValue: "",
     emailData: { to: "", subject: "", body: "" },
     phoneValue: "",
     smsData: { to: "", message: "" },
@@ -40,7 +37,7 @@ function getInitialState(initialText: string) {
   if (initialText.startsWith("mailto:")) {
     state.activeTab = "email"
     const [to, params] = initialText.replace("mailto:", "").split("?")
-    state.emailData.to = to
+    state.emailData.to = to || ""
     if (params) {
       const searchParams = new URLSearchParams(params)
       state.emailData.subject = searchParams.get("subject") || ""
@@ -59,9 +56,9 @@ function getInitialState(initialText: string) {
     const wifiString = initialText.replace("WIFI:", "")
     const parts = wifiString.split(";").filter(Boolean)
     parts.forEach((part) => {
-      if (part.startsWith("S:")) state.wifiData.ssid = part.substring(2)
+      if (part.startsWith("S:")) state.wifiData.ssid = part.substring(2).replace(/\\;/g, ";")
       if (part.startsWith("T:")) state.wifiData.encryption = part.substring(2) as any
-      if (part.startsWith("P:")) state.wifiData.password = part.substring(2)
+      if (part.startsWith("P:")) state.wifiData.password = part.substring(2).replace(/\\;/g, ";")
     })
   } else if (initialText.startsWith("http") || initialText.includes(".")) {
     state.activeTab = "url"
@@ -86,7 +83,7 @@ export default function ConfigPanel({
   onRemoveLogo,
   onShortenUrl,
   isShortening,
-}: ConfigPanelProps): ReactElement {
+}: ConfigPanelProps) {
   const fileInputRef = React.createRef<HTMLInputElement>()
   const isMobile = useIsMobile()
 
@@ -111,14 +108,11 @@ export default function ConfigPanel({
         break
       case "email": {
         const { to, subject, body } = emailData
-        if (!to) {
-          newText = "mailto:"
-          break
-        }
         const params = new URLSearchParams()
         if (subject) params.set("subject", subject)
         if (body) params.set("body", body)
-        newText = `mailto:${to}?${params.toString()}`
+        const paramString = params.toString()
+        newText = `mailto:${to}${paramString ? `?${paramString}` : ""}`
         break
       }
       case "phone":
@@ -129,12 +123,42 @@ export default function ConfigPanel({
         break
       case "wifi": {
         const { ssid, password, encryption } = wifiData
-        newText = `WIFI:S:${ssid};T:${encryption};P:${password};;`
+        const escape = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/:/g, "\\:")
+        newText = `WIFI:S:${escape(ssid)};T:${encryption};P:${escape(password)};;`
         break
       }
     }
     onTextChange(newText)
   }, [activeTab, urlValue, textValue, emailData, phoneValue, smsData, wifiData, onTextChange])
+
+  const handleTabChange = (newTab: ContentType) => {
+    setActiveTab(newTab)
+    switch (newTab) {
+      case "text":
+        if (!textValue) setTextValue("Your text here...")
+        break
+      case "email":
+        if (!emailData.to && !emailData.subject && !emailData.body) {
+          setEmailData({ to: "example@email.com", subject: "Hello from FBQR", body: "This is a test message." })
+        }
+        break
+      case "phone":
+        if (!phoneValue) setPhoneValue("1234567890")
+        break
+      case "sms":
+        if (!smsData.to && !smsData.message) {
+          setSmsData({ to: "1234567890", message: "Your SMS message." })
+        }
+        break
+      case "wifi":
+        if (!wifiData.ssid && !wifiData.password) {
+          setWifiData({ ssid: "MyNetwork", password: "password123", encryption: "WPA" })
+        }
+        break
+      default:
+        break
+    }
+  }
 
   const isUrl = (str: string) => {
     if (!str || str.startsWith("fblk.io") || str.length < 15) return false
@@ -168,64 +192,18 @@ export default function ConfigPanel({
     onStyleChange({ ...styleOptions, [optionKey]: newOptions })
   }
 
-  return (
-    <div className="h-full flex flex-col bg-transparent">
-      <div className="p-6 border-b-2 border-[#1c1c1c]">
-        <h2 className="font-heading text-3xl mb-4">CONTENT</h2>
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ContentType)} className="w-full">
-          {isMobile ? (
-            <Select value={activeTab} onValueChange={(v) => setActiveTab(v as ContentType)}>
-              <SelectTrigger>
-                <SelectValue asChild>
-                  <div className="flex items-center gap-2">
-                    {React.createElement(contentTypes.find((ct) => ct.id === activeTab)!.icon, {
-                      className: "w-5 h-5",
-                    })}
-                    <span className="font-bold uppercase">{contentTypes.find((ct) => ct.id === activeTab)!.label}</span>
-                  </div>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {contentTypes.map((ct) => (
-                  <SelectItem key={ct.id} value={ct.id}>
-                    <div className="flex items-center gap-3">
-                      <ct.icon className="w-5 h-5" />
-                      <span className="font-bold uppercase">{ct.label}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <TabsList>
-              <TooltipProvider>
-                {contentTypes.map((ct) => (
-                  <Tooltip key={ct.id}>
-                    <TooltipTrigger asChild>
-                      <TabsTrigger
-                        value={ct.id}
-                        className="px-3 data-[state=active]:bg-black data-[state=active]:text-white transition-colors"
-                      >
-                        <ct.icon className="w-6 h-6" />
-                      </TabsTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{ct.label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </TooltipProvider>
-            </TabsList>
-          )}
-
-          <TabsContent value="url" className="space-y-4">
+  const renderContentInputs = () => {
+    switch (activeTab) {
+      case "url":
+        return (
+          <div className="space-y-2">
             <Textarea
               id="text"
               placeholder="https://lab.factory.black"
               value={urlValue}
               onChange={(e) => setUrlValue(e.target.value)}
               rows={3}
-              className="rounded-b-none"
+              className={isUrl(urlValue) ? "rounded-b-none" : ""}
             />
             {isUrl(urlValue) && (
               <NeoButton
@@ -233,21 +211,25 @@ export default function ConfigPanel({
                 variant="default"
                 onClick={onShortenUrl}
                 disabled={isShortening}
-                className="uppercase rounded-t-none -mt-px"
+                className="uppercase rounded-t-none -mt-px w-full"
               >
                 {isShortening ? "SHORTENING..." : "SHORTEN URL & MAKE DYNAMIC"}
               </NeoButton>
             )}
-          </TabsContent>
-          <TabsContent value="text">
-            <Textarea
-              placeholder="Enter your text here"
-              value={textValue}
-              onChange={(e) => setTextValue(e.target.value)}
-              rows={4}
-            />
-          </TabsContent>
-          <TabsContent value="email" className="space-y-4">
+          </div>
+        )
+      case "text":
+        return (
+          <Textarea
+            placeholder="Enter your text here"
+            value={textValue}
+            onChange={(e) => setTextValue(e.target.value)}
+            rows={4}
+          />
+        )
+      case "email":
+        return (
+          <div className="space-y-4">
             <Input
               placeholder="Email address"
               value={emailData.to}
@@ -264,16 +246,20 @@ export default function ConfigPanel({
               onChange={(e) => setEmailData({ ...emailData, body: e.target.value })}
               rows={2}
             />
-          </TabsContent>
-          <TabsContent value="phone">
-            <Input
-              type="tel"
-              placeholder="Phone number"
-              value={phoneValue}
-              onChange={(e) => setPhoneValue(e.target.value)}
-            />
-          </TabsContent>
-          <TabsContent value="sms" className="space-y-4">
+          </div>
+        )
+      case "phone":
+        return (
+          <Input
+            type="tel"
+            placeholder="Phone number"
+            value={phoneValue}
+            onChange={(e) => setPhoneValue(e.target.value)}
+          />
+        )
+      case "sms":
+        return (
+          <div className="space-y-4">
             <Input
               type="tel"
               placeholder="Phone number"
@@ -286,8 +272,11 @@ export default function ConfigPanel({
               onChange={(e) => setSmsData({ ...smsData, message: e.target.value })}
               rows={2}
             />
-          </TabsContent>
-          <TabsContent value="wifi" className="space-y-4">
+          </div>
+        )
+      case "wifi":
+        return (
+          <div className="space-y-4">
             <Input
               placeholder="Network Name (SSID)"
               value={wifiData.ssid}
@@ -311,12 +300,37 @@ export default function ConfigPanel({
                 <SelectItem value="nopass">No Encryption</SelectItem>
               </SelectContent>
             </Select>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-transparent">
+      <div className="p-6 border-b-2 border-[#1c1c1c]">
+        <h2 className="font-heading text-3xl mb-4">CONTENT</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {contentTypes.map((ct) => (
+            <NeoButton
+              key={ct.id}
+              variant={activeTab === ct.id ? "secondary" : "outline"}
+              onClick={() => handleTabChange(ct.id)}
+              size="sm"
+              className="flex items-center justify-center gap-2"
+              noShadow={activeTab === ct.id}
+            >
+              <ct.icon className="w-5 h-5" />
+              <span className="hidden sm:inline">{ct.label}</span>
+            </NeoButton>
+          ))}
+        </div>
+        <div className="mt-4">{renderContentInputs()}</div>
       </div>
 
       <ScrollArea className="flex-1">
-        <Accordion type="single" className="w-full" defaultValue="dots" collapsible>
+        <Accordion type="multiple" className="w-full" defaultValue={["dots", "corners", "background", "logo"]}>
           <AccordionItem value="dots">
             <AccordionTrigger>DOTS</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">

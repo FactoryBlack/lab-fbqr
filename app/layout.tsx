@@ -5,28 +5,27 @@ import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
+import { cn } from "@/lib/utils"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["400", "500", "700", "900"],
   variable: "--font-sans",
 })
 
-const siteUrl = "https://lab.factory.black"
+const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    template: "%s | The Factory Black Lab",
     default: "The Factory Black Lab",
+    template: "%s | The Factory Black Lab",
   },
-  description: "A collection of helpful tools for designers and developers by The Factory Black.",
-  icons: {
-    icon: "/favicon.png",
-  },
+  description:
+    "A suite of powerful, design-focused tools for developers and designers. Generate QR codes, shorten URLs, and more.",
   openGraph: {
     title: "The Factory Black Lab",
-    description: "A collection of helpful tools for designers and developers by The Factory Black.",
+    description: "A suite of powerful, design-focused tools for developers and designers.",
     url: siteUrl,
     siteName: "The Factory Black Lab",
     images: [
@@ -34,7 +33,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "The Factory Black Lab user interface",
+        alt: "The Factory Black Lab suite of tools.",
       },
     ],
     locale: "en_US",
@@ -43,19 +42,25 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "The Factory Black Lab",
-    description: "A collection of helpful tools for designers and developers by The Factory Black.",
+    description: "A suite of powerful, design-focused tools for developers and designers.",
     images: ["/og.png"],
   },
     generator: 'v0.dev'
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
-    <html lang="en" className={`${montserrat.variable}`}>
-      <body className="font-sans">
-        <Suspense fallback={null}>{children}</Suspense>
-        <Toaster />
-        <Analytics />
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn("min-h-screen bg-background font-sans antialiased", montserrat.variable)}>
+        <Suspense fallback={null}>
+          {children}
+          <Toaster />
+          <Analytics />
+        </Suspense>
       </body>
     </html>
   )
