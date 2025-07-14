@@ -10,17 +10,17 @@ import { Skeleton } from "./ui/skeleton"
 const SkeletonCollectionItem = () => (
   <div className="space-y-3 pb-3">
     <div className="flex items-center gap-4">
-      <Skeleton className="w-16 h-16 flex-shrink-0" />
+      <Skeleton className="w-16 h-16 flex-shrink-0 bg-black/10" />
       <div className="flex-1 space-y-2">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-1/2" />
+        <Skeleton className="h-4 w-3/4 bg-black/10" />
+        <Skeleton className="h-3 w-1/2 bg-black/10" />
       </div>
     </div>
     <div className="grid grid-cols-4 gap-2">
-      <Skeleton className="h-10" />
-      <Skeleton className="h-10" />
-      <Skeleton className="h-10" />
-      <Skeleton className="h-10" />
+      <Skeleton className="h-10 bg-black/10" />
+      <Skeleton className="h-10 bg-black/10" />
+      <Skeleton className="h-10 bg-black/10" />
+      <Skeleton className="h-10 bg-black/10" />
     </div>
   </div>
 )
@@ -43,7 +43,7 @@ export default function CollectionPanel({ qrCodes, onRemove, onLoad, isLoading, 
       <div className="flex-1 min-h-0 p-2">
         <ScrollArea className="h-full pr-2">
           <div className="p-2">
-            {isLoading && qrCodes.length === 0 ? (
+            {isLoading ? (
               <div className="space-y-4">
                 <SkeletonCollectionItem />
                 <SkeletonCollectionItem />

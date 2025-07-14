@@ -24,6 +24,7 @@ interface PreviewPanelProps {
 }
 
 const VALIDATION_CANVAS_SIZE = 400
+const DENSITY_WARNING_THRESHOLD = 25 // QR Code Version above which we show a warning
 
 export default function PreviewPanel({ text, style, logoPreview, onSizeChange }: PreviewPanelProps) {
   const [svgContent, setSvgContent] = useState<string>("")
@@ -69,7 +70,7 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
         if (validationRef.current !== currentValidationId) return
         if (!response.ok) throw new Error("Failed to generate QR code")
 
-        const svg = await response.text()
+        const { svg, version } = await response.json()
         if (validationRef.current !== currentValidationId) return
 
         setSvgContent(svg)
@@ -95,7 +96,15 @@ export default function PreviewPanel({ text, style, logoPreview, onSizeChange }:
 
           if (validationRef.current !== currentValidationId) return
 
-          setValidationStatus(code && code.data === debouncedText.trim() ? "valid" : "invalid")
+          if (code && code.data === debouncedText.trim()) {
+            if (version > DENSITY_WARNING_THRESHOLD) {
+              setValidationStatus("warning")
+            } else {
+              setValidationStatus("valid")
+            }
+          } else {
+            setValidationStatus("invalid")
+          }
         }
 
         image.onerror = () => {

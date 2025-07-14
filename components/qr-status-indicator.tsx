@@ -1,9 +1,15 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { BrutalistCheckIcon, BrutalistLoaderIcon, BrutalistXIcon } from "./ui/brutalist-status-icons"
+import {
+  BrutalistCheckIcon,
+  BrutalistLoaderIcon,
+  BrutalistWarningIcon,
+  BrutalistXIcon,
+} from "./ui/brutalist-status-icons"
+import { cn } from "@/lib/utils"
 
-export type Status = "valid" | "invalid" | "checking" | "idle"
+export type Status = "valid" | "invalid" | "checking" | "idle" | "warning"
 
 interface QrStatusIndicatorProps {
   status: Status
@@ -29,26 +35,44 @@ const explanationContainerVariants = {
   },
 }
 
+const statusConfig: Record<
+  Status,
+  { icon: JSX.Element | null; bg: string; title?: string; message?: string; titleColor?: string }
+> = {
+  checking: { icon: <BrutalistLoaderIcon className="w-5 h-5" />, bg: "bg-gray-400" },
+  valid: { icon: <BrutalistCheckIcon className="w-6 h-6" />, bg: "bg-[var(--neo-accent)]" },
+  warning: {
+    icon: <BrutalistWarningIcon className="w-6 h-6" />,
+    bg: "bg-yellow-400",
+    title: "High Density",
+    message: "May be hard to scan. Use less data.",
+    titleColor: "text-yellow-600",
+  },
+  invalid: {
+    icon: <BrutalistXIcon className="w-6 h-6" />,
+    bg: "bg-[hsl(var(--neo-destructive-accent))]",
+    title: "Unscannable",
+    message: "Try simpler styles or less content.",
+    titleColor: "text-[hsl(var(--neo-destructive-accent))]",
+  },
+  idle: { icon: null, bg: "" },
+}
+
 export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
   if (status === "idle") {
     return null
   }
 
-  const statusConfig = {
-    checking: { icon: <BrutalistLoaderIcon className="w-5 h-5" />, bg: "bg-gray-400" },
-    valid: { icon: <BrutalistCheckIcon className="w-6 h-6" />, bg: "bg-[var(--neo-accent)]" },
-    invalid: { icon: <BrutalistXIcon className="w-6 h-6" />, bg: "bg-[hsl(var(--neo-destructive-accent))]" },
-    idle: { icon: null, bg: "" },
-  }
-
-  const { icon, bg } = statusConfig[status]
+  const { icon, bg, title, message, titleColor } = statusConfig[status]
+  const showExplanation = status === "invalid" || status === "warning"
 
   return (
     <div className="absolute top-3 right-3 z-10">
       <div className="relative flex items-center h-10 gap-3">
         <AnimatePresence>
-          {status === "invalid" && (
+          {showExplanation && (
             <motion.div
+              key={`${status}-explanation`}
               variants={explanationContainerVariants}
               initial="hidden"
               animate="visible"
@@ -57,10 +81,8 @@ export function QrStatusIndicator({ status }: QrStatusIndicatorProps) {
               style={{ boxShadow: `4px 4px 0px var(--neo-text)` }}
             >
               <div className="whitespace-nowrap">
-                <p className="font-sans text-sm font-black uppercase text-[hsl(var(--neo-destructive-accent))]">
-                  Unscannable
-                </p>
-                <p className="font-sans text-xs text-neo-text -mt-1">Try simpler styles or less content.</p>
+                <p className={cn("font-sans text-sm font-black uppercase", titleColor)}>{title}</p>
+                <p className="font-sans text-xs text-neo-text -mt-1">{message}</p>
               </div>
             </motion.div>
           )}

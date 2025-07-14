@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Montserrat } from "next/font/google"
+import { Montserrat } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
 import "./globals.css"
@@ -12,7 +12,10 @@ const montserrat = Montserrat({
   variable: "--font-sans",
 })
 
+const siteUrl = "https://lab.factory.black"
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     template: "%s | The Factory Black Lab",
     default: "The Factory Black Lab",
@@ -20,6 +23,28 @@ export const metadata: Metadata = {
   description: "A collection of helpful tools from The Factory Black.",
   icons: {
     icon: "/favicon.png",
+  },
+  openGraph: {
+    title: "The Factory Black Lab",
+    description: "A collection of helpful tools from The Factory Black.",
+    url: siteUrl,
+    siteName: "The Factory Black Lab",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "The Factory Black Lab",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Factory Black Lab",
+    description: "A collection of helpful tools from The Factory Black.",
+    images: ["/og-image.jpg"],
   },
     generator: 'v0.dev'
 }

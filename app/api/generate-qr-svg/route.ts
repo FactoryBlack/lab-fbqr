@@ -37,12 +37,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const config = await request.json()
-    const svgString = await generateSvg(config)
-    return new NextResponse(svgString, {
-      headers: {
-        "Content-Type": "image/svg+xml",
-      },
-    })
+    const { svgString, version } = await generateSvg(config)
+    return NextResponse.json({ svg: svgString, version: version })
   } catch (error) {
     console.error("SVG Generation Error:", error)
     return NextResponse.json({ error: "Failed to generate QR code SVG" }, { status: 500 })
@@ -51,7 +47,7 @@ export async function POST(request: NextRequest) {
 
 // --- SVG Generation Logic ---
 
-async function generateSvg(config: any): Promise<string> {
+async function generateSvg(config: any): Promise<{ svgString: string; version: number }> {
   const {
     data,
     width,
@@ -68,7 +64,7 @@ async function generateSvg(config: any): Promise<string> {
     errorCorrectionLevel: qrOptions?.errorCorrectionLevel || "H",
   })
 
-  return renderSvg(qr, {
+  const svgString = renderSvg(qr, {
     width,
     dotsOptions,
     cornersSquareOptions,
@@ -77,6 +73,8 @@ async function generateSvg(config: any): Promise<string> {
     image,
     imageOptions,
   })
+
+  return { svgString, version: qr.version }
 }
 
 function renderSvg(qr: QRCode, options: any): string {
