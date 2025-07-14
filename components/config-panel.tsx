@@ -197,25 +197,24 @@ export default function ConfigPanel({
               </SelectContent>
             </Select>
           ) : (
-            <TabsList>
-              <TooltipProvider>
-                {contentTypes.map((ct) => (
-                  <Tooltip key={ct.id}>
-                    <TooltipTrigger asChild>
-                      <TabsTrigger
-                        value={ct.id}
-                        className="px-3 data-[state=active]:bg-black data-[state=active]:text-white transition-colors"
-                      >
-                        <ct.icon className="w-6 h-6" />
-                      </TabsTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{ct.label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </TooltipProvider>
-            </TabsList>
+            <div className="pb-4 border-b-2 border-black">
+              <TabsList>
+                <TooltipProvider>
+                  {contentTypes.map((ct) => (
+                    <Tooltip key={ct.id}>
+                      <TooltipTrigger asChild>
+                        <TabsTrigger value={ct.id}>
+                          <ct.icon className="w-6 h-6" />
+                        </TabsTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{ct.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </TooltipProvider>
+              </TabsList>
+            </div>
           )}
 
           <TabsContent value="url" className="space-y-4">
