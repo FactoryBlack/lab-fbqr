@@ -23,10 +23,10 @@ const ToolLink = ({
   <Link href={href} className="block group">
     <NeoCard className="transition-all group-hover:translate-x-[-2px] group-hover:translate-y-[-2px] group-hover:shadow-[6px_6px_0px_var(--neo-text)]">
       <NeoCardContent className="p-6">
-        <div className="flex justify-between items-center sm:items-start">
+        <div className="flex justify-between items-start">
           <div>
             <h3 className="font-heading text-3xl">{title}</h3>
-            <p className="font-sans mt-1 text-base font-medium hidden sm:block">{description}</p>
+            <p className="font-sans mt-1 text-base font-medium">{description}</p>
           </div>
           <div className="hidden sm:flex items-center gap-3">
             <span
