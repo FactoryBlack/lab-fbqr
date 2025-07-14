@@ -23,7 +23,10 @@ export default function AuthButton({ user, onLoginClick }: AuthButtonProps) {
   if (user) {
     return (
       <div className="flex items-center gap-4">
-        <span className="font-sans font-medium text-sm hidden sm:inline">{user.email}</span>
+        <div className="text-right hidden sm:block">
+          <p className="text-xs text-muted-foreground">Logged In</p>
+          <span className="font-sans font-bold text-sm">{user.email}</span>
+        </div>
         <NeoButton onClick={handleSignOut} variant="destructive" size="icon" aria-label="Sign Out">
           <LogOut className="w-4 h-4" />
         </NeoButton>

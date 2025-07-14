@@ -4,6 +4,7 @@ import ClientPage from "./client-page"
 export const metadata: Metadata = {
   title: "FBLK.IO - URL Shortener",
   description: "A fast and simple URL shortener for creating manageable, dynamic links. Part of The Factory Black Lab.",
+  keywords: ["url shortener", "link shortener", "custom links", "dynamic links", "fblkio"],
   openGraph: {
     title: "FBLK.IO - URL Shortener",
     description: "A fast and simple URL shortener for creating manageable, dynamic links.",

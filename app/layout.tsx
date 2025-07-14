@@ -23,6 +23,26 @@ export const metadata: Metadata = {
   },
   description:
     "A suite of powerful, design-focused tools for developers and designers. Generate QR codes, shorten URLs, and more.",
+  keywords: [
+    "developer tools",
+    "designer utilities",
+    "qr code generator",
+    "url shortener",
+    "factory black lab",
+    "fbqr",
+    "fblkio",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
     title: "The Factory Black Lab",
     description: "A suite of powerful, design-focused tools for developers and designers.",

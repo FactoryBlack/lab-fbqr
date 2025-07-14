@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "FBQR - QR Code Generator",
   description:
     "Create, customize, and manage high-quality QR codes with advanced styling options. Part of The Factory Black Lab.",
+  keywords: ["qr code", "generator", "custom qr code", "svg qr code", "png qr code", "qr code with logo", "fbqr"],
   openGraph: {
     title: "FBQR - QR Code Generator",
     description: "Create, customize, and manage high-quality QR codes with advanced styling options.",
