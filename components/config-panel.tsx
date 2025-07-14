@@ -1,9 +1,10 @@
 "use client"
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import type { ReactElement } from "react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import { NeoButton } from "@/components/ui/neo-button"
 import { BrutalistSlider } from "@/components/ui/brutalist-slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -12,8 +13,65 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "./ui/scroll-area"
 import type { ConfigPanelProps, DotsOptions, CornersSquareOptions, CornersDotOptions, BackgroundOptions } from "@/types"
 import { GradientControls } from "./gradient-controls"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { contentTypes, type ContentType } from "./content-type-icons"
 
 type StyleOptionKey = "dotsOptions" | "cornersSquareOptions" | "cornersDotOptions" | "backgroundOptions"
+
+function getInitialState(initialText: string) {
+  const state = {
+    activeTab: "url" as ContentType,
+    urlValue: "",
+    textValue: "This is some text!",
+    emailData: { to: "", subject: "", body: "" },
+    phoneValue: "",
+    smsData: { to: "", message: "" },
+    wifiData: { ssid: "", password: "", encryption: "WPA" as "WPA" | "WEP" | "nopass" },
+  }
+
+  if (!initialText) {
+    state.activeTab = "url"
+    state.urlValue = "https://lab.factory.black"
+    return state
+  }
+
+  if (initialText.startsWith("mailto:")) {
+    state.activeTab = "email"
+    const [to, params] = initialText.replace("mailto:", "").split("?")
+    state.emailData.to = to
+    if (params) {
+      const searchParams = new URLSearchParams(params)
+      state.emailData.subject = searchParams.get("subject") || ""
+      state.emailData.body = searchParams.get("body") || ""
+    }
+  } else if (initialText.startsWith("tel:")) {
+    state.activeTab = "phone"
+    state.phoneValue = initialText.replace("tel:", "")
+  } else if (initialText.startsWith("smsto:")) {
+    state.activeTab = "sms"
+    const parts = initialText.replace("smsto:", "").split(":")
+    state.smsData.to = parts[0] || ""
+    state.smsData.message = parts.slice(1).join(":") || ""
+  } else if (initialText.startsWith("WIFI:")) {
+    state.activeTab = "wifi"
+    const wifiString = initialText.replace("WIFI:", "")
+    const parts = wifiString.split(";").filter(Boolean)
+    parts.forEach((part) => {
+      if (part.startsWith("S:")) state.wifiData.ssid = part.substring(2)
+      if (part.startsWith("T:")) state.wifiData.encryption = part.substring(2) as any
+      if (part.startsWith("P:")) state.wifiData.password = part.substring(2)
+    })
+  } else if (initialText.startsWith("http") || initialText.includes(".")) {
+    state.activeTab = "url"
+    state.urlValue = initialText
+  } else {
+    state.activeTab = "text"
+    state.textValue = initialText
+  }
+
+  return state
+}
 
 export default function ConfigPanel({
   text,
@@ -30,8 +88,54 @@ export default function ConfigPanel({
 }: ConfigPanelProps): ReactElement {
   const fileInputRef = React.createRef<HTMLInputElement>()
 
+  const [initialState] = useState(() => getInitialState(text))
+
+  const [activeTab, setActiveTab] = useState<ContentType>(initialState.activeTab)
+  const [urlValue, setUrlValue] = useState(initialState.urlValue)
+  const [textValue, setTextValue] = useState(initialState.textValue)
+  const [emailData, setEmailData] = useState(initialState.emailData)
+  const [phoneValue, setPhoneValue] = useState(initialState.phoneValue)
+  const [smsData, setSmsData] = useState(initialState.smsData)
+  const [wifiData, setWifiData] = useState(initialState.wifiData)
+
+  useEffect(() => {
+    let newText = ""
+    switch (activeTab) {
+      case "url":
+        newText = urlValue
+        break
+      case "text":
+        newText = textValue
+        break
+      case "email": {
+        const { to, subject, body } = emailData
+        if (!to) {
+          newText = "mailto:"
+          break
+        }
+        const params = new URLSearchParams()
+        if (subject) params.set("subject", subject)
+        if (body) params.set("body", body)
+        newText = `mailto:${to}?${params.toString()}`
+        break
+      }
+      case "phone":
+        newText = `tel:${phoneValue}`
+        break
+      case "sms":
+        newText = `smsto:${smsData.to}:${smsData.message}`
+        break
+      case "wifi": {
+        const { ssid, password, encryption } = wifiData
+        newText = `WIFI:S:${ssid};T:${encryption};P:${password};;`
+        break
+      }
+    }
+    onTextChange(newText)
+  }, [activeTab, urlValue, textValue, emailData, phoneValue, smsData, wifiData, onTextChange])
+
   const isUrl = (str: string) => {
-    if (str.startsWith("fblk.io") || str.length < 15) return false
+    if (!str || str.startsWith("fblk.io") || str.length < 15) return false
     try {
       new URL(str)
       return true
@@ -65,18 +169,34 @@ export default function ConfigPanel({
   return (
     <div className="h-full flex flex-col bg-transparent">
       <div className="p-6 border-b-2 border-[#1c1c1c]">
-        <div className="space-y-2">
-          <h2 className="font-heading text-3xl">CONTENT</h2>
-          <div className="space-y-4">
+        <h2 className="font-heading text-3xl mb-4">CONTENT</h2>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ContentType)} className="w-full">
+          <TabsList>
+            <TooltipProvider>
+              {contentTypes.map((ct) => (
+                <Tooltip key={ct.id}>
+                  <TooltipTrigger asChild>
+                    <TabsTrigger value={ct.id} className="px-3">
+                      <ct.icon className="w-6 h-6" />
+                    </TabsTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{ct.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </TooltipProvider>
+          </TabsList>
+          <TabsContent value="url" className="space-y-4">
             <Textarea
               id="text"
               placeholder="https://lab.factory.black"
-              value={text}
-              onChange={(e) => onTextChange(e.target.value)}
+              value={urlValue}
+              onChange={(e) => setUrlValue(e.target.value)}
               rows={3}
               className="rounded-b-none"
             />
-            {isUrl(text) && (
+            {isUrl(urlValue) && (
               <NeoButton
                 size="sm"
                 variant="default"
@@ -84,11 +204,84 @@ export default function ConfigPanel({
                 disabled={isShortening}
                 className="uppercase rounded-t-none -mt-px"
               >
-                {isShortening ? "SHORTENING..." : "SHORTEN URL"}
+                {isShortening ? "SHORTENING..." : "SHORTEN URL & MAKE DYNAMIC"}
               </NeoButton>
             )}
-          </div>
-        </div>
+          </TabsContent>
+          <TabsContent value="text">
+            <Textarea
+              placeholder="Enter your text here"
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              rows={4}
+            />
+          </TabsContent>
+          <TabsContent value="email" className="space-y-4">
+            <Input
+              placeholder="Email address"
+              value={emailData.to}
+              onChange={(e) => setEmailData({ ...emailData, to: e.target.value })}
+            />
+            <Input
+              placeholder="Subject"
+              value={emailData.subject}
+              onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
+            />
+            <Textarea
+              placeholder="Message"
+              value={emailData.body}
+              onChange={(e) => setEmailData({ ...emailData, body: e.target.value })}
+              rows={2}
+            />
+          </TabsContent>
+          <TabsContent value="phone">
+            <Input
+              type="tel"
+              placeholder="Phone number"
+              value={phoneValue}
+              onChange={(e) => setPhoneValue(e.target.value)}
+            />
+          </TabsContent>
+          <TabsContent value="sms" className="space-y-4">
+            <Input
+              type="tel"
+              placeholder="Phone number"
+              value={smsData.to}
+              onChange={(e) => setSmsData({ ...smsData, to: e.target.value })}
+            />
+            <Textarea
+              placeholder="Message"
+              value={smsData.message}
+              onChange={(e) => setSmsData({ ...smsData, message: e.target.value })}
+              rows={2}
+            />
+          </TabsContent>
+          <TabsContent value="wifi" className="space-y-4">
+            <Input
+              placeholder="Network Name (SSID)"
+              value={wifiData.ssid}
+              onChange={(e) => setWifiData({ ...wifiData, ssid: e.target.value })}
+            />
+            <Input
+              placeholder="Password"
+              value={wifiData.password}
+              onChange={(e) => setWifiData({ ...wifiData, password: e.target.value })}
+            />
+            <Select
+              value={wifiData.encryption}
+              onValueChange={(v) => setWifiData({ ...wifiData, encryption: v as any })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="WPA">WPA/WPA2</SelectItem>
+                <SelectItem value="WEP">WEP</SelectItem>
+                <SelectItem value="nopass">No Encryption</SelectItem>
+              </SelectContent>
+            </Select>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <ScrollArea className="flex-1">

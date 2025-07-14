@@ -66,6 +66,7 @@ export default function QRGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isShortening, setIsShortening] = useState(false)
   const [isCollectionLoaded, setIsCollectionLoaded] = useState(false)
+  const [configPanelKey, setConfigPanelKey] = useState(Date.now())
   const supabase = createClient()
   const { toast } = useToast()
 
@@ -247,6 +248,7 @@ export default function QRGeneratorPage() {
     setOriginalUrl(originalUrl)
     setStyle(styleOptions)
     setLogoPreview(image || null)
+    setConfigPanelKey(Date.now()) // Force remount of ConfigPanel
 
     toast({ title: "Style Loaded", description: "Configuration has been applied from your collection." })
   }
@@ -259,6 +261,11 @@ export default function QRGeneratorPage() {
     }
     toast({ title: "Removed from collection" })
   }
+
+  const handleTextChange = useCallback((newText: string) => {
+    setText(newText)
+    setOriginalUrl(undefined)
+  }, [])
 
   return (
     <>
@@ -291,11 +298,9 @@ export default function QRGeneratorPage() {
                 </div>
                 <div className="border-b-2 border-[#1c1c1c]">
                   <ConfigPanel
+                    key={configPanelKey}
                     text={text}
-                    onTextChange={(newText) => {
-                      setText(newText)
-                      setOriginalUrl(undefined)
-                    }}
+                    onTextChange={handleTextChange}
                     styleOptions={style}
                     onStyleChange={handleStyleChange}
                     onGenerateClick={handleGenerateClick}
@@ -321,11 +326,9 @@ export default function QRGeneratorPage() {
           {/* 2-Column Tablet/Medium Desktop Layout */}
           <div className="hidden lg:grid xl:hidden flex-1 lg:grid-cols-[400px_1fr] min-h-0 w-full">
             <ConfigPanel
+              key={configPanelKey}
               text={text}
-              onTextChange={(newText) => {
-                setText(newText)
-                setOriginalUrl(undefined)
-              }}
+              onTextChange={handleTextChange}
               styleOptions={style}
               onStyleChange={handleStyleChange}
               onGenerateClick={handleGenerateClick}
@@ -355,11 +358,9 @@ export default function QRGeneratorPage() {
           {/* 3-Column Large Desktop Layout */}
           <div className="hidden xl:grid flex-1 xl:grid-cols-[400px_auto_1fr_auto_400px] min-h-0 w-full">
             <ConfigPanel
+              key={configPanelKey}
               text={text}
-              onTextChange={(newText) => {
-                setText(newText)
-                setOriginalUrl(undefined)
-              }}
+              onTextChange={handleTextChange}
               styleOptions={style}
               onStyleChange={handleStyleChange}
               onGenerateClick={handleGenerateClick}
