@@ -4,17 +4,18 @@
 
 @layer base {
   :root {
-    /* Purely Neutral Brutalist Palette */
-    --page-bg: #cccccc; /* Light grey page background */
-    --neo-bg: #e0e0e0; /* Main element background */
-    --neo-interactive-bg: #f0f0f0; /* Lighter bg for inputs/preview */
-    --neo-text: #1c1c1c; /* Dark charcoal for text and borders */
-    --neo-accent: #e3ff32; /* Neon green accent */
-    --neo-white: #f0f0f0; /* Used for hover states, same as interactive bg */
-    --neo-off-white: #f0f0f0; /* Input background, same as interactive bg */
+    /* Light Theme (Original) */
+    --page-bg: #cccccc;
+    --neo-bg: #e0e0e0;
+    --neo-interactive-bg: #f0f0f0;
+    --neo-text: #1c1c1c;
+    --neo-accent: #e3ff32;
+    --neo-white: #f0f0f0;
+    --neo-off-white: #f0f0f0;
     --neo-border-color: #1c1c1c;
-    --neo-destructive-accent: 16 100% 50%; /* Orangey-Red */
-    --neo-muted-bg: #d1d1d1; /* Light Grey */
+    --neo-destructive-accent: 16 100% 50%;
+    --neo-muted-bg: #d1d1d1;
+    --neo-accent-secondary: hsl(220, 85%, 60%);
 
     /* Mapped to existing theme for component compatibility */
     --background: var(--page-bg);
@@ -23,8 +24,8 @@
     --card-foreground: var(--neo-text);
     --popover: var(--neo-bg);
     --popover-foreground: var(--neo-text);
-    --primary: var(--neo-accent); /* Mapped to neon green */
-    --primary-foreground: var(--neo-text); /* Dark text on neon green */
+    --primary: var(--neo-accent);
+    --primary-foreground: var(--neo-text);
     --secondary: var(--neo-text);
     --secondary-foreground: var(--neo-bg);
     --muted: var(--neo-bg);
@@ -41,7 +42,43 @@
     /* Style Properties */
     --neo-border-width: 2px;
     --font-sans: "Montserrat", sans-serif;
-    --font-mono: "Montserrat", monospace; /* Fallback to sans */
+    --font-mono: "Montserrat", monospace;
+  }
+
+  .dark {
+    /* Dark Theme (Based on your image) */
+    --page-bg: #1c1c1c; /* The main dark background */
+    --neo-bg: #1c1c1c; /* Main element background is the same */
+    --neo-interactive-bg: #2a2a2a; /* Lighter bg for inputs/cards */
+    --neo-text: #f0f0f0; /* Light grey/off-white for text and borders */
+    --neo-accent: #e3ff32; /* Neon green accent */
+    --neo-white: #f0f0f0;
+    --neo-off-white: #2a2a2a; /* For dropdowns etc. */
+    --neo-border-color: #f0f0f0;
+    --neo-destructive-accent: 16 100% 50%;
+    --neo-muted-bg: #2a2a2a;
+    --neo-accent-secondary: hsl(210, 100%, 70%);
+
+    /* Mapped to existing theme for component compatibility */
+    --background: var(--page-bg);
+    --foreground: var(--neo-text);
+    --card: var(--neo-bg); /* Use the main dark bg for cards */
+    --card-foreground: var(--neo-text);
+    --popover: var(--neo-interactive-bg);
+    --popover-foreground: var(--neo-text);
+    --primary: var(--neo-accent);
+    --primary-foreground: #1c1c1c; /* Dark text on neon green for contrast */
+    --secondary: #f0f0f0; /* Light button */
+    --secondary-foreground: #1c1c1c; /* Dark text */
+    --muted: var(--neo-muted-bg);
+    --muted-foreground: var(--neo-text);
+    --accent: var(--neo-accent);
+    --accent-foreground: #1c1c1c;
+    --destructive: var(--neo-destructive-accent);
+    --destructive-foreground: var(--neo-text);
+    --border: var(--neo-border-color);
+    --input: var(--neo-interactive-bg);
+    --ring: var(--neo-text);
   }
 
   * {

@@ -48,8 +48,13 @@ export default function HubPage() {
       </header>
 
       <main className="space-y-6 max-w-4xl">
-        <ToolLink href="/fbqr" title="LAB01/FBQR" description="A powerful QR code generator." status="Live" />
-        <ToolLink href="#" title="LAB02/FBLK.IO" description="A simple and fast URL shortener." status="Soon" />
+        <ToolLink href="/dashboard" title="APP/BOILERPLATE" description="A brutalist app boilerplate." status="Live" />
+        <ToolLink
+          href="/shortener"
+          title="LAB02/FBLK.IO"
+          description="A simple and fast URL shortener."
+          status="Live"
+        />
       </main>
     </div>
   )
