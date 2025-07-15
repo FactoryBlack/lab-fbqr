@@ -23,7 +23,7 @@ interface ShortLink {
 
 function LinkSkeleton() {
   return (
-    <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)]">
+    <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)] opacity-50">
       <NeoCardContent className="p-4 flex items-center gap-4">
         <div className="flex-1 space-y-2">
           <Skeleton className="h-6 w-48 bg-black/10" />
@@ -216,13 +216,13 @@ export default function FblkIoClientPage() {
                     >
                       <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)]">
                         <NeoCardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                          <div className="flex-1 min-w-0 space-y-2 overflow-hidden">
+                          <div className="flex-1 min-w-0 space-y-2">
                             <div className="relative">
                               <a
                                 href={`https://fblk.io/${link.short_code}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-sans font-bold text-lg hover:underline truncate block"
+                                className="font-sans font-bold text-lg hover:underline overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]"
                               >
                                 fblk.io/{link.short_code}
                               </a>
@@ -254,7 +254,10 @@ export default function FblkIoClientPage() {
                               </div>
                             ) : (
                               <div className="relative">
-                                <p className="font-sans text-sm text-neo-text/70 truncate" title={link.original_url}>
+                                <p
+                                  className="font-sans text-sm text-neo-text/70 overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]"
+                                  title={link.original_url}
+                                >
                                   {link.original_url}
                                 </p>
                                 <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[#EAEAEA] to-transparent pointer-events-none" />

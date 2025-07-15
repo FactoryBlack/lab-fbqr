@@ -48,7 +48,7 @@ export default function CollectionPanel({ qrCodes, onRemove, onLoad, user, isLoa
                   exit={{ opacity: 0, x: -50 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <CollectionItem qrCode={qr} onRemove={onRemove} onLoad={onLoad} />
+                  <CollectionItem qrCodeResult={qr} onRemove={onRemove} onLoad={onLoad} />
                 </motion.div>
               ))}
             </AnimatePresence>
