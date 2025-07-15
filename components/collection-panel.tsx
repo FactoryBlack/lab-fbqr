@@ -1,78 +1,60 @@
 "use client"
 
-import { motion, AnimatePresence } from "framer-motion"
 import type { QRCodeResult } from "@/types"
-import { CollectionItem } from "./collection-item"
-import { ScrollArea } from "./ui/scroll-area"
+import { CollectionItem } from "@/components/collection-item"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import type { User } from "@supabase/supabase-js"
-import { Skeleton } from "./ui/skeleton"
-
-const SkeletonCollectionItem = () => (
-  <div className="space-y-3 pb-3">
-    <div className="flex items-center gap-4">
-      <Skeleton className="w-16 h-16 flex-shrink-0 bg-black/10" />
-      <div className="flex-1 space-y-2">
-        <Skeleton className="h-4 w-3/4 bg-black/10" />
-        <Skeleton className="h-3 w-1/2 bg-black/10" />
-      </div>
-    </div>
-    <div className="grid grid-cols-4 gap-2">
-      <Skeleton className="h-10 bg-black/10" />
-      <Skeleton className="h-10 bg-black/10" />
-      <Skeleton className="h-10 bg-black/10" />
-      <Skeleton className="h-10 bg-black/10" />
-    </div>
-  </div>
-)
+import { AnimatePresence, motion } from "framer-motion"
+import { CollectionItemSkeleton } from "./collection-item-skeleton"
 
 interface CollectionPanelProps {
   qrCodes: QRCodeResult[]
   onRemove: (id: string) => void
-  onLoad: (qrCodeResult: QRCodeResult) => void
-  isLoading: boolean
+  onLoad: (qrCode: QRCodeResult) => void
   user: User | null
+  isLoading: boolean
 }
 
-export default function CollectionPanel({ qrCodes, onRemove, onLoad, isLoading, user }: CollectionPanelProps) {
+export default function CollectionPanel({ qrCodes, onRemove, onLoad, user, isLoading }: CollectionPanelProps) {
   return (
-    <div className="p-6 h-full flex flex-col bg-transparent">
-      <div className="flex items-center justify-between pb-2">
-        <h2 className="font-heading text-3xl">Collection</h2>
-        {qrCodes.length > 0 && <p className="font-sans text-sm">{qrCodes.length} items</p>}
+    <div className="bg-[#E0E0E0] h-full flex flex-col">
+      <div className="p-4 border-b-2 border-[#1c1c1c]">
+        <h2 className="font-display text-xl uppercase font-black">Collection</h2>
+        <p className="font-sans text-sm text-neo-text/70">
+          {user ? "Your saved QR codes. Click to load." : "Log in to save your QR codes to the cloud."}
+        </p>
       </div>
-      <div className="flex-1 min-h-0 p-2">
-        <ScrollArea className="h-full pr-2">
-          <div className="p-2">
-            {isLoading ? (
-              <div className="space-y-4">
-                <SkeletonCollectionItem />
-                <SkeletonCollectionItem />
-                <SkeletonCollectionItem />
-              </div>
-            ) : qrCodes.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="font-sans text-sm">Your generated codes will appear here.</p>
-              </div>
-            ) : (
-              <AnimatePresence>
-                <div className="space-y-2">
-                  {qrCodes.map((qr) => (
-                    <motion.div
-                      key={qr.id}
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -50, transition: { duration: 0.2 } }}
-                    >
-                      <CollectionItem qrCodeResult={qr} onRemove={onRemove} onLoad={onLoad} />
-                    </motion.div>
-                  ))}
-                </div>
-              </AnimatePresence>
-            )}
-          </div>
-        </ScrollArea>
-      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-3">
+          {isLoading ? (
+            <>
+              <CollectionItemSkeleton />
+              <CollectionItemSkeleton />
+              <CollectionItemSkeleton />
+            </>
+          ) : qrCodes.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="font-sans font-bold text-neo-text/80">Your collection is empty.</p>
+              <p className="font-sans text-sm text-neo-text/60">Generated QR codes will appear here.</p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {qrCodes.map((qr) => (
+                <motion.div
+                  key={qr.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <CollectionItem qrCode={qr} onRemove={onRemove} onLoad={onLoad} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
+      </ScrollArea>
     </div>
   )
 }

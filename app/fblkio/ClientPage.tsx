@@ -216,7 +216,7 @@ export default function FblkIoClientPage() {
                     >
                       <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)]">
                         <NeoCardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                          <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex-1 min-w-0 space-y-2 overflow-hidden">
                             <div className="relative">
                               <a
                                 href={`https://fblk.io/${link.short_code}`}
