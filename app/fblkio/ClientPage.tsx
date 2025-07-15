@@ -1,82 +1,61 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
+
+import { useState, useEffect, useTransition } from "react"
 import type { User } from "@supabase/supabase-js"
-import { useToast } from "@/hooks/use-toast"
-import { AnimatePresence, motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import { LinkIcon as Url, Link, Copy, Trash2 } from "lucide-react"
+
+import { NeoInput } from "@/components/ui/neo-input"
 import { NeoButton } from "@/components/ui/neo-button"
-import { Input } from "@/components/ui/input"
-import { NeoCard, NeoCardContent } from "@/components/ui/neo-card"
-import AuthModal from "@/components/auth-modal"
+import { useToast } from "@/hooks/use-toast"
+import type { ShortLink } from "@/types"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Copy, Edit, Trash2, Check, X } from "lucide-react"
-import { PageHeader } from "@/components/page-header"
 
-interface ShortLink {
-  id: number
-  short_code: string
-  original_url: string
-  created_at: string
-}
+const SkeletonLinkItem = () => (
+  <div className="p-4 bg-[#cccccc] border-2 border-b-4 border-r-4 border-[#1c1c1c] space-y-3">
+    <div className="flex items-center gap-4">
+      <Skeleton className="w-10 h-10 bg-black/10" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-3/4 bg-black/10" />
+        <Skeleton className="h-3 w-1/2 bg-black/10" />
+      </div>
+    </div>
+    <div className="flex items-center justify-end gap-2">
+      <Skeleton className="h-10 w-10 bg-black/10" />
+      <Skeleton className="h-10 w-10 bg-black/10" />
+    </div>
+  </div>
+)
 
-function LinkSkeleton() {
-  return (
-    <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)] opacity-50">
-      <NeoCardContent className="p-4 flex items-center gap-4">
-        <div className="flex-1 space-y-2">
-          <Skeleton className="h-6 w-48 bg-black/10" />
-          <Skeleton className="h-4 w-full bg-black/10" />
-        </div>
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-9 bg-black/10" />
-          <Skeleton className="h-9 w-9 bg-black/10" />
-          <Skeleton className="h-9 w-9 bg-black/10" />
-        </div>
-      </NeoCardContent>
-    </NeoCard>
-  )
-}
-
-export default function FblkIoClientPage() {
-  const [user, setUser] = useState<User | null>(null)
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const [longUrl, setLongUrl] = useState("")
+export default function FblkIoClientPage({ user }: { user: User | null }) {
+  const [originalUrl, setOriginalUrl] = useState("")
   const [links, setLinks] = useState<ShortLink[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [editingLinkId, setEditingLinkId] = useState<number | null>(null)
-  const [editingUrl, setEditingUrl] = useState("")
-
-  const supabase = createClient()
+  const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
 
   useEffect(() => {
     const fetchLinks = async () => {
       if (!user) {
-        setLinks([])
         setIsLoading(false)
         return
       }
-      setIsLoading(true)
       try {
         const response = await fetch("/api/short-links")
-        if (!response.ok) throw new Error("Failed to fetch links.")
-        const data = await response.json()
-        setLinks(data)
-      } catch (error: any) {
-        toast({ variant: "destructive", title: "Error", description: error.message })
+        if (response.ok) {
+          const data = await response.json()
+          setLinks(data)
+        } else {
+          throw new Error("Failed to fetch links")
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not load your links.",
+        })
       } finally {
         setIsLoading(false)
       }
@@ -84,222 +63,143 @@ export default function FblkIoClientPage() {
     fetchLinks()
   }, [user, toast])
 
-  const handleShorten = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!user) {
-      setIsAuthModalOpen(true)
-      return
-    }
-    if (!longUrl.trim()) {
-      toast({ variant: "destructive", title: "Error", description: "URL cannot be empty." })
-      return
-    }
-    setIsSubmitting(true)
-    try {
-      const response = await fetch("/api/short-links", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: longUrl }),
-      })
-      const newLink = await response.json()
-      if (!response.ok) throw new Error(newLink.error || "Failed to shorten URL.")
+    if (!originalUrl) return
 
-      setLinks([newLink, ...links])
-      setLongUrl("")
-      toast({ variant: "success", title: "Success!", description: `Created short link: ${newLink.shortUrl}` })
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Error", description: error.message })
-    } finally {
-      setIsSubmitting(false)
-    }
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/short-links", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ original_url: originalUrl }),
+        })
+
+        if (response.ok) {
+          const newLink = await response.json()
+          setLinks((prevLinks) => [newLink, ...prevLinks])
+          setOriginalUrl("")
+          toast({
+            variant: "success",
+            title: "Success!",
+            description: "Your new short link is ready.",
+          })
+        } else {
+          const errorData = await response.json()
+          throw new Error(errorData.error || "Failed to create short link")
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: (error as Error).message,
+        })
+      }
+    })
   }
 
-  const handleUpdate = async (id: number) => {
+  const handleDelete = async (id: string) => {
     const originalLinks = [...links]
-    const optimisticUpdatedLinks = links.map((l) => (l.id === id ? { ...l, original_url: editingUrl } : l))
-    setLinks(optimisticUpdatedLinks)
-    setEditingLinkId(null)
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch(`/api/short-links/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: editingUrl }),
-      })
-      if (!response.ok) throw new Error("Failed to update link.")
-      toast({ variant: "success", title: "Link Updated" })
-    } catch (error: any) {
-      setLinks(originalLinks)
-      toast({ variant: "destructive", title: "Error", description: error.message })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleDelete = async (id: number) => {
-    const originalLinks = [...links]
-    const optimisticLinks = links.filter((l) => l.id !== id)
-    setLinks(optimisticLinks)
+    setLinks(links.filter((link) => link.id !== id))
 
     try {
       const response = await fetch(`/api/short-links/${id}`, { method: "DELETE" })
-      if (!response.ok) throw new Error("Failed to delete link.")
-      toast({ title: "Link Deleted" })
-    } catch (error: any) {
+      if (!response.ok) throw new Error("Failed to delete link")
+      toast({
+        variant: "success",
+        title: "Deleted",
+        description: "The short link has been removed.",
+      })
+    } catch (error) {
       setLinks(originalLinks)
-      toast({ variant: "destructive", title: "Error", description: error.message })
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not delete the link.",
+      })
     }
   }
 
-  const handleCopy = (shortCode: string) => {
-    navigator.clipboard.writeText(`https://fblk.io/${shortCode}`)
-    toast({ variant: "success", title: "Copied to clipboard!" })
-  }
-
-  const startEditing = (link: ShortLink) => {
-    setEditingLinkId(link.id)
-    setEditingUrl(link.original_url)
+  const handleCopy = (url: string) => {
+    navigator.clipboard.writeText(url)
+    toast({
+      title: "Copied!",
+      description: "The link is now in your clipboard.",
+    })
   }
 
   return (
-    <>
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} redirectTo="/fblkio" />
-      <div className="bg-page-bg min-h-screen p-4 sm:p-6 md:p-8">
-        <main
-          className="bg-[#EAEAEA] border-2 border-[#1c1c1c] flex flex-col min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)]"
-          style={{ boxShadow: `8px 8px 0px #1c1c1c` }}
-        >
-          <PageHeader title="FBLK.IO" user={user} onLoginClick={() => setIsAuthModalOpen(true)} />
-
-          <div className="p-6 border-b-2 border-b-[#1c1c1c]">
-            <form onSubmit={handleShorten} className="flex flex-col sm:flex-row gap-4">
-              <Input
-                type="url"
-                placeholder="Enter a long URL to make it short..."
-                value={longUrl}
-                onChange={(e) => setLongUrl(e.target.value)}
-                className="flex-1"
-                required
-              />
-              <NeoButton type="submit" disabled={isSubmitting} className="sm:w-auto uppercase">
-                {isSubmitting && !editingLinkId ? "Shortening..." : "Shorten"}
-              </NeoButton>
-            </form>
-          </div>
-
-          <div className="flex-1 p-6 space-y-4">
-            {isLoading ? (
-              <div className="space-y-4">
-                <LinkSkeleton />
-                <LinkSkeleton />
-                <LinkSkeleton />
-              </div>
-            ) : !user ? (
-              <div className="text-center py-10">
-                <p className="font-sans font-bold text-lg">Please log in to manage your links.</p>
-              </div>
-            ) : links.length === 0 ? (
-              <div className="text-center py-10">
-                <p className="font-sans font-bold text-lg">No links yet. Create one above!</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <AnimatePresence>
-                  {links.map((link) => (
-                    <motion.div
-                      key={link.id}
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -50 }}
-                    >
-                      <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)]">
-                        <NeoCardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                          <div className="flex-1 min-w-0 space-y-2">
-                            <div className="relative">
-                              <a
-                                href={`https://fblk.io/${link.short_code}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-sans font-bold text-lg hover:underline overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]"
-                              >
-                                fblk.io/{link.short_code}
-                              </a>
-                              <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[#EAEAEA] to-transparent pointer-events-none" />
-                            </div>
-                            {editingLinkId === link.id ? (
-                              <div className="flex gap-2 items-center">
-                                <Input
-                                  value={editingUrl}
-                                  onChange={(e) => setEditingUrl(e.target.value)}
-                                  className="h-9 text-sm"
-                                />
-                                <NeoButton
-                                  size="icon"
-                                  className="h-9 w-9 flex-shrink-0"
-                                  onClick={() => handleUpdate(link.id)}
-                                  disabled={isSubmitting}
-                                >
-                                  <Check size={18} />
-                                </NeoButton>
-                                <NeoButton
-                                  size="icon"
-                                  variant="destructive"
-                                  className="h-9 w-9 flex-shrink-0"
-                                  onClick={() => setEditingLinkId(null)}
-                                >
-                                  <X size={18} />
-                                </NeoButton>
-                              </div>
-                            ) : (
-                              <div className="relative">
-                                <p
-                                  className="font-sans text-sm text-neo-text/70 overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]"
-                                  title={link.original_url}
-                                >
-                                  {link.original_url}
-                                </p>
-                                <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[#EAEAEA] to-transparent pointer-events-none" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-2 self-start sm:self-center">
-                            <NeoButton
-                              size="icon"
-                              variant="secondary"
-                              className="h-9 w-9"
-                              onClick={() => handleCopy(link.short_code)}
-                            >
-                              <Copy size={16} />
-                            </NeoButton>
-                            <NeoButton
-                              size="icon"
-                              variant="secondary"
-                              className="h-9 w-9"
-                              onClick={() => startEditing(link)}
-                            >
-                              <Edit size={16} />
-                            </NeoButton>
-                            <NeoButton
-                              size="icon"
-                              variant="destructive"
-                              className="h-9 w-9"
-                              onClick={() => handleDelete(link.id)}
-                            >
-                              <Trash2 size={16} />
-                            </NeoButton>
-                          </div>
-                        </NeoCardContent>
-                      </NeoCard>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
-        </main>
+    <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      <div className="mb-8">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-start gap-2">
+          <NeoInput
+            type="url"
+            placeholder="https://your-very-long-url.com/goes-here"
+            value={originalUrl}
+            onChange={(e) => setOriginalUrl(e.target.value)}
+            disabled={isPending || !user}
+            className="flex-grow"
+            containerClassName="flex-grow"
+          />
+          <NeoButton type="submit" disabled={isPending || !user} className="w-full sm:w-auto">
+            {isPending ? "Shortening..." : "Shorten Link"}
+          </NeoButton>
+        </form>
+        {!user && (
+          <p className="text-sm text-center mt-2 font-sans text-neo-text/70">Please log in to create short links.</p>
+        )}
       </div>
-    </>
+
+      <div className="space-y-4">
+        {isLoading ? (
+          <>
+            <SkeletonLinkItem />
+            <SkeletonLinkItem />
+            <SkeletonLinkItem />
+          </>
+        ) : (
+          <AnimatePresence>
+            {links.map((link) => (
+              <motion.div
+                key={link.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="p-4 bg-[#cccccc] border-2 border-b-4 border-r-4 border-[#1c1c1c]"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Link className="w-5 h-5 text-neo-text/80 flex-shrink-0" />
+                      <p className="font-mono text-lg font-bold text-neo-text break-all">{link.short_url}</p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Url className="w-4 h-4 text-neo-text/50 flex-shrink-0" />
+                      <p className="font-mono text-xs text-neo-text/50 break-all">{link.original_url}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end gap-2">
+                    <NeoButton variant="icon" size="sm" onClick={() => handleCopy(link.short_url)}>
+                      <Copy className="w-5 h-5" />
+                    </NeoButton>
+                    <NeoButton variant="icon" size="sm" onClick={() => handleDelete(link.id)}>
+                      <Trash2 className="w-5 h-5" />
+                    </NeoButton>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        )}
+        {!isLoading && links.length === 0 && (
+          <div className="text-center py-16 border-2 border-dashed border-black/20">
+            <p className="font-sans font-bold text-neo-text/80">No links yet.</p>
+            <p className="font-sans text-sm text-neo-text/60">Your shortened links will appear here.</p>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

@@ -1,21 +1,21 @@
 "use client"
 
+import { motion, AnimatePresence } from "framer-motion"
 import type { QRCodeResult } from "@/types"
-import { CollectionItem } from "@/components/collection-item"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { CollectionItem } from "./collection-item"
+import { ScrollArea } from "./ui/scroll-area"
 import type { User } from "@supabase/supabase-js"
-import { AnimatePresence, motion } from "framer-motion"
 import { CollectionItemSkeleton } from "./collection-item-skeleton"
 
 interface CollectionPanelProps {
   qrCodes: QRCodeResult[]
   onRemove: (id: string) => void
-  onLoad: (qrCode: QRCodeResult) => void
-  user: User | null
+  onLoad: (qrCodeResult: QRCodeResult) => void
   isLoading: boolean
+  user: User | null
 }
 
-export default function CollectionPanel({ qrCodes, onRemove, onLoad, user, isLoading }: CollectionPanelProps) {
+export default function CollectionPanel({ qrCodes, onRemove, onLoad, isLoading, user }: CollectionPanelProps) {
   return (
     <div className="bg-[#E0E0E0] h-full flex flex-col">
       <div className="p-4 border-b-2 border-[#1c1c1c]">
