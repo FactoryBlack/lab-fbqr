@@ -217,14 +217,17 @@ export default function FblkIoClientPage() {
                       <NeoCard className="shadow-[4px_4px_0px_var(--neo-text)]">
                         <NeoCardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                           <div className="flex-1 min-w-0 space-y-2">
-                            <a
-                              href={`https://fblk.io/${link.short_code}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-sans font-bold text-lg hover:underline break-all"
-                            >
-                              fblk.io/{link.short_code}
-                            </a>
+                            <div className="relative">
+                              <a
+                                href={`https://fblk.io/${link.short_code}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-sans font-bold text-lg hover:underline truncate block"
+                              >
+                                fblk.io/{link.short_code}
+                              </a>
+                              <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[#EAEAEA] to-transparent pointer-events-none" />
+                            </div>
                             {editingLinkId === link.id ? (
                               <div className="flex gap-2 items-center">
                                 <Input
@@ -250,9 +253,12 @@ export default function FblkIoClientPage() {
                                 </NeoButton>
                               </div>
                             ) : (
-                              <p className="font-sans text-sm text-neo-text/70 break-all" title={link.original_url}>
-                                {link.original_url}
-                              </p>
+                              <div className="relative">
+                                <p className="font-sans text-sm text-neo-text/70 truncate" title={link.original_url}>
+                                  {link.original_url}
+                                </p>
+                                <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[#EAEAEA] to-transparent pointer-events-none" />
+                              </div>
                             )}
                           </div>
                           <div className="flex gap-2 self-start sm:self-center">
