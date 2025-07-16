@@ -1,6 +1,9 @@
 import type { Metadata } from "next"
 import ClientPage from "./ClientPage"
 
+const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"
+const ogImageUrl = `${siteUrl}/og.png`
+
 export const metadata: Metadata = {
   title: "FBQR - QR Code Generator",
   description:
@@ -11,7 +14,7 @@ export const metadata: Metadata = {
     description: "Create, customize, and manage high-quality QR codes with advanced styling options.",
     images: [
       {
-        url: "/og.png",
+        url: ogImageUrl,
         width: 1200,
         height: 630,
         alt: "The FBQR QR Code Generator interface.",
@@ -22,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FBQR - QR Code Generator",
     description: "Create, customize, and manage high-quality QR codes with advanced styling options.",
-    images: ["/og.png"],
+    images: [ogImageUrl],
   },
 }
 
