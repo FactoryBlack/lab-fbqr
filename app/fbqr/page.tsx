@@ -1,34 +1,39 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import ClientPage from "./ClientPage"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"
 const ogImageUrl = `${siteUrl}/og.png`
 
 export const metadata: Metadata = {
-  title: "FBQR - QR Code Generator",
-  description:
-    "Create, customize, and manage high-quality QR codes with advanced styling options. Part of The Factory Black Lab.",
-  keywords: ["qr code", "generator", "custom qr code", "svg qr code", "png qr code", "qr code with logo", "fbqr"],
+  title: "FBQR",
+  description: "A brutalist-inspired, highly customizable QR code generator.",
   openGraph: {
-    title: "FBQR - QR Code Generator",
-    description: "Create, customize, and manage high-quality QR codes with advanced styling options.",
+    title: "FBQR | The Factory Black Lab",
+    description: "A brutalist-inspired, highly customizable QR code generator.",
+    url: `${siteUrl}/fbqr`,
     images: [
       {
         url: ogImageUrl,
         width: 1200,
         height: 630,
-        alt: "The FBQR QR Code Generator interface.",
+        alt: "The FBQR QR Code Generator tool.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FBQR - QR Code Generator",
-    description: "Create, customize, and manage high-quality QR codes with advanced styling options.",
+    title: "FBQR | The Factory Black Lab",
+    description: "A brutalist-inspired, highly customizable QR code generator.",
     images: [ogImageUrl],
   },
 }
 
-export default function FbqrPage() {
-  return <ClientPage />
+export default function FBQRPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-screen w-full" />}>
+      <ClientPage />
+    </Suspense>
+  )
 }
