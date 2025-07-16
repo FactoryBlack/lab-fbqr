@@ -2,7 +2,7 @@
 
 import { NeoButton } from "@/components/ui/neo-button"
 import { useToast } from "@/hooks/use-toast"
-import type { QRCodeResult } from "@/app/page"
+import type { QRCodeResult } from "@/types"
 
 interface CollectionItemProps {
   qrCodeResult: QRCodeResult
@@ -23,7 +23,9 @@ export function CollectionItem({ qrCodeResult, onRemove, onLoad }: CollectionIte
     if (!response.ok) {
       throw new Error("Failed to fetch QR code SVG.")
     }
-    return response.blob()
+    // Correctly parse the JSON and create a blob from the SVG string
+    const { svg } = await response.json()
+    return new Blob([svg], { type: "image/svg+xml" })
   }
 
   const downloadFile = (blob: Blob, filename: string) => {
