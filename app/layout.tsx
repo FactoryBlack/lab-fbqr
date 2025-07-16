@@ -13,10 +13,11 @@ const montserrat = Montserrat({
   variable: "--font-sans",
 })
 
-const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"
+// Using the absolute production URL to ensure crawlers can find the image.
+const productionUrl = "https://lab.factory.black"
+const ogImageUrl = `${productionUrl}/og.png`
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
   title: {
     default: "The Factory Black Lab",
     template: "%s | The Factory Black Lab",
@@ -54,11 +55,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "The Factory Black Lab",
     description: "A suite of powerful, design-focused tools for developers and designers.",
-    url: siteUrl,
+    url: productionUrl,
     siteName: "The Factory Black Lab",
     images: [
       {
-        url: "/og.png",
+        url: ogImageUrl,
         width: 1200,
         height: 630,
         alt: "The Factory Black Lab suite of tools.",
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "The Factory Black Lab",
     description: "A suite of powerful, design-focused tools for developers and designers.",
-    images: ["/og.png"],
+    images: [ogImageUrl],
   },
     generator: 'v0.dev'
 }
