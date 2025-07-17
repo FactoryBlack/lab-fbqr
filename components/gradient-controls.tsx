@@ -56,32 +56,33 @@ export function GradientControls({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="space-y-4 pl-6 overflow-hidden"
           >
-            <div className="grid grid-cols-2 gap-4">
-              <ColorInput
-                value={gradient?.colorStops[0]?.color || "#ff0000"}
-                onChange={(c) => handleColorStopChange(0, c)}
-              />
-              <ColorInput
-                value={gradient?.colorStops[1]?.color || "#0000ff"}
-                onChange={(c) => handleColorStopChange(1, c)}
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label htmlFor={`angle-slider-${label}`} className="font-sans font-bold uppercase text-sm">
-                  Angle
-                </Label>
-                <span className="font-mono text-sm font-bold">{gradient?.rotation || 0}°</span>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <ColorInput
+                  value={gradient?.colorStops[0]?.color || "#ff0000"}
+                  onChange={(c) => handleColorStopChange(0, c)}
+                />
+                <ColorInput
+                  value={gradient?.colorStops[1]?.color || "#0000ff"}
+                  onChange={(c) => handleColorStopChange(1, c)}
+                />
               </div>
-              <BrutalistSlider
-                id={`angle-slider-${label}`}
-                value={[gradient?.rotation || 0]}
-                max={360}
-                step={1}
-                onValueChange={(v) => handleGradientPropChange("rotation", v[0])}
-              />
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor={`angle-slider-${label}`} className="font-sans font-bold uppercase text-sm">
+                    Angle
+                  </Label>
+                  <span className="font-mono text-sm font-bold">{gradient?.rotation || 0}°</span>
+                </div>
+                <BrutalistSlider
+                  id={`angle-slider-${label}`}
+                  value={[gradient?.rotation || 0]}
+                  max={360}
+                  step={1}
+                  onValueChange={(v) => handleGradientPropChange("rotation", v[0])}
+                />
+              </div>
             </div>
           </motion.div>
         ) : (
@@ -91,9 +92,10 @@ export function GradientControls({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden"
           >
-            <ColorInput value={color} onChange={onColorChange} />
+            <div>
+              <ColorInput value={color} onChange={onColorChange} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

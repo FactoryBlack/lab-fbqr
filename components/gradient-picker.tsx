@@ -35,8 +35,8 @@ export default function GradientPicker({
         type: "linear",
         rotation: 90,
         colorStops: [
-          { offset: 0, color: "#ff0000" },
-          { offset: 1, color: "#0000ff" },
+          { offset: 0, color: "#FF0000" },
+          { offset: 1, color: "#0000FF" },
         ],
       })
     } else {
@@ -60,18 +60,11 @@ export default function GradientPicker({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex gap-2 pt-2"
           >
-            <ColorInput
-              value={gradient.colorStops[0].color}
-              onChange={(color) => handleColorChange(0, color)}
-              className="flex-1"
-            />
-            <ColorInput
-              value={gradient.colorStops[1].color}
-              onChange={(color) => handleColorChange(1, color)}
-              className="flex-1"
-            />
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <ColorInput value={gradient.colorStops[0].color} onChange={(color) => handleColorChange(0, color)} />
+              <ColorInput value={gradient.colorStops[1].color} onChange={(color) => handleColorChange(1, color)} />
+            </div>
           </motion.div>
         ) : (
           <motion.div
@@ -80,9 +73,10 @@ export default function GradientPicker({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="pt-2"
           >
-            <ColorInput value={fallbackColor} onChange={onFallbackColorChange} />
+            <div className="pt-2">
+              <ColorInput value={fallbackColor} onChange={onFallbackColorChange} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

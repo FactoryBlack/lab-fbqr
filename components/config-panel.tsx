@@ -333,7 +333,7 @@ export default function ConfigPanel({
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="dots">
             <AccordionTrigger>DOTS</AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-4">
+            <AccordionContent className="space-y-4">
               <div className="space-y-2">
                 <Label className="font-sans font-normal text-sm">Style</Label>
                 <Select
@@ -369,7 +369,7 @@ export default function ConfigPanel({
 
           <AccordionItem value="corners">
             <AccordionTrigger>CORNERS</AccordionTrigger>
-            <AccordionContent className="space-y-6 pt-4">
+            <AccordionContent className="space-y-6">
               <div className="space-y-4">
                 <Label className="font-sans font-bold text-base uppercase mb-2 block">Corner Squares</Label>
                 <div className="space-y-2">
@@ -439,7 +439,7 @@ export default function ConfigPanel({
           </AccordionItem>
           <AccordionItem value="background">
             <AccordionTrigger>BACKGROUND</AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-4">
+            <AccordionContent className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="transparent-bg"
@@ -467,7 +467,7 @@ export default function ConfigPanel({
           </AccordionItem>
           <AccordionItem value="logo" className="border-b-0">
             <AccordionTrigger>LOGO</AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-4">
+            <AccordionContent className="space-y-4">
               {logoPreview ? (
                 <NeoButton variant="destructive" onClick={onRemoveLogo}>
                   REMOVE LOGO

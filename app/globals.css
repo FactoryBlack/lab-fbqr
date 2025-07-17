@@ -49,6 +49,10 @@
     @apply bg-background text-foreground font-sans;
     font-weight: 500;
   }
+  input,
+  textarea {
+    @apply font-sans;
+  }
 }
 
 @layer utilities {
